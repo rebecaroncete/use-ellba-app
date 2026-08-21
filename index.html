@@ -451,6 +451,19 @@
         navigator.serviceWorker.register('sw.js').catch(function(e){ console.log('SW falhou:', e); });
       });
     }
+
+    // --- ATALHOS DE LINK DIRETO ---
+    // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (perfil cliente)
+    // ?acesso=funcionaria  -> vai direto para a tela de senha (perfil funcionária)
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const acesso = params.get('acesso');
+      if (acesso === 'cliente') {
+        acessarComoCliente();
+      } else if (acesso === 'funcionaria') {
+        abrirTelaSenha();
+      }
+    })();
   </script>
 </body>
 </html>
