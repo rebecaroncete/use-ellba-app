@@ -10,18 +10,26 @@ const ACOES_GET = [
   'buscarListaProdutosResumida',
   'buscarProdutoConsulta',
   'carregarListaClientes',
-  'carregarListaFornecedores'
+  'carregarListaFornecedores',
+  'buscarCategoriasPorLoja',
+  'buscarProdutosParaInventario',
+  'buscarProdutosMarketing'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
 const PARAM_NOME_GET = {
-  buscarProdutoConsulta: 'idProduto'
+  buscarProdutoConsulta: 'idProduto',
+  buscarCategoriasPorLoja: 'loja'
 };
 
 function chamarApi(action, args) {
   if (ACOES_GET.indexOf(action) > -1) {
     let url = API_URL + "?action=" + encodeURIComponent(action) + "&chave=" + encodeURIComponent(CHAVE_API);
-    if (args.length > 0 && args[0] !== undefined) {
+
+    if (action === 'buscarProdutosParaInventario') {
+      // 2 argumentos simples: (loja, categoria)
+      url += "&loja=" + encodeURIComponent(args[0]) + "&categoria=" + encodeURIComponent(args[1]);
+    } else if (args.length > 0 && args[0] !== undefined) {
       const nomeParam = PARAM_NOME_GET[action] || 'valor';
       url += "&" + nomeParam + "=" + encodeURIComponent(args[0]);
     }
