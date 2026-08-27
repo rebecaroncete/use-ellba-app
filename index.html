@@ -766,6 +766,7 @@
     // --- ATALHOS DE LINK DIRETO ---
     // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (perfil cliente)
     // ?acesso=funcionaria  -> vai direto para a tela de senha (perfil funcionária)
+    // ?acesso=marketing    -> vai direto para a tela de senha do Marketing
     (function() {
       const params = new URLSearchParams(window.location.search);
       const acesso = params.get('acesso');
@@ -773,6 +774,8 @@
         acessarComoCliente();
       } else if (acesso === 'funcionaria') {
         abrirTelaSenha();
+      } else if (acesso === 'marketing') {
+        abrirTelaSenhaMarketing();
       }
     })();
   </script>
