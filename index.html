@@ -617,7 +617,14 @@
     }
 
     function renderizarInventario() {
-      const div = document.getElementById('inv-lista-itens'); div.innerHTML = '';
+      const div = document.getElementById('inv-lista-itens');
+      const ativo = document.activeElement;
+      let focoIndex = null, focoCursor = null;
+      if (ativo && ativo.id && ativo.id.indexOf('inv-real-') === 0) {
+        focoIndex = ativo.id.replace('inv-real-', '');
+        focoCursor = ativo.selectionStart;
+      }
+      div.innerHTML = '';
       inventarioAtual.forEach(function(item, index) {
         let corFundo = '#fff', corBorda = '#e0d0a6';
         if (item.estoqueReal !== null && item.estoqueReal !== '') {
@@ -627,8 +634,10 @@
         }
         let html = '<div class="card shadow-sm border-0 p-3 mb-2" style="background-color:' + corFundo + '; border-left: 4px solid ' + corBorda + ' !important;">';
         html += '<div class="row align-items-center g-2">';
-        html += '<div class="col-7"><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.9rem;">' + item.id + ' - ' + item.descricao + '</div><div class="text-muted small">Tam: ' + item.tamanho + ' | Cor: ' + item.cor + ' | Virtual: ' + item.estoqueVirtual + '</div></div>';
-        html += '<div class="col-5"><input type="number" class="form-control text-center fw-bold" placeholder="Real" oninput="atualizarEstoqueReal(' + index + ', this.value)"></div>';
+        let idHtml = item.foto ? ('<a href="' + item.foto + '" target="_blank" rel="noopener" style="color: var(--cor-fundo); text-decoration: underline;">' + item.id + ' 📷</a>') : item.id;
+        html += '<div class="col-7"><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.9rem;">' + idHtml + ' - ' + item.descricao + '</div><div class="text-muted small">Tam: ' + item.tamanho + ' | Cor: ' + item.cor + ' | Virtual: ' + item.estoqueVirtual + '</div></div>';
+        const valorAtual = (item.estoqueReal !== null && item.estoqueReal !== '') ? item.estoqueReal : '';
+        html += '<div class="col-5"><input type="number" id="inv-real-' + index + '" class="form-control text-center fw-bold" placeholder="Real" value="' + valorAtual + '" oninput="atualizarEstoqueReal(' + index + ', this.value)"></div>';
         html += '</div>';
         if (item.estoqueReal !== null && item.estoqueReal !== '') {
           const diff = parseInt(item.estoqueReal) - item.estoqueVirtual;
@@ -641,6 +650,13 @@
         html += '</div>';
         div.innerHTML += html;
       });
+      if (focoIndex !== null) {
+        const inputFoco = document.getElementById('inv-real-' + focoIndex);
+        if (inputFoco) {
+          inputFoco.focus();
+          if (focoCursor !== null) { try { inputFoco.setSelectionRange(focoCursor, focoCursor); } catch (e) {} }
+        }
+      }
     }
 
     function atualizarEstoqueReal(index, valor) {
