@@ -15,7 +15,8 @@ const ACOES_GET = [
   'buscarProdutosParaInventario',
   'buscarProdutosMarketing',
   'buscarNomesDisponiveis',
-  'buscarVendedoras'
+  'buscarVendedoras',
+  'buscarPecasACaminho'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
