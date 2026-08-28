@@ -496,16 +496,21 @@
       if (!loja) { alert("Selecione a loja de destino."); return; }
       const dados = { codigo: p.codigo, qtdRecebida: qtdRecebida, loja: loja };
       google.script.run.withSuccessHandler(function(res) {
-        let msg = "✅ Peça recebida! Código gerado: " + res.idGerado;
         if (res.diferenca > 0) {
-          msg += "\n\n⚠️ Chegou menos do que o esperado (esperado: " + res.qtdEsperada + ", recebido: " + res.qtdRecebida + ").";
           const texto = "Oi Elba! O pedido de \"" + res.descricao + "\" (fornecedor: " + res.fornecedor + ") chegou incompleto: esperado " + res.qtdEsperada + ", recebido " + res.qtdRecebida + ". Falta conferir com o fornecedor.";
           const link = "https://wa.me/" + WHATSAPP_ELBA + "?text=" + encodeURIComponent(texto);
-          if (confirm(msg + "\n\nDeseja avisar a Elba agora pelo WhatsApp?")) { window.open(link, '_blank'); }
+          document.getElementById('dar-entrada-lista').innerHTML =
+            '<div class="card shadow-sm border-0 p-4 text-center">' +
+            '<div class="fw-bold mb-2" style="color: var(--cor-fundo);">✅ Peça recebida! Código: ' + res.idGerado + '</div>' +
+            '<div class="text-danger fw-bold mb-3">⚠️ Chegou menos do que o esperado (esperado: ' + res.qtdEsperada + ', recebido: ' + res.qtdRecebida + ').</div>' +
+            '<a href="' + link + '" target="_blank" rel="noopener" class="btn-ellba d-block mb-2">📲 Avisar Elba no WhatsApp</a>' +
+            '<button type="button" class="btn btn-secondary w-100 fw-bold" onclick="abrirDarEntradaLista()">Voltar à lista</button>' +
+            '</div>';
+          document.getElementById('dar-entrada-vazio').classList.add('d-none');
         } else {
-          alert(msg);
+          alert("✅ Peça recebida! Código gerado: " + res.idGerado);
+          abrirDarEntradaLista();
         }
-        abrirDarEntradaLista();
       }).withFailureHandler(function(err) { alert("❌ Erro: " + (err.message || err)); }).darEntradaPecaACaminho(dados);
     }
 
