@@ -638,7 +638,7 @@
     function renderizarRelatorio(res) {
       var html = '';
 
-      var variacaoTexto = function(pct) { if (pct === null || pct === undefined) return '(sem período anterior p/ comparar)'; var sinal = pct >= 0 ? '▲' : '▼'; return sinal + ' ' + Math.abs(pct).toFixed(1) + '% vs. período anterior'; };
+      var variacaoTexto = function(pct) { if (pct === null || pct === undefined) return '(dados insuficientes no período anterior p/ comparar)'; var sinal = pct >= 0 ? '▲' : '▼'; return sinal + ' ' + Math.abs(pct).toFixed(1) + '% vs. período anterior'; };
 
       html += '<div class="card shadow-sm border-0 p-3 mb-3" style="background-color: var(--cor-fundo); color: #fff;">'
         + '<div class="row text-center g-2">'
