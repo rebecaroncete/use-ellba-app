@@ -16,7 +16,8 @@ const ACOES_GET = [
   'buscarProdutosMarketing',
   'buscarNomesDisponiveis',
   'buscarVendedoras',
-  'buscarPecasACaminho'
+  'buscarPecasACaminho',
+  'gerarRelatorio'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
@@ -32,6 +33,9 @@ function chamarApi(action, args) {
     if (action === 'buscarProdutosParaInventario') {
       // 2 argumentos simples: (loja, categoria)
       url += "&loja=" + encodeURIComponent(args[0]) + "&categoria=" + encodeURIComponent(args[1]);
+    } else if (action === 'gerarRelatorio') {
+      // 2 argumentos simples: (dataInicio, dataFim), formato "YYYY-MM-DD"
+      url += "&dataInicio=" + encodeURIComponent(args[0]) + "&dataFim=" + encodeURIComponent(args[1]);
     } else if (args.length > 0 && args[0] !== undefined) {
       const nomeParam = PARAM_NOME_GET[action] || 'valor';
       url += "&" + nomeParam + "=" + encodeURIComponent(args[0]);
