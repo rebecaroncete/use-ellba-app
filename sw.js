@@ -1,4 +1,4 @@
-const CACHE_NAME = 'use-ellba-v1';
+const CACHE_NAME = 'use-ellba-v2';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',
@@ -31,7 +31,16 @@ self.addEventListener('fetch', function(event) {
   if (url.indexOf('script.google.com') > -1 || url.indexOf('drive.google.com') > -1 || url.indexOf('googleusercontent.com') > -1) {
     return;
   }
+  // "Network-first": sempre tenta buscar a versão mais nova da internet primeiro
+  // (e atualiza o cache com ela). Só usa a cópia salva se estiver sem internet.
+  // Isso evita o app ficar "preso" numa versão antiga depois de uma atualização.
   event.respondWith(
-    caches.match(event.request).then(function(resp) { return resp || fetch(event.request); })
+    fetch(event.request).then(function(respRede) {
+      var copia = respRede.clone();
+      caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, copia); });
+      return respRede;
+    }).catch(function() {
+      return caches.match(event.request);
+    })
   );
 });
