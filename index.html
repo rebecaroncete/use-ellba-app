@@ -102,7 +102,7 @@
   </div>
 
   <!-- ESTOQUE -->
-  <div id="tela-estoque" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Controle de Estoque</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioComLista('tela-consultar-produto')">🔍 Consultar Produto</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-produto')">➕ Cadastrar Novo</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-adicionar-estoque')">📥 Adicionar Entrada</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-retirar-estoque')">📤 Retirar Saída</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-transferencia-estoque')">🔄 Transferência</button><button class="btn-ellba-outline" onclick="abrirInventario()">📋 Inventário</button><button class="btn-ellba-outline" onclick="irPara('tela-pecas-caminho-menu')">📦 Peças a Caminho</button></div></div>
+  <div id="tela-estoque" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Controle de Estoque</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioComLista('tela-consultar-produto')">🔍 Consultar Produto</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-cadastrar-produto')">➕ Cadastrar Novo</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-adicionar-estoque')">📥 Adicionar Entrada</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-retirar-estoque')">📤 Retirar Saída</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-transferencia-estoque')">🔄 Transferência</button><button class="btn-ellba-outline" onclick="abrirInventario()">📋 Inventário</button><button class="btn-ellba-outline" onclick="irPara('tela-pecas-caminho-menu')">📦 Peças a Caminho</button></div></div>
 
   <div id="tela-pecas-caminho-menu" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Peças a Caminho</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirCadastroPecaCaminho()">➕ Cadastrar Peça a Caminho</button><button class="btn-ellba-outline" onclick="abrirDarEntradaLista()">📥 Dar Entrada</button></div></div>
 
@@ -185,6 +185,7 @@
         <div class="mb-3"><label class="form-label fw-bold">Cor *</label><input type="text" id="cad-cor" class="form-control" required></div>
         <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="cad-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div><div class="col-6"><label class="form-label fw-bold">Preço *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="cad-preco" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div>
         <div class="mb-3"><label class="form-label fw-bold">Qtd Inicial *</label><input type="number" id="cad-qtd" class="form-control" inputmode="numeric" required min="1"></div>
+        <div class="mb-3"><label class="form-label fw-bold">Mesma família de outra peça? (Opcional)</label><input type="text" id="cad-familia" class="form-control" list="lista-produtos" placeholder="Busque a peça 'irmã' (outra cor/tamanho)..." onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 small">Deixe em branco se for uma peça nova, sem variação já cadastrada.</div></div>
         <div class="mb-3"><label class="form-label fw-bold">Foto da Peça (Opcional)</label><input type="file" id="cad-foto" class="form-control" accept="image/*"></div>
         <div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="cad-localizacao" class="form-select" required onchange="verificarOpcaoOutro('cad-localizacao')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cad-localizacao-outro"><input type="text" id="cad-localizacao-outro" class="form-control"></div>
       </div>
@@ -431,11 +432,12 @@
 
     function processarSalvamentoProduto(urlFotoUrl) {
       document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Registrando...';
-      const dados = { descricao: document.getElementById('cad-descricao').value, categoria: document.getElementById('cad-categoria').value, tamanho: document.getElementById('cad-tamanho').value, cor: document.getElementById('cad-cor').value, custo: document.getElementById('cad-custo').value, preco: document.getElementById('cad-preco').value, qtd: document.getElementById('cad-qtd').value, localizacao: document.getElementById('cad-localizacao').value, localizacaoOutro: document.getElementById('cad-localizacao-outro').value, foto: urlFotoUrl };
+      const dados = { descricao: document.getElementById('cad-descricao').value, categoria: document.getElementById('cad-categoria').value, tamanho: document.getElementById('cad-tamanho').value, cor: document.getElementById('cad-cor').value, custo: document.getElementById('cad-custo').value, preco: document.getElementById('cad-preco').value, qtd: document.getElementById('cad-qtd').value, localizacao: document.getElementById('cad-localizacao').value, localizacaoOutro: document.getElementById('cad-localizacao-outro').value, foto: urlFotoUrl, mesmaFamiliaDe: document.getElementById('cad-familia').value };
       google.script.run.withSuccessHandler(function(id) {
         restaurarBotao('btn-salvar-produto', 'aviso-salvando-cad'); verificarOpcaoOutro('cad-localizacao');
         listaProdutosCarregada = false; catalogoCarregado = false;
         document.getElementById('cad-qtd').value = "";
+        document.getElementById('cad-familia').value = "";
         if(document.getElementById('cad-foto')) document.getElementById('cad-foto').value = "";
         document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
         alert("✅ SUCESSO! Código: " + id);
@@ -1143,10 +1145,39 @@
         html += '<div class="text-muted small mb-1">Cód: ' + p.id + ' | Tam: ' + p.tamanho + ' | Cor: ' + p.cor + '</div>';
         html += '<div class="text-muted small mb-1">' + p.localizacao + ' • Estoque: ' + p.saldo + '</div>';
         html += '<div class="fw-bold mb-2" style="color:var(--cor-fundo)">R$ ' + formatarPrecoExibicao(p.preco) + '</div>';
-        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-auto" onclick="copiarProdutoMarketing(\'' + p.id + '\')">📋 Copiar</button>';
+        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mb-1" onclick="copiarProdutoMarketing(\'' + p.id + '\')">📋 Copiar</button>';
+        html += '<button type="button" class="btn-ellba-outline w-100 fw-bold mt-auto" style="font-size:0.85rem;" onclick="document.getElementById(\'input-foto-mkt-' + p.id + '\').click()">🖼️ Trocar Foto</button>';
+        html += '<input type="file" id="input-foto-mkt-' + p.id + '" accept="image/*" class="d-none" onchange="trocarFotoProdutoMarketing(this, \'' + p.id + '\')">';
         html += '</div></div></div>';
         div.innerHTML += html;
       });
+    }
+
+    function trocarFotoProdutoMarketing(inputElement, idProduto) {
+      if (!inputElement.files || inputElement.files.length === 0) return;
+      const arquivo = inputElement.files[0];
+      const card = inputElement.closest('.card');
+      const botoes = card ? card.querySelectorAll('button') : [];
+      botoes.forEach(function(b) { b.disabled = true; });
+      comprimirImagem(arquivo, function(imgBase64) {
+        const objImagem = { nome: arquivo.name, mimeType: 'image/jpeg', dados: imgBase64 };
+        google.script.run.withSuccessHandler(function(urlFoto) {
+          google.script.run.withSuccessHandler(function() {
+            const p = produtosMarketing.find(function(x) { return x.id === idProduto; });
+            if (p) p.foto = urlFoto;
+            botoes.forEach(function(b) { b.disabled = false; });
+            if (document.getElementById('mkt-busca').value) { filtrarProdutosMarketing(); } else { renderizarProdutosMarketing(produtosMarketing); }
+            alert('✅ Foto atualizada!');
+          }).withFailureHandler(function(err) {
+            botoes.forEach(function(b) { b.disabled = false; });
+            alert('❌ Erro ao salvar foto: ' + (err.message || err));
+          }).atualizarFotoProduto({ idProduto: idProduto, fotoUrl: urlFoto });
+        }).withFailureHandler(function(err) {
+          botoes.forEach(function(b) { b.disabled = false; });
+          alert('❌ Erro ao enviar foto: ' + (err.message || err));
+        }).salvarImagemNoDrive(objImagem);
+      });
+      inputElement.value = '';
     }
 
     if ('serviceWorker' in navigator) {
