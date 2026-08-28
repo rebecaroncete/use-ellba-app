@@ -67,6 +67,7 @@
       <button class="btn-menu" onclick="irPara('tela-selecao-loja');">👗<br>Catálogo</button>
       <button class="btn-menu menu-admin d-none" onclick="abrirMarketingMenu()">📣<br>Marketing</button>
       <button class="btn-menu menu-admin d-none" onclick="abrirCadastroUsuaria()">👤<br>Cadastrar Usuária</button>
+      <button class="btn-menu menu-admin d-none" onclick="abrirRelatorios()">📊<br>Relatórios</button>
     </div>
   </div>
 
@@ -127,6 +128,20 @@
     <div id="dar-entrada-loading" class="text-center" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
     <div id="dar-entrada-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça aguardando recebimento no momento.</div>
     <div id="dar-entrada-lista"></div>
+  </div>
+
+  <!-- RELATÓRIOS -->
+  <div id="tela-relatorios" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Relatórios</h4>
+    <div class="card shadow-sm border-0 p-3 mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-6"><label class="form-label fw-bold">De</label><input type="date" id="rel-data-inicio" class="form-control"></div>
+        <div class="col-6"><label class="form-label fw-bold">Até</label><input type="date" id="rel-data-fim" class="form-control"></div>
+      </div>
+      <button type="button" class="btn-ellba w-100 mt-3" id="btn-filtrar-relatorio" onclick="buscarRelatorio()">🔍 Filtrar</button>
+      <div id="aviso-carregando-rel" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Calculando...</strong></div>
+    </div>
+    <div id="resultado-relatorio"></div>
   </div>
 
   <!-- INVENTÁRIO -->
@@ -368,6 +383,7 @@
       else if (telaAtual === 'tela-compras-menu') { irPara('tela-menu'); }
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
       else if (telaAtual === 'tela-catalogo') { irPara('tela-selecao-loja'); }
+      else if (telaAtual === 'tela-relatorios') { irPara('tela-menu'); }
     }
     function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (telaAtual === 'tela-perfil') { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
     function mascaraMoeda(input) { let v = input.value.replace(/\D/g, ''); if (v === '') { input.value = ''; return; } v = (parseInt(v) / 100).toFixed(2).replace('.', ','); input.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.'); }
@@ -562,6 +578,90 @@
           document.getElementById('trans-qtd').value = prod.saldo;
         }
       }).buscarProdutoConsulta(idProduto);
+    }
+
+    function formatarMoedaExibicao(valor) {
+      const num = Number(valor) || 0;
+      return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function abrirRelatorios() {
+      irPara('tela-relatorios');
+      if (!document.getElementById('rel-data-inicio').value) {
+        const hoje = new Date();
+        const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        const paraISO = function(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+        document.getElementById('rel-data-inicio').value = paraISO(primeiroDia);
+        document.getElementById('rel-data-fim').value = paraISO(hoje);
+      }
+      buscarRelatorio();
+    }
+
+    function buscarRelatorio() {
+      const dataInicio = document.getElementById('rel-data-inicio').value;
+      const dataFim = document.getElementById('rel-data-fim').value;
+      if (!dataInicio || !dataFim) { alert("Selecione o período (De / Até)."); return; }
+      document.getElementById('btn-filtrar-relatorio').classList.add('d-none');
+      document.getElementById('aviso-carregando-rel').classList.remove('d-none');
+      document.getElementById('resultado-relatorio').innerHTML = '';
+      google.script.run
+        .withSuccessHandler(function(res) {
+          document.getElementById('btn-filtrar-relatorio').classList.remove('d-none');
+          document.getElementById('aviso-carregando-rel').classList.add('d-none');
+          renderizarRelatorio(res);
+        })
+        .withFailureHandler(function(e) {
+          document.getElementById('btn-filtrar-relatorio').classList.remove('d-none');
+          document.getElementById('aviso-carregando-rel').classList.add('d-none');
+          alert("❌ ERRO ao gerar relatório:\n" + (e.message || e));
+        })
+        .gerarRelatorio(dataInicio, dataFim);
+    }
+
+    function blocoTabela_(titulo, linhas, colunas) {
+      // colunas: [{ chave, label, moeda(bool) }]
+      if (!linhas || linhas.length === 0) {
+        return '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">' + titulo + '</h6><p class="text-muted mb-0 small">Sem dados no período.</p></div>';
+      }
+      var linhasHtml = linhas.map(function(l) {
+        return '<tr>' + colunas.map(function(c) {
+          var v = l[c.chave];
+          if (c.moeda) v = formatarMoedaExibicao(v);
+          else if (typeof v === 'number') v = (v % 1 === 0) ? v : v.toFixed(2);
+          return '<td>' + (v === null || v === undefined || v === '' ? '-' : v) + '</td>';
+        }).join('') + '</tr>';
+      }).join('');
+      var cabecalho = '<tr>' + colunas.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') + '</tr>';
+      return '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">' + titulo + '</h6><div class="table-responsive"><table class="table table-sm mb-0"><thead>' + cabecalho + '</thead><tbody>' + linhasHtml + '</tbody></table></div></div>';
+    }
+
+    function renderizarRelatorio(res) {
+      var html = '';
+
+      var variacaoTexto = function(pct) { if (pct === null || pct === undefined) return '(sem período anterior p/ comparar)'; var sinal = pct >= 0 ? '▲' : '▼'; return sinal + ' ' + Math.abs(pct).toFixed(1) + '% vs. período anterior'; };
+
+      html += '<div class="card shadow-sm border-0 p-3 mb-3" style="background-color: var(--cor-fundo); color: #fff;">'
+        + '<div class="row text-center g-2">'
+        + '<div class="col-4"><div class="small">Receita</div><div class="fw-bold fs-6">' + formatarMoedaExibicao(res.receita) + '</div><div class="small" style="opacity:.85;">' + variacaoTexto(res.comparativoAnterior.variacaoReceitaPct) + '</div></div>'
+        + '<div class="col-4"><div class="small">Custo</div><div class="fw-bold fs-6">' + formatarMoedaExibicao(res.custo) + '</div></div>'
+        + '<div class="col-4"><div class="small">Lucro</div><div class="fw-bold fs-6" style="color: var(--cor-dourado);">' + formatarMoedaExibicao(res.lucro) + '</div><div class="small" style="opacity:.85;">' + variacaoTexto(res.comparativoAnterior.variacaoLucroPct) + '</div></div>'
+        + '</div>'
+        + '<div class="row text-center g-2 mt-1">'
+        + '<div class="col-6"><div class="small">Qtd. Vendas</div><div class="fw-bold">' + res.qtdVendas + '</div></div>'
+        + '<div class="col-6"><div class="small">Ticket Médio</div><div class="fw-bold">' + formatarMoedaExibicao(res.ticketMedio) + '</div></div>'
+        + '</div></div>';
+
+      html += blocoTabela_('👩 Vendas por Vendedora', res.porVendedora, [{ chave: 'nome', label: 'Vendedora' }, { chave: 'qtd', label: 'Qtd' }, { chave: 'receita', label: 'Receita', moeda: true }]);
+      html += blocoTabela_('🏆 Mais Vendidos (Top 15)', res.porProduto, [{ chave: 'id', label: 'Código' }, { chave: 'descricao', label: 'Descrição' }, { chave: 'qtd', label: 'Qtd' }, { chave: 'receita', label: 'Receita', moeda: true }]);
+      html += blocoTabela_('🏷️ Vendas por Categoria', res.porCategoria, [{ chave: 'categoria', label: 'Categoria' }, { chave: 'qtd', label: 'Qtd' }, { chave: 'receita', label: 'Receita', moeda: true }]);
+      html += blocoTabela_('📍 Vendas por Loja', res.porLoja, [{ chave: 'loja', label: 'Loja' }, { chave: 'qtd', label: 'Qtd' }, { chave: 'receita', label: 'Receita', moeda: true }]);
+      html += blocoTabela_('💳 Vendas por Forma de Pagamento', res.porFormaPagamento, [{ chave: 'forma', label: 'Forma' }, { chave: 'valor', label: 'Valor', moeda: true }]);
+      html += blocoTabela_('💸 Despesas por Categoria', res.despesas.porCategoria, [{ chave: 'categoria', label: 'Categoria' }, { chave: 'valor', label: 'Valor', moeda: true }]);
+      html += blocoTabela_('🚚 Despesas por Fornecedor', res.despesas.porFornecedor, [{ chave: 'fornecedor', label: 'Fornecedor' }, { chave: 'valor', label: 'Valor', moeda: true }]);
+      html += '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">💸 Despesas Totais</h6><div class="fw-bold fs-5">' + formatarMoedaExibicao(res.despesas.total) + '</div></div>';
+      html += blocoTabela_('🐢 Estoque Parado (+15 dias sem venda)', res.estoqueParado, [{ chave: 'id', label: 'Código' }, { chave: 'descricao', label: 'Descrição' }, { chave: 'saldo', label: 'Saldo' }, { chave: 'diasParado', label: 'Dias Parado' }]);
+
+      document.getElementById('resultado-relatorio').innerHTML = html;
     }
 
     let clienteSendoCadastrado = null;
