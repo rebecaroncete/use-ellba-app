@@ -13,7 +13,9 @@ const ACOES_GET = [
   'carregarListaFornecedores',
   'buscarCategoriasPorLoja',
   'buscarProdutosParaInventario',
-  'buscarProdutosMarketing'
+  'buscarProdutosMarketing',
+  'buscarNomesDisponiveis',
+  'buscarVendedoras'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
@@ -42,7 +44,10 @@ function chamarApi(action, args) {
   if (action === 'salvarImagemNoDrive') {
     payload.imagem = args[0];
   } else {
-    payload.dados = args[0];
+    payload.dados = args[0] || {};
+    if (typeof payload.dados === 'object' && payload.dados.usuaria === undefined) {
+      payload.dados.usuaria = (typeof window !== 'undefined' && window.usuariaAtual) || '';
+    }
   }
   return fetch(API_URL, {
     method: "POST",
