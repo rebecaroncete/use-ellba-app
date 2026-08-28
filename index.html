@@ -238,7 +238,19 @@
     <div id="mkt-conteudo" class="d-none">
       <div class="mb-3"><input type="text" id="mkt-busca" class="form-control" placeholder="Buscar por nome ou código..." onkeyup="filtrarProdutosMarketing()"></div>
       <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketing()">📋 Copiar tudo (lista completa)</button>
+      <button type="button" class="btn-ellba-outline w-100 fw-bold mb-3" onclick="abrirMarketingACaminho()">📦 Peças a Caminho (ainda não chegaram)</button>
       <div id="mkt-lista" class="row g-3"></div>
+    </div>
+  </div>
+
+  <div id="tela-marketing-a-caminho" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Peças a Caminho</h4>
+    <p class="text-muted text-center small mb-3">Ainda não chegaram na loja — já dá pra ir preparando a divulgação.</p>
+    <div id="mktac-loading" class="text-center" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
+    <div id="mktac-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça a caminho no momento.</div>
+    <div id="mktac-conteudo" class="d-none">
+      <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketingACaminho()">📋 Copiar tudo (lista completa)</button>
+      <div id="mktac-lista" class="row g-3"></div>
     </div>
   </div>
 
@@ -347,6 +359,7 @@
       if (telaAtual === 'tela-cadastrar-usuaria' && !window.usuariaAtual) { irPara('tela-senha'); }
       else if (telaAtual === 'tela-senha' || telaAtual === 'tela-menu' || telaAtual === 'tela-senha-marketing' || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { irPara('tela-perfil'); }
       else if (telaAtual === 'tela-selecao-loja' && perfilAtual !== 'cliente') { irPara('tela-menu'); }
+      else if (telaAtual === 'tela-marketing-a-caminho') { irPara('tela-marketing'); }
       else if (['tela-estoque', 'tela-venda', 'tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { if (perfilAtual === 'cliente') { irPara('tela-perfil'); } else { irPara('tela-menu'); } }
       else if (['tela-cadastrar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-consultar-produto', 'tela-inventario-config', 'tela-pecas-caminho-menu'].indexOf(telaAtual) > -1) { irPara('tela-estoque'); }
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
@@ -696,7 +709,7 @@
     function verificarCustoEntrada() { const tipo = document.getElementById('add-tipo').value; if (tipo === 'Troca' || tipo === 'Devolucao') { document.getElementById('add-custo').value = '0,00'; } else if (tipo === 'Reposicao') { document.getElementById('add-custo').value = ''; } }
     function enviarFormularioEntrada(e) { e.preventDefault(); document.getElementById('btn-salvar-entrada').classList.add('d-none'); document.getElementById('aviso-salvando-add').classList.remove('d-none'); const dados = { produto: document.getElementById('add-produto').value, tipoEntrada: document.getElementById('add-tipo').value, tipoEntradaOutro: document.getElementById('add-tipo-outro').value, qtd: document.getElementById('add-qtd').value, custo: document.getElementById('add-custo').value, localizacao: document.getElementById('add-localizacao').value, localizacaoOutro: document.getElementById('add-localizacao-outro').value, obs: document.getElementById('add-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-entrada', 'aviso-salvando-add'); document.getElementById('formAdicionarEstoque').reset(); verificarOpcaoOutro('add-tipo'); verificarOpcaoOutro('add-localizacao'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-entrada', 'aviso-salvando-add', err); }).registrarEntradaEstoque(dados); }
     function enviarFormularioSaida(e) { e.preventDefault(); document.getElementById('btn-salvar-saida').classList.add('d-none'); document.getElementById('aviso-salvando-out').classList.remove('d-none'); const dados = { produto: document.getElementById('out-produto').value, tipoSaida: document.getElementById('out-tipo').value, tipoSaidaOutro: document.getElementById('out-tipo-outro').value, qtd: document.getElementById('out-qtd').value, obs: document.getElementById('out-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-saida', 'aviso-salvando-out'); document.getElementById('formRetirarEstoque').reset(); verificarOpcaoOutro('out-tipo'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-saida', 'aviso-salvando-out', err); }).registrarSaidaEstoque(dados); }
-    function enviarFormularioTransferencia(e) { e.preventDefault(); document.getElementById('btn-salvar-trans').classList.add('d-none'); document.getElementById('aviso-salvando-trans').classList.remove('d-none'); const dados = { produto: document.getElementById('trans-produto').value, origem: document.getElementById('trans-origem').value, origemOutro: document.getElementById('trans-origem-outro').value, destino: document.getElementById('trans-destino').value, destinoOutro: document.getElementById('trans-destino-outro').value, qtd: document.getElementById('trans-qtd').value, obs: document.getElementById('trans-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-trans', 'aviso-salvando-trans'); document.getElementById('formTransferenciaEstoque').reset(); verificarOpcaoOutro('trans-origem'); verificarOpcaoOutro('trans-destino'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-trans', 'aviso-salvando-trans', err); }).registrarTransferenciaEstoque(dados); }
+    function enviarFormularioTransferencia(e) { e.preventDefault(); document.getElementById('btn-salvar-trans').classList.add('d-none'); document.getElementById('aviso-salvando-trans').classList.remove('d-none'); const dados = { produto: document.getElementById('trans-produto').value, origem: document.getElementById('trans-origem').value, origemOutro: document.getElementById('trans-origem-outro').value, destino: document.getElementById('trans-destino').value, destinoOutro: document.getElementById('trans-destino-outro').value, qtd: document.getElementById('trans-qtd').value, obs: document.getElementById('trans-obs').value }; google.script.run.withSuccessHandler(function(res) { restaurarBotao('btn-salvar-trans', 'aviso-salvando-trans'); document.getElementById('formTransferenciaEstoque').reset(); verificarOpcaoOutro('trans-origem'); verificarOpcaoOutro('trans-destino'); catalogoCarregado = false; listaProdutosCarregada = false; alert("✅ Transferência registrada!\nCódigo no destino: " + (res && res.idDestino ? res.idDestino : "")); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-trans', 'aviso-salvando-trans', err); }).registrarTransferenciaEstoque(dados); }
 
     // --- CATÁLOGO AGRUPADO E VITRINE INTELIGENTE ---
     let todosProdutos = []; let catalogoCarregado = false;
@@ -951,6 +964,55 @@
       const listaAtualEmTela = produtosMarketing; // copia tudo, independente do filtro de busca
       const texto = listaAtualEmTela.map(textoProdutoMarketing).join('\n');
       copiarTexto(texto, '✅ Lista completa copiada! (' + listaAtualEmTela.length + ' peças)');
+    }
+
+    // ------- Sub-tela: peças a caminho (ainda não chegaram) -------
+    let pecasACaminhoMarketing = []; let marketingACaminhoCarregado = false;
+    function abrirMarketingACaminho() {
+      irPara('tela-marketing-a-caminho');
+      if (marketingACaminhoCarregado) return;
+      document.getElementById('mktac-loading').classList.remove('d-none');
+      document.getElementById('mktac-vazio').classList.add('d-none');
+      document.getElementById('mktac-conteudo').classList.add('d-none');
+      google.script.run.withSuccessHandler(function(lista) {
+        pecasACaminhoMarketing = lista; marketingACaminhoCarregado = true;
+        document.getElementById('mktac-loading').classList.add('d-none');
+        if (lista.length === 0) { document.getElementById('mktac-vazio').classList.remove('d-none'); return; }
+        document.getElementById('mktac-conteudo').classList.remove('d-none');
+        renderizarMarketingACaminho(lista);
+      }).withFailureHandler(function(err) {
+        document.getElementById('mktac-loading').classList.add('d-none');
+        alert('Erro ao carregar peças a caminho: ' + (err.message || err));
+      }).buscarPecasACaminho();
+    }
+    function textoPecaACaminhoMarketing(p) {
+      return p.codigo + ' - ' + p.descricao + ' - Tam ' + p.tamanho + ' - Cor ' + p.cor + ' - Categoria: ' + p.categoria +
+        ' - R$ ' + formatarPrecoExibicao(p.preco) + ' - Qtd esperada: ' + p.qtdEsperada +
+        (p.foto ? ' - Foto: ' + p.foto : '');
+    }
+    function copiarPecaACaminhoMarketing(codigo) {
+      const p = pecasACaminhoMarketing.find(function(x) { return x.codigo === codigo; });
+      if (!p) return;
+      copiarTexto(textoPecaACaminhoMarketing(p), '✅ Informações da peça copiadas!');
+    }
+    function copiarTudoMarketingACaminho() {
+      const texto = pecasACaminhoMarketing.map(textoPecaACaminhoMarketing).join('\n');
+      copiarTexto(texto, '✅ Lista completa copiada! (' + pecasACaminhoMarketing.length + ' peças)');
+    }
+    function renderizarMarketingACaminho(lista) {
+      const div = document.getElementById('mktac-lista'); div.innerHTML = '';
+      lista.forEach(function(p) {
+        let html = '<div class="col-6 col-md-4 col-lg-3"><div class="card h-100 border-0 shadow-sm">';
+        html += '<img src="' + (p.foto || 'https://via.placeholder.com/280x280/4a151b/dcb881?text=Sem+Foto') + '" class="card-img-top" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/280x280/4a151b/dcb881?text=Sem+Foto\';">';
+        html += '<div class="card-body p-2 d-flex flex-column">';
+        html += '<h6 class="card-title text-truncate mb-1 fw-bold" style="font-size:0.9rem; color:var(--cor-fundo)">' + p.descricao + '</h6>';
+        html += '<div class="text-muted small mb-1">Cód: ' + p.codigo + ' | Tam: ' + p.tamanho + ' | Cor: ' + p.cor + '</div>';
+        html += '<div class="text-muted small mb-1">Categoria: ' + p.categoria + ' • Qtd esperada: ' + p.qtdEsperada + '</div>';
+        html += '<div class="fw-bold mb-2" style="color:var(--cor-fundo)">R$ ' + formatarPrecoExibicao(p.preco) + '</div>';
+        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-auto" onclick="copiarPecaACaminhoMarketing(\'' + p.codigo + '\')">📋 Copiar</button>';
+        html += '</div></div></div>';
+        div.innerHTML += html;
+      });
     }
 
     function renderizarProdutosMarketing(lista) {
