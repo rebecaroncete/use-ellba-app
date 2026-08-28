@@ -101,7 +101,33 @@
   </div>
 
   <!-- ESTOQUE -->
-  <div id="tela-estoque" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Controle de Estoque</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioComLista('tela-consultar-produto')">🔍 Consultar Produto</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-produto')">➕ Cadastrar Novo</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-adicionar-estoque')">📥 Adicionar Entrada</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-retirar-estoque')">📤 Retirar Saída</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-transferencia-estoque')">🔄 Transferência</button><button class="btn-ellba-outline" onclick="abrirInventario()">📋 Inventário</button></div></div>
+  <div id="tela-estoque" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Controle de Estoque</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioComLista('tela-consultar-produto')">🔍 Consultar Produto</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-produto')">➕ Cadastrar Novo</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-adicionar-estoque')">📥 Adicionar Entrada</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-retirar-estoque')">📤 Retirar Saída</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-transferencia-estoque')">🔄 Transferência</button><button class="btn-ellba-outline" onclick="abrirInventario()">📋 Inventário</button><button class="btn-ellba-outline" onclick="irPara('tela-pecas-caminho-menu')">📦 Peças a Caminho</button></div></div>
+
+  <div id="tela-pecas-caminho-menu" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Peças a Caminho</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirCadastroPecaCaminho()">➕ Cadastrar Peça a Caminho</button><button class="btn-ellba-outline" onclick="abrirDarEntradaLista()">📥 Dar Entrada</button></div></div>
+
+  <div id="tela-cadastrar-peca-caminho" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cadastrar Peça a Caminho</h4>
+    <form id="formPecaCaminho" onsubmit="enviarFormularioPecaCaminho(event)">
+      <div class="card shadow-sm border-0 p-3 mb-3">
+        <div class="mb-3"><label class="form-label fw-bold">Descrição *</label><input type="text" id="pac-descricao" class="form-control" required></div>
+        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Categoria *</label><input type="text" id="pac-categoria" class="form-control" required></div><div class="col-6"><label class="form-label fw-bold">Tamanho *</label><input type="text" id="pac-tamanho" class="form-control" required></div></div>
+        <div class="mb-3"><label class="form-label fw-bold">Cor *</label><input type="text" id="pac-cor" class="form-control" required></div>
+        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="pac-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div><div class="col-6"><label class="form-label fw-bold">Preço *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="pac-preco" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div>
+        <div class="mb-3"><label class="form-label fw-bold">Fornecedor</label><input type="text" id="pac-fornecedor" class="form-control" list="lista-fornecedores" placeholder="Busque ou deixe em branco"><div class="text-muted mt-1 msg-loading-fornecedores" style="font-size: 0.85rem;">Carregando lista...</div></div>
+        <div class="mb-3"><label class="form-label fw-bold">Quantidade Esperada *</label><input type="number" id="pac-qtd" class="form-control" inputmode="numeric" required min="1"></div>
+        <div class="mb-3"><label class="form-label fw-bold">Foto da Peça (Opcional)</label><input type="file" id="pac-foto" class="form-control" accept="image/*"></div>
+      </div>
+      <button type="submit" id="btn-salvar-pac" class="btn-ellba w-100">💾 Cadastrar Peça a Caminho</button>
+      <div id="aviso-salvando-pac" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div>
+    </form>
+  </div>
+
+  <div id="tela-dar-entrada-lista" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Dar Entrada</h4>
+    <div id="dar-entrada-loading" class="text-center" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
+    <div id="dar-entrada-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça aguardando recebimento no momento.</div>
+    <div id="dar-entrada-lista"></div>
+  </div>
 
   <!-- INVENTÁRIO -->
   <div id="tela-inventario-config" class="container d-none pb-5">
@@ -322,8 +348,9 @@
       else if (telaAtual === 'tela-senha' || telaAtual === 'tela-menu' || telaAtual === 'tela-senha-marketing' || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { irPara('tela-perfil'); }
       else if (telaAtual === 'tela-selecao-loja' && perfilAtual !== 'cliente') { irPara('tela-menu'); }
       else if (['tela-estoque', 'tela-venda', 'tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { if (perfilAtual === 'cliente') { irPara('tela-perfil'); } else { irPara('tela-menu'); } }
-      else if (['tela-cadastrar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-consultar-produto', 'tela-inventario-config'].indexOf(telaAtual) > -1) { irPara('tela-estoque'); }
+      else if (['tela-cadastrar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-consultar-produto', 'tela-inventario-config', 'tela-pecas-caminho-menu'].indexOf(telaAtual) > -1) { irPara('tela-estoque'); }
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
+      else if (['tela-cadastrar-peca-caminho', 'tela-dar-entrada-lista'].indexOf(telaAtual) > -1) { irPara('tela-pecas-caminho-menu'); }
       else if (['tela-cadastrar-venda', 'tela-cadastrar-cliente'].indexOf(telaAtual) > -1) { irPara('tela-venda'); }
       else if (telaAtual === 'tela-compras-menu') { irPara('tela-menu'); }
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
@@ -393,6 +420,94 @@
     function abrirFormularioDespesas(idTela) { irPara(idTela); const d = new Date(); const tz = d.getTimezoneOffset() * 60000; document.getElementById('desp-data').value = (new Date(d - tz)).toISOString().split('T')[0]; if(!listaFornecedoresCarregada) { document.querySelectorAll('.msg-loading-fornecedores').forEach(function(el) { el.innerText = 'Carregando opções...'; }); google.script.run.withSuccessHandler(function(res) { listaObjFornecedores = res; listaFornecedoresCarregada = true; const datalist = document.getElementById('lista-fornecedores'); datalist.innerHTML = '<option value="Sem Fornecedor">'; res.forEach(function(item) { const option = document.createElement('option'); option.value = item.nome; datalist.appendChild(option); }); document.querySelectorAll('.msg-loading-fornecedores').forEach(function(el) { el.innerText = 'Lista pronta!'; }); }).carregarListaFornecedores(); } }
     function enviarFormularioFornecedor(e) { e.preventDefault(); const numTel = document.getElementById('forn-tel').value; const telLimpo = numTel.replace(/\D/g, ''); const nomeDigitado = document.getElementById('forn-nome').value.trim().toLowerCase(); if (listaFornecedoresCarregada) { const duplicado = listaObjFornecedores.find(function(f) { return (f.nome.toLowerCase() === nomeDigitado) || (telLimpo && f.telefoneLimpo === telLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\nFornecedor existente com Nome/Telefone: " + duplicado.nome + "\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-forn').classList.add('d-none'); document.getElementById('aviso-salvando-forn').classList.remove('d-none'); const dados = { nome: document.getElementById('forn-nome').value, telefone: numTel, categoria: document.getElementById('forn-cat').value, obs: document.getElementById('forn-obs').value }; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-forn', 'aviso-salvando-forn'); document.getElementById('formCadastroFornecedor').reset(); listaObjFornecedores.push({ nome: dados.nome, telefoneLimpo: telLimpo }); const datalist = document.getElementById('lista-fornecedores'); if(datalist) { const opt = document.createElement('option'); opt.value = dados.nome; datalist.appendChild(opt); } alert("✅ Fornecedor Salvo!\nCódigo: " + idGerado); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-forn', 'aviso-salvando-forn', err); }).cadastrarFornecedor(dados); }
     function enviarFormularioDespesa(e) { e.preventDefault(); document.getElementById('btn-salvar-desp').classList.add('d-none'); document.getElementById('aviso-salvando-desp').classList.remove('d-none'); const dados = { data: document.getElementById('desp-data').value, categoria: document.getElementById('desp-categoria').value, categoriaOutro: document.getElementById('desp-categoria-outro').value, descricao: document.getElementById('desp-desc').value, valor: document.getElementById('desp-valor').value, fornecedor: document.getElementById('desp-fornecedor').value || "Sem Fornecedor", pagamento: document.getElementById('desp-pagamento').value, obs: document.getElementById('desp-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-desp', 'aviso-salvando-desp'); document.getElementById('formRegistroDespesa').reset(); verificarOpcaoOutro('desp-categoria'); abrirFormularioDespesas('tela-registrar-despesa'); alert("✅ Despesa Registrada!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-desp', 'aviso-salvando-desp', err); }).registrarDespesa(dados); }
+
+    // ====================== MÓDULO PEÇAS A CAMINHO ======================
+    const WHATSAPP_ELBA = "5521983033635";
+    function carregarFornecedoresSeNecessario() {
+      if (listaFornecedoresCarregada) return;
+      document.querySelectorAll('.msg-loading-fornecedores').forEach(function(el) { el.innerText = 'Carregando opções...'; });
+      google.script.run.withSuccessHandler(function(res) {
+        listaObjFornecedores = res; listaFornecedoresCarregada = true;
+        const datalist = document.getElementById('lista-fornecedores');
+        datalist.innerHTML = '<option value="Sem Fornecedor">';
+        res.forEach(function(item) { const option = document.createElement('option'); option.value = item.nome; datalist.appendChild(option); });
+        document.querySelectorAll('.msg-loading-fornecedores').forEach(function(el) { el.innerText = 'Lista pronta!'; });
+      }).carregarListaFornecedores();
+    }
+    function abrirCadastroPecaCaminho() { irPara('tela-cadastrar-peca-caminho'); carregarFornecedoresSeNecessario(); }
+    function enviarFormularioPecaCaminho(e) {
+      e.preventDefault();
+      document.getElementById('btn-salvar-pac').classList.add('d-none'); document.getElementById('aviso-salvando-pac').classList.remove('d-none');
+      const arquivoInput = document.getElementById('pac-foto');
+      if (arquivoInput && arquivoInput.files.length > 0) {
+        document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Processando foto...';
+        const arquivo = arquivoInput.files[0];
+        comprimirImagem(arquivo, function(imgBase64) {
+          document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Enviando para o Drive...';
+          const objImagem = { nome: arquivo.name, mimeType: 'image/jpeg', dados: imgBase64 };
+          google.script.run.withSuccessHandler(function(urlFoto) { processarSalvamentoPecaCaminho(urlFoto); })
+          .withFailureHandler(function(err) { erroFormulario('btn-salvar-pac', 'aviso-salvando-pac', err); }).salvarImagemNoDrive(objImagem);
+        });
+      } else { processarSalvamentoPecaCaminho(""); }
+    }
+    function processarSalvamentoPecaCaminho(urlFoto) {
+      document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Registrando...';
+      const dados = { descricao: document.getElementById('pac-descricao').value, categoria: document.getElementById('pac-categoria').value, tamanho: document.getElementById('pac-tamanho').value, cor: document.getElementById('pac-cor').value, custo: document.getElementById('pac-custo').value, preco: document.getElementById('pac-preco').value, fornecedor: document.getElementById('pac-fornecedor').value || "Sem Fornecedor", qtdEsperada: document.getElementById('pac-qtd').value, foto: urlFoto };
+      google.script.run.withSuccessHandler(function(codigo) {
+        restaurarBotao('btn-salvar-pac', 'aviso-salvando-pac');
+        document.getElementById('formPecaCaminho').reset();
+        alert("✅ Peça a caminho cadastrada!\nCódigo: " + codigo);
+        irPara('tela-pecas-caminho-menu');
+      }).withFailureHandler(function(err) { erroFormulario('btn-salvar-pac', 'aviso-salvando-pac', err); }).cadastrarPecaACaminho(dados);
+    }
+
+    let pecasACaminhoAtuais = [];
+    function abrirDarEntradaLista() {
+      irPara('tela-dar-entrada-lista');
+      document.getElementById('dar-entrada-loading').classList.remove('d-none');
+      document.getElementById('dar-entrada-vazio').classList.add('d-none');
+      document.getElementById('dar-entrada-lista').innerHTML = '';
+      google.script.run.withSuccessHandler(function(lista) {
+        document.getElementById('dar-entrada-loading').classList.add('d-none');
+        pecasACaminhoAtuais = lista;
+        if (lista.length === 0) { document.getElementById('dar-entrada-vazio').classList.remove('d-none'); return; }
+        renderizarListaDarEntrada();
+      }).withFailureHandler(function(err) { document.getElementById('dar-entrada-loading').classList.add('d-none'); alert("Erro ao carregar peças a caminho: " + (err.message || err)); }).buscarPecasACaminho();
+    }
+    function renderizarListaDarEntrada() {
+      const div = document.getElementById('dar-entrada-lista'); div.innerHTML = '';
+      pecasACaminhoAtuais.forEach(function(p, index) {
+        let html = '<div class="card shadow-sm border-0 p-3 mb-3">';
+        html += '<div class="fw-bold mb-1" style="color: var(--cor-fundo);">' + p.codigo + ' - ' + p.descricao + '</div>';
+        html += '<div class="text-muted small mb-2">Tam: ' + p.tamanho + ' | Cor: ' + p.cor + ' | Categoria: ' + p.categoria + ' | Fornecedor: ' + p.fornecedor + '</div>';
+        html += '<div class="row g-2 align-items-end">';
+        html += '<div class="col-4"><label class="form-label small fw-bold mb-1">Qtd Esperada</label><input type="number" class="form-control text-center" value="' + p.qtdEsperada + '" id="dar-entrada-qtd-' + index + '"></div>';
+        html += '<div class="col-5"><label class="form-label small fw-bold mb-1">Loja</label><select class="form-select" id="dar-entrada-loja-' + index + '"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option></select></div>';
+        html += '<div class="col-3"><button type="button" class="btn-ellba w-100 p-2" style="font-size: 0.85rem;" onclick="confirmarDarEntrada(' + index + ')">✅ Entrada</button></div>';
+        html += '</div></div>';
+        div.innerHTML += html;
+      });
+    }
+    function confirmarDarEntrada(index) {
+      const p = pecasACaminhoAtuais[index];
+      const qtdRecebida = document.getElementById('dar-entrada-qtd-' + index).value;
+      const loja = document.getElementById('dar-entrada-loja-' + index).value;
+      if (!qtdRecebida || parseInt(qtdRecebida) < 1) { alert("Informe a quantidade recebida."); return; }
+      if (!loja) { alert("Selecione a loja de destino."); return; }
+      const dados = { codigo: p.codigo, qtdRecebida: qtdRecebida, loja: loja };
+      google.script.run.withSuccessHandler(function(res) {
+        let msg = "✅ Peça recebida! Código gerado: " + res.idGerado;
+        if (res.diferenca > 0) {
+          msg += "\n\n⚠️ Chegou menos do que o esperado (esperado: " + res.qtdEsperada + ", recebido: " + res.qtdRecebida + ").";
+          const texto = "Oi Elba! O pedido de \"" + res.descricao + "\" (fornecedor: " + res.fornecedor + ") chegou incompleto: esperado " + res.qtdEsperada + ", recebido " + res.qtdRecebida + ". Falta conferir com o fornecedor.";
+          const link = "https://wa.me/" + WHATSAPP_ELBA + "?text=" + encodeURIComponent(texto);
+          if (confirm(msg + "\n\nDeseja avisar a Elba agora pelo WhatsApp?")) { window.open(link, '_blank'); }
+        } else {
+          alert(msg);
+        }
+        abrirDarEntradaLista();
+      }).withFailureHandler(function(err) { alert("❌ Erro: " + (err.message || err)); }).darEntradaPecaACaminho(dados);
+    }
 
     function abrirFormularioComLista(idTela) { irPara(idTela); if(idTela === 'tela-consultar-produto') limparConsulta(); if(!listaProdutosCarregada) { document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Carregando opções...'; }); google.script.run.withSuccessHandler(function(res) { listaObjProdutos = res; listaOpcoesProdutos = res.map(function(i) { return i.label; }); listaProdutosCarregada = true; const datalist = document.getElementById('lista-produtos'); datalist.innerHTML = ''; res.forEach(function(item) { const option = document.createElement('option'); option.value = item.label; datalist.appendChild(option); }); document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Lista pronta!'; }); }).buscarListaProdutosResumida(); } }
     let vendedorasCarregadas = false;
