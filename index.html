@@ -483,7 +483,7 @@
         html += '<div class="row g-2 align-items-end">';
         html += '<div class="col-4"><label class="form-label small fw-bold mb-1">Qtd Esperada</label><input type="number" class="form-control text-center" value="' + p.qtdEsperada + '" id="dar-entrada-qtd-' + index + '"></div>';
         html += '<div class="col-5"><label class="form-label small fw-bold mb-1">Loja</label><select class="form-select" id="dar-entrada-loja-' + index + '"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option></select></div>';
-        html += '<div class="col-3"><button type="button" class="btn-ellba w-100 p-2" style="font-size: 0.85rem;" onclick="confirmarDarEntrada(' + index + ')">✅ Entrada</button></div>';
+        html += '<div class="col-3"><button type="button" class="btn-ellba w-100 p-2" style="font-size: 0.85rem;" id="btn-dar-entrada-' + index + '" onclick="confirmarDarEntrada(' + index + ')">✅ Entrada</button></div>';
         html += '</div></div>';
         div.innerHTML += html;
       });
@@ -494,6 +494,8 @@
       const loja = document.getElementById('dar-entrada-loja-' + index).value;
       if (!qtdRecebida || parseInt(qtdRecebida) < 1) { alert("Informe a quantidade recebida."); return; }
       if (!loja) { alert("Selecione a loja de destino."); return; }
+      const btn = document.getElementById('btn-dar-entrada-' + index);
+      if (btn) { if (btn.disabled) return; btn.disabled = true; btn.innerText = 'Processando...'; }
       const dados = { codigo: p.codigo, qtdRecebida: qtdRecebida, loja: loja };
       google.script.run.withSuccessHandler(function(res) {
         if (res.diferenca > 0) {
@@ -511,7 +513,7 @@
           alert("✅ Peça recebida! Código gerado: " + res.idGerado);
           abrirDarEntradaLista();
         }
-      }).withFailureHandler(function(err) { alert("❌ Erro: " + (err.message || err)); }).darEntradaPecaACaminho(dados);
+      }).withFailureHandler(function(err) { if (btn) { btn.disabled = false; btn.innerText = '✅ Entrada'; } alert("❌ Erro: " + (err.message || err)); }).darEntradaPecaACaminho(dados);
     }
 
     function abrirFormularioComLista(idTela) { irPara(idTela); if(idTela === 'tela-consultar-produto') limparConsulta(); if(!listaProdutosCarregada) { document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Carregando opções...'; }); google.script.run.withSuccessHandler(function(res) { listaObjProdutos = res; listaOpcoesProdutos = res.map(function(i) { return i.label; }); listaProdutosCarregada = true; const datalist = document.getElementById('lista-produtos'); datalist.innerHTML = ''; res.forEach(function(item) { const option = document.createElement('option'); option.value = item.label; datalist.appendChild(option); }); document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Lista pronta!'; }); }).buscarListaProdutosResumida(); } }
