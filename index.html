@@ -282,11 +282,17 @@
 
   <button type="button" id="btn-salvar-venda" class="btn-ellba fs-5 py-3" onclick="finalizarVenda()">💳 REGISTRAR VENDA</button>
   <div id="aviso-salvando-venda" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div><br><strong>Processando venda...</strong></div>
-
-  <div id="area-pos-venda" class="d-none mt-3">
-    <button type="button" class="btn btn-success w-100 fs-5 py-3 mb-3 shadow-sm fw-bold" style="background-color: #25D366; border-color: #25D366;" onclick="enviarReciboWhatsApp()">📱 Enviar Recibo WhatsApp</button>
-    <button type="button" class="btn btn-secondary w-100 fs-5 py-3 fw-bold" onclick="limparTelaVenda()">🔄 Limpar e Iniciar Nova Venda</button>
   </div>
+
+  <!-- VENDA REGISTRADA COM SUCESSO -->
+  <div id="tela-venda-sucesso" class="container text-center mt-5 d-none pb-5">
+    <div style="font-size:4rem;">✅</div>
+    <h3 class="mb-4" style="color: var(--cor-fundo);">Venda registrada com sucesso!</h3>
+    <div class="d-grid gap-3 mx-auto" style="max-width: 400px;">
+      <button type="button" class="btn btn-success py-3 fs-5 shadow-sm fw-bold" style="background-color: #25D366; border-color: #25D366;" onclick="enviarReciboWhatsApp()">📱 Enviar Recibo WhatsApp</button>
+      <button type="button" class="btn-ellba py-3 fs-5" onclick="irPara('tela-cadastrar-venda')">🔄 Iniciar Nova Venda</button>
+      <button type="button" class="btn btn-secondary py-3 fs-5 fw-bold" onclick="irPara('tela-menu')">🏠 Voltar ao Menu Principal</button>
+    </div>
   </div>
 
   <!-- COMPRAS FINANCEIRO -->
@@ -437,6 +443,7 @@
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
       else if (['tela-cadastrar-peca-caminho', 'tela-dar-entrada-lista'].indexOf(telaAtual) > -1) { irPara('tela-pecas-caminho-menu'); }
       else if (['tela-cadastrar-venda', 'tela-cadastrar-cliente'].indexOf(telaAtual) > -1) { irPara('tela-venda'); }
+      else if (telaAtual === 'tela-venda-sucesso') { irPara('tela-menu'); }
       else if (telaAtual === 'tela-compras-menu') { irPara('tela-menu'); }
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
       else if (telaAtual === 'tela-catalogo') { irPara('tela-selecao-loja'); }
@@ -1004,8 +1011,9 @@
     let clienteSendoCadastrado = null;
     function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { document.getElementById('venda-cliente').value = novoLabel; }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
 
-    let carrinho = []; let ultimoReciboGerado = "";
+    let carrinho = []; let ultimoReciboGerado = ""; let ultimoTelefoneCliente = "";
     let pagamentosVenda = [];
+    let vendaEmProcessamento = false;
 
     function verificarParcelasPagamento() {
       const forma = document.getElementById('pgto-forma').value;
@@ -1146,6 +1154,7 @@
     }
 
     function finalizarVenda() {
+      if (vendaEmProcessamento) return; // trava contra clique duplo no botão
       if (carrinho.length === 0) { alert("O carrinho está vazio!"); return; }
       const vendedora = document.getElementById('venda-vendedora'); const local = document.getElementById('venda-local');
       const dataInput = document.getElementById('venda-data');
@@ -1157,54 +1166,74 @@
       const totalPago = pagamentosVenda.reduce(function(s, p) { return s + p.valor; }, 0);
       if (Math.abs(totalPago - totalVenda) > 0.009) { alert("A soma das formas de pagamento (R$ " + formatarPrecoExibicao(totalPago) + ") não bate com o total da venda (R$ " + formatarPrecoExibicao(totalVenda) + ")."); return; }
 
+      vendaEmProcessamento = true;
       document.getElementById('btn-salvar-venda').classList.add('d-none');
+      document.getElementById('btn-salvar-venda').disabled = true;
       document.getElementById('aviso-salvando-venda').classList.remove('d-none');
 
       const pagamentosFormatados = pagamentosVenda.map(function(p) { return { forma: p.forma, parcelas: p.parcelas, valor: p.valor.toFixed(2).replace('.', ',') }; });
       const dadosVenda = { vendedora: vendedora.value, vendedoraOutro: document.getElementById('venda-vendedora-outro').value, local: local.value, localOutro: document.getElementById('venda-local-outro').value, dataVenda: dataInput.value, pagamentos: pagamentosFormatados, cliente: document.getElementById('venda-cliente').value, cashbackUsado: descontos.cashback, descontoAniversario: descontos.aniversario, itens: carrinho };
 
+      // Guarda o telefone da cliente ANTES de limpar a tela, pra "Enviar Recibo
+      // WhatsApp" continuar funcionando mesmo depois do formulário já ter sido limpo.
+      ultimoTelefoneCliente = "";
+      if (dadosVenda.cliente !== "Sem Cadastro") {
+        const clienteEncontrado = listaObjClientes.find(function(c) { return c.label === dadosVenda.cliente; });
+        ultimoTelefoneCliente = clienteEncontrado ? clienteEncontrado.telefoneLimpo : "";
+      }
+
       // O cashback gerado nesta venda é 5% sobre o valor líquido pago (mesma
       // regra usada no backend), calculado aqui para poder já mostrar no recibo.
       const cashbackGeradoNestaVenda = Math.round(descontos.totalLiquido * 0.05 * 100) / 100;
 
-      google.script.run.withSuccessHandler(function() {
+      function irParaTelaSucesso() {
+        vendaEmProcessamento = false;
         document.getElementById('aviso-salvando-venda').classList.add('d-none');
+        limparCarrinhoParaNovaVenda();
+        irPara('tela-venda-sucesso');
+      }
 
+      google.script.run.withSuccessHandler(function() {
         if (dadosVenda.cliente !== "Sem Cadastro") {
           const idClienteVenda = dadosVenda.cliente.split(' - ')[0].trim();
           // Busca o saldo de cashback já atualizado (pós-venda) pra montar o recibo certinho.
           google.script.run.withSuccessHandler(function(cliAtualizado) {
             montarTextoRecibo(dadosVenda, { cashbackGerado: cashbackGeradoNestaVenda, cashbackSaldoTotal: cliAtualizado.cashbackDisponivel, cashbackValidade: cliAtualizado.cashbackProximaValidade });
-            alert("✅ VENDA REGISTRADA COM SUCESSO!");
-            document.getElementById('area-pos-venda').classList.remove('d-none');
+            irParaTelaSucesso();
           }).withFailureHandler(function() {
             montarTextoRecibo(dadosVenda, null);
-            alert("✅ VENDA REGISTRADA COM SUCESSO!");
-            document.getElementById('area-pos-venda').classList.remove('d-none');
+            irParaTelaSucesso();
           }).buscarClienteDetalhe(idClienteVenda);
         } else {
           montarTextoRecibo(dadosVenda, null);
-          alert("✅ VENDA REGISTRADA COM SUCESSO!\n\nAs peças foram retiradas do estoque.");
-          limparTelaVenda();
+          irParaTelaSucesso();
         }
-      }).withFailureHandler(function(err) { erroFormulario('btn-salvar-venda', 'aviso-salvando-venda', err); }).registrarVendaEmLote(dadosVenda);
+      }).withFailureHandler(function(err) {
+        vendaEmProcessamento = false;
+        document.getElementById('btn-salvar-venda').disabled = false;
+        erroFormulario('btn-salvar-venda', 'aviso-salvando-venda', err);
+      }).registrarVendaEmLote(dadosVenda);
     }
 
-    function limparTelaVenda() {
+    // Limpa o carrinho, cliente e pagamentos pra deixar claro que a venda foi
+    // registrada e já dá pra começar outra — mas mantém Vendedora, Data e Local
+    // preenchidos, já que normalmente é tudo a mesma coisa na venda seguinte.
+    function limparCarrinhoParaNovaVenda() {
       carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null;
       atualizarInterfaceCarrinho(); atualizarInterfacePagamentos();
       document.getElementById('venda-cliente').value = "Sem Cadastro";
       document.getElementById('div-venda-beneficios').classList.add('d-none');
-      document.getElementById('venda-data').value = new Date().toISOString().slice(0, 10);
-      catalogoCarregado = false;
-      document.getElementById('area-pos-venda').classList.add('d-none');
+      document.getElementById('carrinho-produto').value = '';
+      document.getElementById('carrinho-qtd').value = '1';
+      document.getElementById('carrinho-preco').value = '';
       document.getElementById('btn-salvar-venda').classList.remove('d-none');
+      document.getElementById('btn-salvar-venda').disabled = false;
     }
 
     function enviarReciboWhatsApp() {
-      const clienteStr = document.getElementById('venda-cliente').value;
-      const clienteEncontrado = listaObjClientes.find(function(c) { return c.label === clienteStr; });
-      const telefone = clienteEncontrado ? clienteEncontrado.telefoneLimpo : "";
+      // Usa o telefone guardado no momento da venda (o formulário já foi limpo
+      // nesse ponto, então não dá pra reler o campo "venda-cliente").
+      const telefone = ultimoTelefoneCliente;
       if (telefone) {
         window.open("https://wa.me/55" + telefone + "?text=" + encodeURIComponent(ultimoReciboGerado), '_blank');
       } else {
