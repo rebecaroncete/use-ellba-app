@@ -41,8 +41,8 @@ function chamarApi(action, args) {
       // 2 argumentos simples: (dataInicio, dataFim), formato "YYYY-MM-DD"
       url += "&dataInicio=" + encodeURIComponent(args[0]) + "&dataFim=" + encodeURIComponent(args[1]);
     } else if (action === 'buscarMinhasVendas') {
-      // 4 argumentos simples: (usuaria, perfil, dataInicio, dataFim)
-      url += "&usuaria=" + encodeURIComponent(args[0]) + "&perfil=" + encodeURIComponent(args[1]) + "&dataInicio=" + encodeURIComponent(args[2]) + "&dataFim=" + encodeURIComponent(args[3]);
+      // 5 argumentos simples: (usuaria, perfil, dataInicio, dataFim, vendedoraFiltro)
+      url += "&usuaria=" + encodeURIComponent(args[0]) + "&perfil=" + encodeURIComponent(args[1]) + "&dataInicio=" + encodeURIComponent(args[2]) + "&dataFim=" + encodeURIComponent(args[3]) + "&vendedoraFiltro=" + encodeURIComponent(args[4] || '');
     } else if (args.length > 0 && args[0] !== undefined) {
       const nomeParam = PARAM_NOME_GET[action] || 'valor';
       url += "&" + nomeParam + "=" + encodeURIComponent(args[0]);
