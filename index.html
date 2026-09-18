@@ -77,15 +77,16 @@
   <!-- MINHAS VENDAS -->
   <div id="tela-minhas-vendas" class="container d-none pb-5">
     <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Minhas Vendas</h4>
-    <div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label fw-bold small">De</label><input type="date" id="mv-data-inicio" class="form-control"></div><div class="col-5"><label class="form-label fw-bold small">Até</label><input type="date" id="mv-data-fim" class="form-control"></div><div class="col-2"><button class="btn-ellba p-2" style="font-size:0.85rem;" onclick="buscarMinhasVendasTela()">🔎</button></div></div></div>
+    <div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label fw-bold small">De</label><input type="date" id="mv-data-inicio" class="form-control"></div><div class="col-5"><label class="form-label fw-bold small">Até</label><input type="date" id="mv-data-fim" class="form-control"></div><div class="col-2"><button class="btn-ellba p-2" style="font-size:0.85rem;" onclick="buscarMinhasVendasTela()">🔎</button></div></div><div class="mt-2 d-none" id="div-mv-vendedora-filtro"><label class="form-label fw-bold small">Vendedora</label><select id="mv-vendedora" class="form-select" onchange="buscarMinhasVendasTela()"><option value="">Todas</option></select></div></div>
     <div id="mv-resumo" class="card shadow-sm border-0 p-3 mb-3" style="background-color: var(--cor-fundo); color:#fff; display:none;"><div class="row text-center"><div class="col-6"><div class="small">Qtd. Vendas</div><div class="fw-bold fs-5" id="mv-qtd">0</div></div><div class="col-6"><div class="small">Total</div><div class="fw-bold fs-5" style="color: var(--cor-dourado);" id="mv-total">R$ 0,00</div></div></div></div>
+    <div id="mv-ranking" class="d-none"></div>
     <div id="mv-lista"></div>
   </div>
 
   <!-- HISTÓRICO DA CLIENTE -->
   <div id="tela-historico-cliente" class="container d-none pb-5">
     <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cliente</h4>
-    <div class="mb-3"><select id="hc-cliente-select" class="form-select" onchange="buscarHistoricoCliente()"><option value="">Selecione a cliente...</option></select></div>
+    <div class="mb-3"><div class="input-group"><input type="text" id="hc-cliente-input" class="form-control" list="lista-clientes-hc" placeholder="Comece a digitar o nome da cliente..."><button type="button" class="btn-ellba" style="max-width:120px;" onclick="buscarHistoricoCliente()">🔎 Buscar</button></div><datalist id="lista-clientes-hc"></datalist></div>
     <div id="hc-conteudo" class="d-none">
       <div class="card shadow-sm border-0 p-3 mb-3">
         <h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">Dados Cadastrais <button type="button" class="btn btn-sm btn-secondary float-end" onclick="editarHistoricoCliente()">✏️ Editar</button></h6>
@@ -613,7 +614,20 @@
     }
     function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); const campoData = document.getElementById('venda-data'); const hojeISO = new Date().toISOString().slice(0, 10); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(!listaClientesCarregada) { document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); } else { preencherSelectClientes(); } }
     function preencherSelectClientes() { const select = document.getElementById('venda-cliente'); const valorAtual = select.value; select.innerHTML = '<option value="Sem Cadastro">-- Cliente Sem Cadastro --</option>'; listaObjClientes.forEach(function(cli) { const option = document.createElement('option'); option.value = cli.label; option.text = cli.label; select.appendChild(option); }); if(valorAtual) select.value = valorAtual; }
-    function validarProdutoSelecionado(inputElement) { if (inputElement.value && listaOpcoesProdutos.indexOf(inputElement.value) === -1) { alert("❌ Produto não encontrado!"); inputElement.value = ''; return false; } return true; }
+    function normalizarIdFrontend_(v) { return (v || '').toString().trim().toUpperCase().replace(/\s+/g, ''); }
+    // Aceita o produto tanto se bateu exatamente com a lista (ex: escolhido no dropdown)
+    // quanto se o código digitado bate ignorando maiúscula/minúscula e espaços (ex: "prd 008").
+    // Nesse 2º caso, já corrige o campo pro texto certinho da lista.
+    function validarProdutoSelecionado(inputElement) {
+      if (!inputElement.value) return true;
+      if (listaOpcoesProdutos.indexOf(inputElement.value) > -1) return true;
+      const idDigitado = normalizarIdFrontend_(inputElement.value.split(' - ')[0]);
+      const achado = listaObjProdutos.find(function(p) { return normalizarIdFrontend_(p.id) === idDigitado; });
+      if (achado) { inputElement.value = achado.label; return true; }
+      alert("❌ Produto não encontrado!");
+      inputElement.value = '';
+      return false;
+    }
 
     function preencherTransferenciaAutomatico(inputElement) {
       if (!validarProdutoSelecionado(inputElement)) return;
@@ -688,55 +702,90 @@
     }
 
     // ====================== MÓDULO MINHAS VENDAS ======================
+    var mvVendedorasCarregadas = false;
     function abrirMinhasVendas() {
       irPara('tela-minhas-vendas');
       var hoje = new Date();
       var inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
       document.getElementById('mv-data-inicio').value = inicioMes.toISOString().slice(0, 10);
       document.getElementById('mv-data-fim').value = hoje.toISOString().slice(0, 10);
+
+      if (perfilUsuaria === 'Admin') {
+        document.getElementById('div-mv-vendedora-filtro').classList.remove('d-none');
+        if (!mvVendedorasCarregadas) {
+          google.script.run.withSuccessHandler(function(nomes) {
+            mvVendedorasCarregadas = true;
+            var select = document.getElementById('mv-vendedora');
+            nomes.forEach(function(n) { var opt = document.createElement('option'); opt.value = n; opt.text = n; select.appendChild(opt); });
+            buscarMinhasVendasTela();
+          }).buscarVendedoras();
+          return;
+        }
+      } else {
+        document.getElementById('div-mv-vendedora-filtro').classList.add('d-none');
+      }
       buscarMinhasVendasTela();
     }
 
     function buscarMinhasVendasTela() {
       var di = document.getElementById('mv-data-inicio').value, df = document.getElementById('mv-data-fim').value;
       if (!di || !df) return;
+      var vendedoraFiltro = perfilUsuaria === 'Admin' ? document.getElementById('mv-vendedora').value : '';
       document.getElementById('mv-lista').innerHTML = '<div class="text-center mt-3"><div class="spinner-border"></div></div>';
-      google.script.run.withSuccessHandler(function(vendas) {
+      google.script.run.withSuccessHandler(function(res) {
+        var vendas = res.vendas || [];
+        var ranking = res.ranking || [];
         var qtd = vendas.length, total = vendas.reduce(function(s, v) { return s + v.total; }, 0);
         document.getElementById('mv-resumo').style.display = 'block';
         document.getElementById('mv-qtd').innerText = qtd;
         document.getElementById('mv-total').innerText = 'R$ ' + formatarPrecoExibicao(total);
+
+        var rankDiv = document.getElementById('mv-ranking');
+        if (ranking.length > 0) {
+          rankDiv.classList.remove('d-none');
+          var rankHtml = '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">🏆 Ranking de Vendas por Vendedora</h6><table class="table table-sm mb-0"><thead><tr><th>#</th><th>Vendedora</th><th class="text-center">Qtd</th><th class="text-end">Total</th></tr></thead><tbody>';
+          ranking.forEach(function(r, idx) {
+            rankHtml += '<tr><td>' + (idx + 1) + '</td><td>' + r.nome + '</td><td class="text-center">' + r.qtdVendas + '</td><td class="text-end fw-bold">R$ ' + formatarPrecoExibicao(r.total) + '</td></tr>';
+          });
+          rankHtml += '</tbody></table></div>';
+          rankDiv.innerHTML = rankHtml;
+        } else {
+          rankDiv.classList.add('d-none'); rankDiv.innerHTML = '';
+        }
+
         var div = document.getElementById('mv-lista'); div.innerHTML = '';
         if (vendas.length === 0) { div.innerHTML = '<p class="text-muted text-center">Nenhuma venda no período.</p>'; return; }
         vendas.forEach(function(v) {
-          var dataTxt = v.data instanceof Date ? v.data : v.data;
           div.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between"><div><div class="fw-bold" style="color: var(--cor-fundo);">' + (v.vendedora || '') + (perfilUsuaria === 'Admin' ? ' • ' + (v.local || '') : '') + '</div><div class="text-muted small">' + v.qtdItens + ' peça(s) • ' + (v.formaPagamento || '') + '</div></div><div class="fw-bold" style="color: var(--cor-dourado);">R$ ' + formatarPrecoExibicao(v.total) + '</div></div></div>';
         });
-      }).withFailureHandler(function(err) { document.getElementById('mv-lista').innerHTML = ''; alert('Erro ao buscar vendas: ' + (err.message || err)); }).buscarMinhasVendas(window.usuariaAtual, perfilUsuaria, di, df);
+      }).withFailureHandler(function(err) { document.getElementById('mv-lista').innerHTML = ''; alert('Erro ao buscar vendas: ' + (err.message || err)); }).buscarMinhasVendas(window.usuariaAtual, perfilUsuaria, di, df, vendedoraFiltro);
     }
 
     // ====================== MÓDULO HISTÓRICO DA CLIENTE ======================
     function abrirHistoricoCliente() {
       irPara('tela-historico-cliente');
       document.getElementById('hc-conteudo').classList.add('d-none');
-      var select = document.getElementById('hc-cliente-select');
+      document.getElementById('hc-cliente-input').value = '';
       if (!listaClientesCarregada) {
-        google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; montarSelectHistorico(); }).carregarListaClientes();
+        google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; montarBuscaHistorico(); }).carregarListaClientes();
       } else {
-        montarSelectHistorico();
+        montarBuscaHistorico();
       }
     }
 
-    function montarSelectHistorico() {
-      var select = document.getElementById('hc-cliente-select');
-      select.innerHTML = '<option value="">Selecione a cliente...</option>';
-      listaObjClientes.forEach(function(c) { select.innerHTML += '<option value="' + c.id + '">' + c.label + '</option>'; });
+    function montarBuscaHistorico() {
+      var dl = document.getElementById('lista-clientes-hc');
+      dl.innerHTML = '';
+      listaObjClientes.forEach(function(c) { dl.innerHTML += '<option value="' + c.label + '">'; });
     }
 
     var clienteHistoricoAtual = null;
     function buscarHistoricoCliente() {
-      var idCliente = document.getElementById('hc-cliente-select').value;
-      if (!idCliente) { document.getElementById('hc-conteudo').classList.add('d-none'); return; }
+      var valorDigitado = document.getElementById('hc-cliente-input').value;
+      if (!valorDigitado) { alert('Comece a digitar o nome da cliente e selecione na lista.'); return; }
+      var achado = listaObjClientes.find(function(c) { return c.label === valorDigitado; });
+      if (!achado) { alert('Cliente não encontrada. Selecione um nome da lista sugerida.'); return; }
+      var idCliente = achado.id;
       google.script.run.withSuccessHandler(function(cli) {
         clienteHistoricoAtual = cli;
         document.getElementById('hc-conteudo').classList.remove('d-none');
