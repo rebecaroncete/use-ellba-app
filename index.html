@@ -68,7 +68,51 @@
       <button class="btn-menu menu-admin d-none" onclick="abrirMarketingMenu()">📣<br>Marketing</button>
       <button class="btn-menu menu-admin d-none" onclick="abrirCadastroUsuaria()">👤<br>Cadastrar Usuária</button>
       <button class="btn-menu menu-admin d-none" onclick="abrirRelatorios()">📊<br>Relatórios</button>
+      <button class="btn-menu" onclick="abrirMinhasVendas()">🧾<br>Minhas Vendas</button>
+      <button class="btn-menu" onclick="abrirHistoricoCliente()">💳<br>Cliente</button>
+      <button class="btn-menu" onclick="abrirAniversariantes()">🎂<br>Aniversariantes</button>
     </div>
+  </div>
+
+  <!-- MINHAS VENDAS -->
+  <div id="tela-minhas-vendas" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Minhas Vendas</h4>
+    <div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label fw-bold small">De</label><input type="date" id="mv-data-inicio" class="form-control"></div><div class="col-5"><label class="form-label fw-bold small">Até</label><input type="date" id="mv-data-fim" class="form-control"></div><div class="col-2"><button class="btn-ellba p-2" style="font-size:0.85rem;" onclick="buscarMinhasVendasTela()">🔎</button></div></div></div>
+    <div id="mv-resumo" class="card shadow-sm border-0 p-3 mb-3" style="background-color: var(--cor-fundo); color:#fff; display:none;"><div class="row text-center"><div class="col-6"><div class="small">Qtd. Vendas</div><div class="fw-bold fs-5" id="mv-qtd">0</div></div><div class="col-6"><div class="small">Total</div><div class="fw-bold fs-5" style="color: var(--cor-dourado);" id="mv-total">R$ 0,00</div></div></div></div>
+    <div id="mv-lista"></div>
+  </div>
+
+  <!-- HISTÓRICO DA CLIENTE -->
+  <div id="tela-historico-cliente" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cliente</h4>
+    <div class="mb-3"><select id="hc-cliente-select" class="form-select" onchange="buscarHistoricoCliente()"><option value="">Selecione a cliente...</option></select></div>
+    <div id="hc-conteudo" class="d-none">
+      <div class="card shadow-sm border-0 p-3 mb-3">
+        <h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">Dados Cadastrais <button type="button" class="btn btn-sm btn-secondary float-end" onclick="editarHistoricoCliente()">✏️ Editar</button></h6>
+        <div id="hc-dados-view"></div>
+        <form id="hc-dados-form" class="d-none" onsubmit="salvarEdicaoCliente(event)">
+          <div class="mb-2"><label class="form-label fw-bold small">Nome</label><input type="text" id="hc-edit-nome" class="form-control"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">Telefone</label><input type="text" id="hc-edit-telefone" class="form-control" oninput="mascaraTelefone(this)"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">E-mail</label><input type="email" id="hc-edit-email" class="form-control"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">CPF</label><input type="text" id="hc-edit-cpf" class="form-control" oninput="mascaraCPF(this)"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">Data Nasc.</label><input type="text" id="hc-edit-nascimento" class="form-control" placeholder="DD/MM/AAAA" oninput="mascaraData(this)"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">Endereço</label><input type="text" id="hc-edit-endereco" class="form-control"></div>
+          <div class="mb-2"><label class="form-label fw-bold small">Observação</label><textarea id="hc-edit-obs" class="form-control" rows="2"></textarea></div>
+          <button type="submit" class="btn-ellba w-100">💾 Salvar Alterações</button>
+        </form>
+      </div>
+      <div class="card shadow-sm border-0 p-3 mb-3 text-center" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div class="small">💰 Cashback Disponível</div><div class="fw-bold fs-4" id="hc-cashback" style="color: var(--cor-fundo);">R$ 0,00</div></div>
+      <h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">Histórico de Compras</h6>
+      <div id="hc-compras"></div>
+    </div>
+  </div>
+
+  <!-- ANIVERSARIANTES -->
+  <div id="tela-aniversariantes" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Aniversariantes de Hoje</h4>
+    <p class="text-muted text-center small mb-3">Clique em "Enviar mensagem" pra abrir o WhatsApp já com a mensagem pronta.</p>
+    <div id="aniv-lista"></div>
+    <div id="aniv-vazio" class="text-center text-muted mt-4 d-none">Nenhuma aniversariante hoje.</div>
   </div>
 
   <div id="tela-cadastrar-usuaria" class="container d-none pb-5">
@@ -170,10 +214,15 @@
     <h4 class="mb-1 fw-bold text-center" style="color: var(--cor-fundo);">Contagem de Inventário</h4>
     <p class="text-muted text-center small mb-3" id="inv-lista-subtitulo"></p>
     <div id="inv-loading" class="text-center d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
+    <div class="mb-3 d-none" id="div-inv-busca"><input type="text" id="inv-busca" class="form-control" list="lista-inv-itens" placeholder="Buscar peça por código ou nome, pra ir direto nela..." onchange="pularParaItemInventario(this.value)"><datalist id="lista-inv-itens"></datalist></div>
     <div id="inv-lista-itens"></div>
+    <div id="inv-paginacao" class="d-flex justify-content-between align-items-center mt-2 mb-3 d-none">
+      <button type="button" class="btn btn-secondary btn-sm fw-bold" onclick="mudarPaginaInventario(-1)">⬅️ Anteriores</button>
+      <span class="small text-muted" id="inv-pagina-info"></span>
+      <button type="button" class="btn btn-secondary btn-sm fw-bold" onclick="mudarPaginaInventario(1)">Próximas ➡️</button>
+    </div>
     <div id="inv-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça com estoque diferente de zero nessa loja/categoria.</div>
-    <button type="button" id="btn-salvar-inventario" class="btn-ellba fs-5 py-3 mt-3 d-none" onclick="salvarInventarioFinal()">💾 Salvar Inventário</button>
-    <div id="aviso-salvando-inv" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
+    <button type="button" id="btn-finalizar-inventario" class="btn-ellba fs-5 py-3 mt-3 d-none" onclick="irPara('tela-inventario-config')">✅ Concluir Contagem</button>
   </div>
 
   <div id="tela-cadastrar-produto" class="container d-none pb-5">
@@ -199,14 +248,14 @@
 
   <div id="tela-consultar-produto" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Consultar Peça</h4><div class="mb-3"><input type="text" id="consulta-input" class="form-control text-center fw-bold fs-5 p-3" list="lista-produtos" placeholder="Nome ou código..." onchange="acionarConsultaProduto(this)"><div class="text-muted mt-1 msg-loading-produtos text-center">Carregando...</div></div><div id="loading-consulta" class="text-center d-none mt-4" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div><div id="resultado-consulta" class="d-none"><div class="card shadow-sm border-0 mb-4 mx-auto" style="max-width: 450px;"><img id="consulta-foto" src="" class="card-img-top" style="max-height: 350px; object-fit: contain;" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400';"><div class="card-body text-center p-4"><h5 class="fw-bold mb-1" id="consulta-desc" style="color: var(--cor-fundo);"></h5><p class="text-muted small mb-3">CÓDIGO: <span id="consulta-id"></span></p><h3 class="fw-bold mb-4" id="consulta-preco" style="color: var(--cor-dourado);"></h3><div class="row text-start mb-3" style="font-size: 0.95rem;"><div class="col-6"><p class="mb-2"><strong>Cat:</strong> <span id="consulta-cat"></span></p></div><div class="col-6"><p class="mb-2"><strong>Loc:</strong> <span id="consulta-loc"></span></p></div><div class="col-6"><p class="mb-2"><strong>Tam:</strong> <span id="consulta-tam"></span></p></div><div class="col-6"><p class="mb-2"><strong>Cor:</strong> <span id="consulta-cor"></span></p></div></div><div class="p-3 rounded mb-2" style="background-color: #f8f9fa; border: 1px solid #ddd;"><h5 class="mb-0 fw-bold">SALDO: <span id="consulta-saldo" class="fs-4"></span></h5></div></div></div><div class="d-grid gap-2 mx-auto" style="max-width: 450px;"><div class="row g-2"><div class="col-6"><button class="btn-ellba" onclick="atalhoParaEntrada()" style="font-size: 0.95rem;">📥 Adicionar</button></div><div class="col-6"><button class="btn-ellba-outline" onclick="atalhoParaSaida()" style="font-size: 0.95rem;">📤 Retirar</button></div></div><button class="btn btn-secondary fw-bold p-3 mt-2" onclick="limparConsulta()">🔄 Limpar Nova</button></div></div></div>
   <div id="tela-adicionar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Entrada Estoque</h4><form id="formAdicionarEstoque" onsubmit="enviarFormularioEntrada(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="add-produto" class="form-control" list="lista-produtos" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="add-tipo" class="form-select" required onchange="verificarOpcaoOutro('add-tipo'); verificarCustoEntrada();"><option value="">Selecione...</option><option value="Troca">Troca</option><option value="Devolucao">Devolução</option><option value="Reposicao">Reposição</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-tipo-outro"><input type="text" id="add-tipo-outro" class="form-control"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd *</label><input type="number" id="add-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="col-7"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="add-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="add-localizacao" class="form-select" required onchange="verificarOpcaoOutro('add-localizacao')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-localizacao-outro"><input type="text" id="add-localizacao-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="add-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-entrada" class="btn-ellba">📥 Registrar</button><div id="aviso-salvando-add" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
-  <div id="tela-retirar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Saída Estoque</h4><form id="formRetirarEstoque" onsubmit="enviarFormularioSaida(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="out-produto" class="form-control" list="lista-produtos" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="out-tipo" class="form-select" required onchange="verificarOpcaoOutro('out-tipo')"><option value="">Selecione...</option><option value="Defeito">Defeito</option><option value="Uso Próprio">Uso Próprio</option><option value="Perda">Perda</option><option value="Doação">Doação</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-tipo-outro"><input type="text" id="out-tipo-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="out-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs *</label><textarea id="out-obs" class="form-control" rows="2" required></textarea></div></div><button type="submit" id="btn-salvar-saida" class="btn-ellba">📤 Registrar</button><div id="aviso-salvando-out" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-retirar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Saída Estoque</h4><form id="formRetirarEstoque" onsubmit="enviarFormularioSaida(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="out-produto" class="form-control" list="lista-produtos" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Loja *</label><select id="out-loja" class="form-select" required onchange="verificarOpcaoOutro('out-loja')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-loja-outro"><input type="text" id="out-loja-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="out-tipo" class="form-select" required onchange="verificarOpcaoOutro('out-tipo')"><option value="">Selecione...</option><option value="Defeito">Defeito</option><option value="Uso Próprio">Uso Próprio</option><option value="Perda">Perda</option><option value="Doação">Doação</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-tipo-outro"><input type="text" id="out-tipo-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="out-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs *</label><textarea id="out-obs" class="form-control" rows="2" required></textarea></div></div><button type="submit" id="btn-salvar-saida" class="btn-ellba">📤 Registrar</button><div id="aviso-salvando-out" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
   <div id="tela-transferencia-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Transferência</h4><form id="formTransferenciaEstoque" onsubmit="enviarFormularioTransferencia(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="trans-produto" class="form-control" list="lista-produtos" required onchange="preencherTransferenciaAutomatico(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Origem *</label><select id="trans-origem" class="form-select" required onchange="verificarOpcaoOutro('trans-origem')"><option value="">Retirar de...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-origem-outro"><input type="text" id="trans-origem-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Destino *</label><select id="trans-destino" class="form-select" required onchange="verificarOpcaoOutro('trans-destino')"><option value="">Enviar para...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-destino-outro"><input type="text" id="trans-destino-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="trans-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="trans-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-trans" class="btn-ellba">🔄 Registrar</button><div id="aviso-salvando-trans" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
 
   <!-- VENDAS E CLIENTES -->
   <div id="tela-venda" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Módulo de Venda</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioVendas('tela-cadastrar-venda')">🛒 Cadastrar Venda</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-cliente')">👩 Cadastrar Cliente</button></div></div>
   <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc.</label><input type="text" id="cli-nasc" class="form-control" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">💾 Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
-  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" list="lista-produtos" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">➕ Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
+  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="div-venda-cashback-usar" class="d-none mb-2"><label class="form-label fw-bold small mb-1">Cashback a usar (R$)</label><input type="text" id="venda-cashback-usado" class="form-control form-control-sm" inputmode="numeric" oninput="mascaraMoeda(this)"></div><div id="venda-aniversario-info" class="small mb-1"></div><div id="div-venda-aniversario-usar" class="d-none form-check"><input type="checkbox" class="form-check-input" id="venda-usar-desconto-aniversario" checked><label class="form-check-label small" for="venda-usar-desconto-aniversario">Aplicar 10% de desconto de aniversário nesta compra</label></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" list="lista-produtos" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">➕ Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
 
   <div class="card shadow-sm border-0 p-3 mb-3">
     <h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Forma(s) de Pagamento</h6>
@@ -385,6 +434,7 @@
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
       else if (telaAtual === 'tela-catalogo') { irPara('tela-selecao-loja'); }
       else if (telaAtual === 'tela-relatorios') { irPara('tela-menu'); }
+      else if (['tela-minhas-vendas', 'tela-historico-cliente', 'tela-aniversariantes'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
     }
     function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (telaAtual === 'tela-perfil') { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
     function mascaraMoeda(input) { let v = input.value.replace(/\D/g, ''); if (v === '') { input.value = ''; return; } v = (parseInt(v) / 100).toFixed(2).replace('.', ','); input.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.'); }
@@ -561,7 +611,7 @@
         else if (window.usuariaAtual && nomes.indexOf(window.usuariaAtual) > -1) { select.value = window.usuariaAtual; }
       }).buscarVendedoras();
     }
-    function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); if(!vendedorasCarregadas) carregarVendedoras(); if(!listaClientesCarregada) { document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); } else { preencherSelectClientes(); } }
+    function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); const campoData = document.getElementById('venda-data'); const hojeISO = new Date().toISOString().slice(0, 10); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(!listaClientesCarregada) { document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); } else { preencherSelectClientes(); } }
     function preencherSelectClientes() { const select = document.getElementById('venda-cliente'); const valorAtual = select.value; select.innerHTML = '<option value="Sem Cadastro">-- Cliente Sem Cadastro --</option>'; listaObjClientes.forEach(function(cli) { const option = document.createElement('option'); option.value = cli.label; option.text = cli.label; select.appendChild(option); }); if(valorAtual) select.value = valorAtual; }
     function validarProdutoSelecionado(inputElement) { if (inputElement.value && listaOpcoesProdutos.indexOf(inputElement.value) === -1) { alert("❌ Produto não encontrado!"); inputElement.value = ''; return false; } return true; }
 
@@ -637,6 +687,118 @@
       return '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">' + titulo + '</h6><div class="table-responsive"><table class="table table-sm mb-0"><thead>' + cabecalho + '</thead><tbody>' + linhasHtml + '</tbody></table></div></div>';
     }
 
+    // ====================== MÓDULO MINHAS VENDAS ======================
+    function abrirMinhasVendas() {
+      irPara('tela-minhas-vendas');
+      var hoje = new Date();
+      var inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      document.getElementById('mv-data-inicio').value = inicioMes.toISOString().slice(0, 10);
+      document.getElementById('mv-data-fim').value = hoje.toISOString().slice(0, 10);
+      buscarMinhasVendasTela();
+    }
+
+    function buscarMinhasVendasTela() {
+      var di = document.getElementById('mv-data-inicio').value, df = document.getElementById('mv-data-fim').value;
+      if (!di || !df) return;
+      document.getElementById('mv-lista').innerHTML = '<div class="text-center mt-3"><div class="spinner-border"></div></div>';
+      google.script.run.withSuccessHandler(function(vendas) {
+        var qtd = vendas.length, total = vendas.reduce(function(s, v) { return s + v.total; }, 0);
+        document.getElementById('mv-resumo').style.display = 'block';
+        document.getElementById('mv-qtd').innerText = qtd;
+        document.getElementById('mv-total').innerText = 'R$ ' + formatarPrecoExibicao(total);
+        var div = document.getElementById('mv-lista'); div.innerHTML = '';
+        if (vendas.length === 0) { div.innerHTML = '<p class="text-muted text-center">Nenhuma venda no período.</p>'; return; }
+        vendas.forEach(function(v) {
+          var dataTxt = v.data instanceof Date ? v.data : v.data;
+          div.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between"><div><div class="fw-bold" style="color: var(--cor-fundo);">' + (v.vendedora || '') + (perfilUsuaria === 'Admin' ? ' • ' + (v.local || '') : '') + '</div><div class="text-muted small">' + v.qtdItens + ' peça(s) • ' + (v.formaPagamento || '') + '</div></div><div class="fw-bold" style="color: var(--cor-dourado);">R$ ' + formatarPrecoExibicao(v.total) + '</div></div></div>';
+        });
+      }).withFailureHandler(function(err) { document.getElementById('mv-lista').innerHTML = ''; alert('Erro ao buscar vendas: ' + (err.message || err)); }).buscarMinhasVendas(window.usuariaAtual, perfilUsuaria, di, df);
+    }
+
+    // ====================== MÓDULO HISTÓRICO DA CLIENTE ======================
+    function abrirHistoricoCliente() {
+      irPara('tela-historico-cliente');
+      document.getElementById('hc-conteudo').classList.add('d-none');
+      var select = document.getElementById('hc-cliente-select');
+      if (!listaClientesCarregada) {
+        google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; montarSelectHistorico(); }).carregarListaClientes();
+      } else {
+        montarSelectHistorico();
+      }
+    }
+
+    function montarSelectHistorico() {
+      var select = document.getElementById('hc-cliente-select');
+      select.innerHTML = '<option value="">Selecione a cliente...</option>';
+      listaObjClientes.forEach(function(c) { select.innerHTML += '<option value="' + c.id + '">' + c.label + '</option>'; });
+    }
+
+    var clienteHistoricoAtual = null;
+    function buscarHistoricoCliente() {
+      var idCliente = document.getElementById('hc-cliente-select').value;
+      if (!idCliente) { document.getElementById('hc-conteudo').classList.add('d-none'); return; }
+      google.script.run.withSuccessHandler(function(cli) {
+        clienteHistoricoAtual = cli;
+        document.getElementById('hc-conteudo').classList.remove('d-none');
+        document.getElementById('hc-dados-form').classList.add('d-none');
+        document.getElementById('hc-dados-view').classList.remove('d-none');
+        document.getElementById('hc-dados-view').innerHTML = '<p class="mb-1"><strong>Nome:</strong> ' + cli.nome + '</p><p class="mb-1"><strong>Telefone:</strong> ' + (cli.telefone || '-') + '</p><p class="mb-1"><strong>E-mail:</strong> ' + (cli.email || '-') + '</p><p class="mb-1"><strong>CPF:</strong> ' + (cli.cpf || '-') + '</p><p class="mb-1"><strong>Nascimento:</strong> ' + (cli.nascimento || '-') + '</p><p class="mb-1"><strong>Endereço:</strong> ' + (cli.endereco || '-') + '</p>';
+        document.getElementById('hc-cashback').innerText = 'R$ ' + formatarPrecoExibicao(cli.cashbackDisponivel || 0);
+        var comprasDiv = document.getElementById('hc-compras'); comprasDiv.innerHTML = '';
+        if (!cli.compras || cli.compras.length === 0) { comprasDiv.innerHTML = '<p class="text-muted text-center">Nenhuma compra registrada ainda.</p>'; return; }
+        cli.compras.forEach(function(c) {
+          var dataTxt = c.data instanceof Date ? c.data : c.data;
+          comprasDiv.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between"><div class="fw-bold small">' + c.itens.length + ' peça(s)</div><div class="fw-bold" style="color: var(--cor-dourado);">R$ ' + formatarPrecoExibicao(c.total) + '</div></div></div>';
+        });
+      }).withFailureHandler(function(err) { alert('Erro ao buscar cliente: ' + (err.message || err)); }).buscarClienteDetalhe(idCliente);
+    }
+
+    function editarHistoricoCliente() {
+      if (!clienteHistoricoAtual) return;
+      document.getElementById('hc-dados-view').classList.add('d-none');
+      var f = document.getElementById('hc-dados-form'); f.classList.remove('d-none');
+      document.getElementById('hc-edit-nome').value = clienteHistoricoAtual.nome || '';
+      document.getElementById('hc-edit-telefone').value = clienteHistoricoAtual.telefone || '';
+      document.getElementById('hc-edit-email').value = clienteHistoricoAtual.email || '';
+      document.getElementById('hc-edit-cpf').value = clienteHistoricoAtual.cpf || '';
+      document.getElementById('hc-edit-nascimento').value = clienteHistoricoAtual.nascimento || '';
+      document.getElementById('hc-edit-endereco').value = clienteHistoricoAtual.endereco || '';
+      document.getElementById('hc-edit-obs').value = clienteHistoricoAtual.obs || '';
+    }
+
+    function salvarEdicaoCliente(e) {
+      e.preventDefault();
+      var dados = {
+        id: clienteHistoricoAtual.id,
+        nome: document.getElementById('hc-edit-nome').value,
+        telefone: document.getElementById('hc-edit-telefone').value,
+        email: document.getElementById('hc-edit-email').value,
+        cpf: document.getElementById('hc-edit-cpf').value,
+        nascimento: document.getElementById('hc-edit-nascimento').value,
+        endereco: document.getElementById('hc-edit-endereco').value,
+        obs: document.getElementById('hc-edit-obs').value
+      };
+      google.script.run.withSuccessHandler(function() {
+        alert('✅ Dados atualizados!');
+        listaClientesCarregada = false;
+        buscarHistoricoCliente();
+      }).withFailureHandler(function(err) { alert('Erro ao salvar: ' + (err.message || err)); }).editarCliente(dados);
+    }
+
+    // ====================== MÓDULO ANIVERSARIANTES ======================
+    function abrirAniversariantes() {
+      irPara('tela-aniversariantes');
+      document.getElementById('aniv-lista').innerHTML = '<div class="text-center mt-3"><div class="spinner-border"></div></div>';
+      document.getElementById('aniv-vazio').classList.add('d-none');
+      google.script.run.withSuccessHandler(function(lista) {
+        var div = document.getElementById('aniv-lista'); div.innerHTML = '';
+        if (lista.length === 0) { document.getElementById('aniv-vazio').classList.remove('d-none'); return; }
+        lista.forEach(function(a) {
+          div.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold" style="color: var(--cor-fundo);">🎉 ' + a.nome + '</div><div class="text-muted small">' + (a.telefone || 'Sem telefone') + '</div></div>' + (a.linkWhatsapp ? '<a href="' + a.linkWhatsapp + '" target="_blank" class="btn btn-success btn-sm fw-bold" style="background-color:#25D366; border-color:#25D366;">📱 Enviar</a>' : '') + '</div></div>';
+        });
+      }).withFailureHandler(function(err) { document.getElementById('aniv-lista').innerHTML = ''; alert('Erro ao buscar aniversariantes: ' + (err.message || err)); }).buscarAniversariantesHoje();
+    }
+
     function renderizarRelatorio(res) {
       var html = '';
 
@@ -661,7 +823,18 @@
       html += blocoTabela_('💸 Despesas por Categoria', res.despesas.porCategoria, [{ chave: 'categoria', label: 'Categoria' }, { chave: 'valor', label: 'Valor', moeda: true }]);
       html += blocoTabela_('🚚 Despesas por Fornecedor', res.despesas.porFornecedor, [{ chave: 'fornecedor', label: 'Fornecedor' }, { chave: 'valor', label: 'Valor', moeda: true }]);
       html += '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">💸 Despesas Totais</h6><div class="fw-bold fs-5">' + formatarMoedaExibicao(res.despesas.total) + '</div></div>';
-      html += blocoTabela_('🐢 Estoque Parado (+15 dias sem venda)', res.estoqueParado, [{ chave: 'id', label: 'Código' }, { chave: 'descricao', label: 'Descrição' }, { chave: 'saldo', label: 'Saldo' }, { chave: 'diasParado', label: 'Dias Parado' }]);
+      if (res.tamanhoMaisVendido) {
+        html += '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">📏 Tamanho Mais Vendido</h6><div class="fw-bold fs-5" style="color: var(--cor-dourado);">' + res.tamanhoMaisVendido.tamanho + '</div><div class="text-muted small">' + res.tamanhoMaisVendido.qtd + ' peça(s) no período</div></div>';
+      }
+
+      var lojasEstoque = ['Loja Recreio', 'Loja Penha'];
+      var htmlEstoque = '<div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-2">📦 Saldo Atual do Estoque (hoje)</h6><table class="table table-sm mb-0"><thead><tr><th>Loja</th><th class="text-center">Qtd</th><th class="text-end">Custo Total</th><th class="text-end">Valor Venda</th></tr></thead><tbody>';
+      lojasEstoque.forEach(function(loja) {
+        var e = (res.estoqueAtualPorLoja && res.estoqueAtualPorLoja[loja]) || { qtd: 0, custoTotal: 0, vendaTotal: 0 };
+        htmlEstoque += '<tr><td>' + loja + '</td><td class="text-center">' + e.qtd + '</td><td class="text-end">' + formatarMoedaExibicao(e.custoTotal) + '</td><td class="text-end">' + formatarMoedaExibicao(e.vendaTotal) + '</td></tr>';
+      });
+      htmlEstoque += '</tbody></table></div>';
+      html += htmlEstoque;
 
       document.getElementById('resultado-relatorio').innerHTML = html;
     }
@@ -679,6 +852,64 @@
 
     function totalCarrinho() {
       return carrinho.reduce(function(soma, item) { return soma + (converterParaNumero(item.preco) * item.qtd); }, 0);
+    }
+
+    let clienteVendaSelecionado = null;
+
+    function aoSelecionarClienteVenda() {
+      const sel = document.getElementById('venda-cliente').value;
+      if (sel === 'Sem Cadastro' || !sel) {
+        clienteVendaSelecionado = null;
+        document.getElementById('div-venda-beneficios').classList.add('d-none');
+        atualizarInterfacePagamentos();
+        return;
+      }
+      const idCliente = sel.split(' - ')[0].trim();
+      google.script.run.withSuccessHandler(function(cli) {
+        clienteVendaSelecionado = cli;
+        renderizarBeneficiosCliente(cli);
+        atualizarInterfacePagamentos();
+      }).withFailureHandler(function(err) { console.error('Erro ao buscar cliente:', err); }).buscarClienteDetalhe(idCliente);
+    }
+
+    function renderizarBeneficiosCliente(cli) {
+      document.getElementById('div-venda-beneficios').classList.remove('d-none');
+      const cashbackDiv = document.getElementById('venda-cashback-info');
+      const usarDiv = document.getElementById('div-venda-cashback-usar');
+      const usarInput = document.getElementById('venda-cashback-usado');
+      if (cli.cashbackDisponivel > 0) {
+        cashbackDiv.innerHTML = '💰 Cashback disponível: <strong>R$ ' + formatarPrecoExibicao(cli.cashbackDisponivel) + '</strong>';
+        usarDiv.classList.remove('d-none');
+        usarInput.value = formatarPrecoExibicao(Math.min(cli.cashbackDisponivel, totalCarrinho()));
+      } else {
+        cashbackDiv.innerHTML = '';
+        usarDiv.classList.add('d-none');
+        usarInput.value = '';
+      }
+      const aniversarioDiv = document.getElementById('venda-aniversario-info');
+      const aniversarioCheckDiv = document.getElementById('div-venda-aniversario-usar');
+      if (cli.aniversarioElegivel) {
+        aniversarioDiv.innerHTML = '🎂 Cliente aniversariante do mês — 10% de desconto disponível!';
+        aniversarioCheckDiv.classList.remove('d-none');
+      } else {
+        aniversarioDiv.innerHTML = '';
+        aniversarioCheckDiv.classList.add('d-none');
+      }
+    }
+
+    // Calcula cashback usado + desconto de aniversário (se marcados) e o total líquido da venda.
+    function calcularDescontosVenda() {
+      const total = totalCarrinho();
+      let cashback = 0, aniversario = 0;
+      if (clienteVendaSelecionado) {
+        if (!document.getElementById('div-venda-cashback-usar').classList.contains('d-none')) {
+          cashback = Math.min(converterParaNumero(document.getElementById('venda-cashback-usado').value) || 0, clienteVendaSelecionado.cashbackDisponivel, total);
+        }
+        if (clienteVendaSelecionado.aniversarioElegivel && !document.getElementById('div-venda-aniversario-usar').classList.contains('d-none') && document.getElementById('venda-usar-desconto-aniversario').checked) {
+          aniversario = Math.round(total * 0.10 * 100) / 100;
+        }
+      }
+      return { total: total, cashback: cashback, aniversario: aniversario, totalLiquido: Math.max(0, total - cashback - aniversario) };
     }
 
     function adicionarFormaPagamento() {
@@ -704,7 +935,7 @@
       });
       document.getElementById('pgto-total-pago').innerText = "R$ " + formatarPrecoExibicao(totalPago);
 
-      const totalVenda = totalCarrinho();
+      const totalVenda = calcularDescontosVenda().totalLiquido;
       const aviso = document.getElementById('pgto-aviso');
       if (pagamentosVenda.length === 0) {
         aviso.innerText = ''; aviso.className = 'small mt-1';
@@ -715,6 +946,14 @@
       } else {
         aviso.innerText = '✅ Formas de pagamento batem com o total da venda.';
         aviso.className = 'small mt-1 fw-bold text-success';
+      }
+
+      // Pré-preenche o campo de valor com o quanto falta pra fechar o total
+      // (1ª forma = total da venda; próximas = o que ainda falta). Continua editável.
+      const faltante = totalVenda - totalPago;
+      const campoValor = document.getElementById('pgto-valor');
+      if (campoValor && faltante > 0.009) {
+        campoValor.value = formatarPrecoExibicao(faltante);
       }
     }
 
@@ -747,9 +986,12 @@
     function finalizarVenda() {
       if (carrinho.length === 0) { alert("O carrinho está vazio!"); return; }
       const vendedora = document.getElementById('venda-vendedora'); const local = document.getElementById('venda-local');
+      const dataInput = document.getElementById('venda-data');
       if (!vendedora.value || !local.value) { alert("Preencha Vendedora e Local."); return; }
+      if (!dataInput.value) { alert("Preencha a Data da venda."); return; }
       if (pagamentosVenda.length === 0) { alert("Adicione ao menos uma forma de pagamento."); return; }
-      const totalVenda = totalCarrinho();
+      const descontos = calcularDescontosVenda();
+      const totalVenda = descontos.totalLiquido;
       const totalPago = pagamentosVenda.reduce(function(s, p) { return s + p.valor; }, 0);
       if (Math.abs(totalPago - totalVenda) > 0.009) { alert("A soma das formas de pagamento (R$ " + formatarPrecoExibicao(totalPago) + ") não bate com o total da venda (R$ " + formatarPrecoExibicao(totalVenda) + ")."); return; }
 
@@ -757,16 +999,29 @@
       document.getElementById('aviso-salvando-venda').classList.remove('d-none');
 
       const pagamentosFormatados = pagamentosVenda.map(function(p) { return { forma: p.forma, parcelas: p.parcelas, valor: p.valor.toFixed(2).replace('.', ',') }; });
-      const dadosVenda = { vendedora: vendedora.value, vendedoraOutro: document.getElementById('venda-vendedora-outro').value, local: local.value, localOutro: document.getElementById('venda-local-outro').value, pagamentos: pagamentosFormatados, cliente: document.getElementById('venda-cliente').value, itens: carrinho };
-      montarTextoRecibo(dadosVenda);
+      const dadosVenda = { vendedora: vendedora.value, vendedoraOutro: document.getElementById('venda-vendedora-outro').value, local: local.value, localOutro: document.getElementById('venda-local-outro').value, dataVenda: dataInput.value, pagamentos: pagamentosFormatados, cliente: document.getElementById('venda-cliente').value, cashbackUsado: descontos.cashback, descontoAniversario: descontos.aniversario, itens: carrinho };
+
+      // O cashback gerado nesta venda é 5% sobre o valor líquido pago (mesma
+      // regra usada no backend), calculado aqui para poder já mostrar no recibo.
+      const cashbackGeradoNestaVenda = Math.round(descontos.totalLiquido * 0.05 * 100) / 100;
 
       google.script.run.withSuccessHandler(function() {
         document.getElementById('aviso-salvando-venda').classList.add('d-none');
 
         if (dadosVenda.cliente !== "Sem Cadastro") {
-          alert("✅ VENDA REGISTRADA COM SUCESSO!");
-          document.getElementById('area-pos-venda').classList.remove('d-none');
+          const idClienteVenda = dadosVenda.cliente.split(' - ')[0].trim();
+          // Busca o saldo de cashback já atualizado (pós-venda) pra montar o recibo certinho.
+          google.script.run.withSuccessHandler(function(cliAtualizado) {
+            montarTextoRecibo(dadosVenda, { cashbackGerado: cashbackGeradoNestaVenda, cashbackSaldoTotal: cliAtualizado.cashbackDisponivel, cashbackValidade: cliAtualizado.cashbackProximaValidade });
+            alert("✅ VENDA REGISTRADA COM SUCESSO!");
+            document.getElementById('area-pos-venda').classList.remove('d-none');
+          }).withFailureHandler(function() {
+            montarTextoRecibo(dadosVenda, null);
+            alert("✅ VENDA REGISTRADA COM SUCESSO!");
+            document.getElementById('area-pos-venda').classList.remove('d-none');
+          }).buscarClienteDetalhe(idClienteVenda);
         } else {
+          montarTextoRecibo(dadosVenda, null);
           alert("✅ VENDA REGISTRADA COM SUCESSO!\n\nAs peças foram retiradas do estoque.");
           limparTelaVenda();
         }
@@ -774,9 +1029,11 @@
     }
 
     function limparTelaVenda() {
-      carrinho = []; pagamentosVenda = [];
+      carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null;
       atualizarInterfaceCarrinho(); atualizarInterfacePagamentos();
       document.getElementById('venda-cliente').value = "Sem Cadastro";
+      document.getElementById('div-venda-beneficios').classList.add('d-none');
+      document.getElementById('venda-data').value = new Date().toISOString().slice(0, 10);
       catalogoCarregado = false;
       document.getElementById('area-pos-venda').classList.add('d-none');
       document.getElementById('btn-salvar-venda').classList.remove('d-none');
@@ -793,7 +1050,7 @@
       }
     }
 
-    function montarTextoRecibo(dados) {
+    function montarTextoRecibo(dados, infoCashback) {
       if (dados.cliente === "Sem Cadastro") return;
       const nomeCliente = dados.cliente.split(' - ')[1].trim();
 
@@ -812,6 +1069,14 @@
 
       texto += "\n💰 *Total:* R$ " + formatarPrecoExibicao(total) + "\n";
       texto += "💵 *Forma de pagamento:* " + infoPagamento + "\n\n";
+
+      if (infoCashback && infoCashback.cashbackGerado > 0) {
+        texto += "🎁 Você ganhou R$ " + formatarPrecoExibicao(infoCashback.cashbackGerado) + " de cashback nessa compra!\n";
+        texto += "💰 Saldo total de cashback: R$ " + formatarPrecoExibicao(infoCashback.cashbackSaldoTotal || 0) + "\n";
+        if (infoCashback.cashbackValidade) texto += "⏳ Validade: use até " + infoCashback.cashbackValidade + "\n";
+        texto += "\n";
+      }
+
       texto += "🔄 *Política de Troca:*\n";
       texto += "Você tem *7 dias corridos* para realizar a troca, caso precise.\n";
       texto += "⚠️ *Atenção:* Itens vendidos na promoção *não* têm direito a troca.\n\n";
@@ -827,7 +1092,7 @@
     function atalhoParaSaida() { abrirFormularioComLista('tela-retirar-estoque'); document.getElementById('out-produto').value = produtoConsultadoAtual; }
     function verificarCustoEntrada() { const tipo = document.getElementById('add-tipo').value; if (tipo === 'Troca' || tipo === 'Devolucao') { document.getElementById('add-custo').value = '0,00'; } else if (tipo === 'Reposicao') { document.getElementById('add-custo').value = ''; } }
     function enviarFormularioEntrada(e) { e.preventDefault(); document.getElementById('btn-salvar-entrada').classList.add('d-none'); document.getElementById('aviso-salvando-add').classList.remove('d-none'); const dados = { produto: document.getElementById('add-produto').value, tipoEntrada: document.getElementById('add-tipo').value, tipoEntradaOutro: document.getElementById('add-tipo-outro').value, qtd: document.getElementById('add-qtd').value, custo: document.getElementById('add-custo').value, localizacao: document.getElementById('add-localizacao').value, localizacaoOutro: document.getElementById('add-localizacao-outro').value, obs: document.getElementById('add-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-entrada', 'aviso-salvando-add'); document.getElementById('formAdicionarEstoque').reset(); verificarOpcaoOutro('add-tipo'); verificarOpcaoOutro('add-localizacao'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-entrada', 'aviso-salvando-add', err); }).registrarEntradaEstoque(dados); }
-    function enviarFormularioSaida(e) { e.preventDefault(); document.getElementById('btn-salvar-saida').classList.add('d-none'); document.getElementById('aviso-salvando-out').classList.remove('d-none'); const dados = { produto: document.getElementById('out-produto').value, tipoSaida: document.getElementById('out-tipo').value, tipoSaidaOutro: document.getElementById('out-tipo-outro').value, qtd: document.getElementById('out-qtd').value, obs: document.getElementById('out-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-saida', 'aviso-salvando-out'); document.getElementById('formRetirarEstoque').reset(); verificarOpcaoOutro('out-tipo'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-saida', 'aviso-salvando-out', err); }).registrarSaidaEstoque(dados); }
+    function enviarFormularioSaida(e) { e.preventDefault(); document.getElementById('btn-salvar-saida').classList.add('d-none'); document.getElementById('aviso-salvando-out').classList.remove('d-none'); const dados = { produto: document.getElementById('out-produto').value, loja: document.getElementById('out-loja').value, lojaOutro: document.getElementById('out-loja-outro').value, tipoSaida: document.getElementById('out-tipo').value, tipoSaidaOutro: document.getElementById('out-tipo-outro').value, qtd: document.getElementById('out-qtd').value, obs: document.getElementById('out-obs').value }; google.script.run.withSuccessHandler(function() { restaurarBotao('btn-salvar-saida', 'aviso-salvando-out'); document.getElementById('formRetirarEstoque').reset(); verificarOpcaoOutro('out-tipo'); verificarOpcaoOutro('out-loja'); catalogoCarregado = false; alert("✅ SUCESSO!"); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-saida', 'aviso-salvando-out', err); }).registrarSaidaEstoque(dados); }
     function enviarFormularioTransferencia(e) { e.preventDefault(); document.getElementById('btn-salvar-trans').classList.add('d-none'); document.getElementById('aviso-salvando-trans').classList.remove('d-none'); const dados = { produto: document.getElementById('trans-produto').value, origem: document.getElementById('trans-origem').value, origemOutro: document.getElementById('trans-origem-outro').value, destino: document.getElementById('trans-destino').value, destinoOutro: document.getElementById('trans-destino-outro').value, qtd: document.getElementById('trans-qtd').value, obs: document.getElementById('trans-obs').value }; google.script.run.withSuccessHandler(function(res) { restaurarBotao('btn-salvar-trans', 'aviso-salvando-trans'); document.getElementById('formTransferenciaEstoque').reset(); verificarOpcaoOutro('trans-origem'); verificarOpcaoOutro('trans-destino'); catalogoCarregado = false; listaProdutosCarregada = false; alert("✅ Transferência registrada!\nCódigo no destino: " + (res && res.idDestino ? res.idDestino : "")); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-trans', 'aviso-salvando-trans', err); }).registrarTransferenciaEstoque(dados); }
 
     // --- CATÁLOGO AGRUPADO E VITRINE INTELIGENTE ---
@@ -937,6 +1202,9 @@
       }).withFailureHandler(function(err) { alert('Erro ao carregar categorias: ' + (err.message || err)); }).buscarCategoriasPorLoja(loja);
     }
 
+    var INV_ITENS_POR_PAGINA = 5;
+    var invPaginaAtual = 0;
+
     function carregarProdutosInventario() {
       const loja = document.getElementById('inv-loja').value;
       const categoria = document.getElementById('inv-categoria').value;
@@ -946,33 +1214,61 @@
       document.getElementById('inv-lista-subtitulo').innerText = loja + ' — ' + categoria;
       document.getElementById('inv-lista-itens').innerHTML = '';
       document.getElementById('inv-vazio').classList.add('d-none');
-      document.getElementById('btn-salvar-inventario').classList.add('d-none');
+      document.getElementById('btn-finalizar-inventario').classList.add('d-none');
+      document.getElementById('div-inv-busca').classList.add('d-none');
+      document.getElementById('inv-paginacao').classList.add('d-none');
       document.getElementById('inv-loading').classList.remove('d-none');
+      invPaginaAtual = 0;
 
       google.script.run.withSuccessHandler(function(produtos) {
         document.getElementById('inv-loading').classList.add('d-none');
-        inventarioAtual = produtos.map(function(p) { return Object.assign({}, p, { estoqueReal: null }); });
+        inventarioAtual = produtos.map(function(p) { return Object.assign({}, p, { estoqueReal: null, salvo: false }); });
+        montarBuscaInventario();
         renderizarInventario();
         if (produtos.length === 0) {
           document.getElementById('inv-vazio').classList.remove('d-none');
         } else {
-          document.getElementById('btn-salvar-inventario').classList.remove('d-none');
+          document.getElementById('btn-finalizar-inventario').classList.remove('d-none');
+          document.getElementById('div-inv-busca').classList.remove('d-none');
         }
       }).withFailureHandler(function(err) { document.getElementById('inv-loading').classList.add('d-none'); alert('Erro ao carregar produtos: ' + (err.message || err)); }).buscarProdutosParaInventario(loja, categoria);
     }
 
+    function montarBuscaInventario() {
+      const dl = document.getElementById('lista-inv-itens');
+      dl.innerHTML = '';
+      inventarioAtual.forEach(function(item) {
+        dl.innerHTML += '<option value="' + item.id + ' - ' + item.descricao + '">';
+      });
+    }
+
+    function pularParaItemInventario(valor) {
+      const idBuscado = valor.split(' - ')[0].trim();
+      const index = inventarioAtual.findIndex(function(i) { return i.id === idBuscado; });
+      if (index === -1) { alert('Peça não encontrada nessa loja/categoria.'); return; }
+      invPaginaAtual = Math.floor(index / INV_ITENS_POR_PAGINA);
+      renderizarInventario();
+      document.getElementById('inv-busca').value = '';
+    }
+
+    function mudarPaginaInventario(direcao) {
+      const totalPaginas = Math.ceil(inventarioAtual.length / INV_ITENS_POR_PAGINA);
+      invPaginaAtual = Math.max(0, Math.min(totalPaginas - 1, invPaginaAtual + direcao));
+      renderizarInventario();
+    }
+
     function renderizarInventario() {
       const div = document.getElementById('inv-lista-itens');
-      const ativo = document.activeElement;
-      let focoIndex = null, focoCursor = null;
-      if (ativo && ativo.id && ativo.id.indexOf('inv-real-') === 0) {
-        focoIndex = ativo.id.replace('inv-real-', '');
-        focoCursor = ativo.selectionStart;
-      }
       div.innerHTML = '';
-      inventarioAtual.forEach(function(item, index) {
+      const totalPaginas = Math.ceil(inventarioAtual.length / INV_ITENS_POR_PAGINA) || 1;
+      const inicio = invPaginaAtual * INV_ITENS_POR_PAGINA;
+      const fim = Math.min(inicio + INV_ITENS_POR_PAGINA, inventarioAtual.length);
+
+      for (var index = inicio; index < fim; index++) {
+        const item = inventarioAtual[index];
         let corFundo = '#fff', corBorda = '#e0d0a6';
-        if (item.estoqueReal !== null && item.estoqueReal !== '') {
+        if (item.salvo) { corFundo = '#f0f0f0'; corBorda = '#999'; }
+        else if (item.estoqueReal !== null && item.estoqueReal !== '') {
           const diff = parseInt(item.estoqueReal) - item.estoqueVirtual;
           if (diff === 0) { corFundo = '#E8F5E9'; corBorda = '#4a151b'; }
           else { corFundo = '#FFEBEE'; corBorda = '#dc3545'; }
@@ -982,26 +1278,25 @@
         let idHtml = item.foto ? ('<a href="' + item.foto + '" target="_blank" rel="noopener" style="color: var(--cor-fundo); text-decoration: underline;">' + item.id + ' 📷</a>') : item.id;
         html += '<div class="col-7"><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.9rem;">' + idHtml + ' - ' + item.descricao + '</div><div class="text-muted small">Tam: ' + item.tamanho + ' | Cor: ' + item.cor + ' | Virtual: ' + item.estoqueVirtual + '</div></div>';
         const valorAtual = (item.estoqueReal !== null && item.estoqueReal !== '') ? item.estoqueReal : '';
-        html += '<div class="col-5"><input type="number" id="inv-real-' + index + '" class="form-control text-center fw-bold" placeholder="Real" value="' + valorAtual + '" oninput="atualizarEstoqueReal(' + index + ', this.value)"></div>';
+        html += '<div class="col-5"><input type="number" id="inv-real-' + index + '" class="form-control text-center fw-bold" placeholder="Real" value="' + valorAtual + '" ' + (item.salvo ? 'disabled' : '') + ' oninput="atualizarEstoqueReal(' + index + ', this.value)"></div>';
         html += '</div>';
-        if (item.estoqueReal !== null && item.estoqueReal !== '') {
+        if (item.salvo) {
+          html += '<div class="small fw-bold mt-2" style="color:#666;">✔️ Já contado nesta rodada.</div>';
+        } else if (item.estoqueReal !== null && item.estoqueReal !== '') {
           const diff = parseInt(item.estoqueReal) - item.estoqueVirtual;
           if (diff !== 0) {
-            html += '<div class="small fw-bold text-danger mt-2">⚠️ Diferença: ' + (diff > 0 ? '+' + diff : diff) + '. Confira e ajuste (venda não lançada, entrada ou saída).</div>';
+            html += '<div class="small fw-bold text-danger mt-2">⚠️ Diferença: ' + (diff > 0 ? '+' + diff : diff) + '.</div>';
           } else {
             html += '<div class="small fw-bold text-success mt-2">✅ Bateu certinho!</div>';
           }
+          html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-2" onclick="salvarItemInventario(' + index + ')">💾 Salvar este item</button>';
         }
         html += '</div>';
         div.innerHTML += html;
-      });
-      if (focoIndex !== null) {
-        const inputFoco = document.getElementById('inv-real-' + focoIndex);
-        if (inputFoco) {
-          inputFoco.focus();
-          if (focoCursor !== null) { try { inputFoco.setSelectionRange(focoCursor, focoCursor); } catch (e) {} }
-        }
       }
+
+      document.getElementById('inv-paginacao').classList.toggle('d-none', inventarioAtual.length <= INV_ITENS_POR_PAGINA);
+      document.getElementById('inv-pagina-info').innerText = 'Página ' + (invPaginaAtual + 1) + ' de ' + totalPaginas + ' (' + inventarioAtual.length + ' peças)';
     }
 
     function atualizarEstoqueReal(index, valor) {
@@ -1009,27 +1304,40 @@
       renderizarInventario();
     }
 
-    function salvarInventarioFinal() {
-      const pendentes = inventarioAtual.filter(function(i) { return i.estoqueReal === null || i.estoqueReal === ''; });
-      if (pendentes.length > 0) { alert('Preencha o estoque real de todas as peças antes de salvar.'); return; }
+    // Salva a contagem de UMA peça. Se houver diferença entre o estoque real
+    // e o virtual, já encaminha a vendedora para a tela de Entrada (sobrou)
+    // ou Saída (faltou), pré-preenchida, para ela confirmar o ajuste.
+    function salvarItemInventario(index) {
+      const item = inventarioAtual[index];
+      if (item.estoqueReal === null || item.estoqueReal === '') { alert('Preencha o estoque real dessa peça antes de salvar.'); return; }
 
-      document.getElementById('btn-salvar-inventario').classList.add('d-none');
-      document.getElementById('aviso-salvando-inv').classList.remove('d-none');
+      const loja = document.getElementById('inv-loja').value;
+      const dados = { loja: loja, id: item.id, descricao: item.descricao, estoqueVirtual: item.estoqueVirtual, estoqueReal: item.estoqueReal };
 
-      const dados = {
-        loja: document.getElementById('inv-loja').value,
-        itens: inventarioAtual.map(function(i) { return { id: i.id, descricao: i.descricao, estoqueVirtual: i.estoqueVirtual, estoqueReal: i.estoqueReal }; })
-      };
-
-      google.script.run.withSuccessHandler(function() {
-        document.getElementById('aviso-salvando-inv').classList.add('d-none');
-        alert('✅ Inventário salvo com sucesso!');
-        irPara('tela-inventario-config');
-      }).withFailureHandler(function(err) {
-        document.getElementById('btn-salvar-inventario').classList.remove('d-none');
-        document.getElementById('aviso-salvando-inv').classList.add('d-none');
-        alert('❌ Erro ao salvar inventário: ' + (err.message || err));
-      }).salvarInventario(dados);
+      google.script.run.withSuccessHandler(function(res) {
+        item.salvo = true;
+        renderizarInventario();
+        const diferenca = res && typeof res.diferenca === 'number' ? res.diferenca : (parseInt(item.estoqueReal) - item.estoqueVirtual);
+        if (diferenca !== 0) {
+          const ajustar = confirm('Item salvo! Diferença de ' + (diferenca > 0 ? '+' + diferenca : diferenca) + ' peça(s) em relação ao estoque virtual.\n\nQuer já ajustar o estoque (' + (diferenca > 0 ? 'dar Entrada' : 'dar Saída') + ') dessa diferença agora?');
+          if (ajustar) {
+            if (diferenca > 0) {
+              abrirFormularioComLista('tela-adicionar-estoque');
+              document.getElementById('add-produto').value = item.id + ' - ' + item.descricao;
+              document.getElementById('add-qtd').value = diferenca;
+              document.getElementById('add-tipo').value = 'Reposicao';
+              document.getElementById('add-localizacao').value = loja;
+              document.getElementById('add-custo').value = '';
+            } else {
+              abrirFormularioComLista('tela-retirar-estoque');
+              document.getElementById('out-produto').value = item.id + ' - ' + item.descricao;
+              document.getElementById('out-qtd').value = Math.abs(diferenca);
+              document.getElementById('out-loja').value = loja;
+              document.getElementById('out-obs').value = 'Ajuste de inventário';
+            }
+          }
+        }
+      }).withFailureHandler(function(err) { alert('❌ Erro ao salvar item: ' + (err.message || err)); }).salvarInventarioItem(dados);
     }
 
     // ====================== MÓDULO MARKETING ======================
