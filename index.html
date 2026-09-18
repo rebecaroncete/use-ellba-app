@@ -262,26 +262,58 @@
   <div id="tela-venda" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Módulo de Venda</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioVendas('tela-cadastrar-venda')">🛒 Cadastrar Venda</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-cliente')">👩 Cadastrar Cliente</button></div></div>
   <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc.</label><input type="text" id="cli-nasc" class="form-control" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">💾 Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
-  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="div-venda-cashback-usar" class="d-none mb-2"><label class="form-label fw-bold small mb-1">Cashback a usar (R$)</label><input type="text" id="venda-cashback-usado" class="form-control form-control-sm" inputmode="numeric" oninput="mascaraMoeda(this)"></div><div id="venda-aniversario-info" class="small mb-1"></div><div id="div-venda-aniversario-usar" class="d-none form-check"><input type="checkbox" class="form-check-input" id="venda-usar-desconto-aniversario" checked><label class="form-check-label small" for="venda-usar-desconto-aniversario">Aplicar 10% de desconto de aniversário nesta compra</label></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">➕ Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
+  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">➕ Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
 
-  <div class="card shadow-sm border-0 p-3 mb-3">
-    <h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Forma(s) de Pagamento</h6>
-    <div class="row g-2 mb-2">
-      <div class="col-5"><select id="pgto-forma" class="form-select" onchange="verificarParcelasPagamento()"><option value="Débito">Débito</option><option value="Crédito">Crédito</option><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option></select></div>
-      <div class="col-3 d-none" id="div-pgto-parcelas"><select id="pgto-parcelas" class="form-select"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option></select></div>
-      <div class="col-4"><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="pgto-valor" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div>
-    </div>
-    <button type="button" class="btn btn-secondary w-100 fw-bold mb-2" onclick="adicionarFormaPagamento()">➕ Adicionar forma de pagamento</button>
-    <div id="lista-pagamentos" class="mb-2"></div>
-    <div class="d-flex justify-content-between fw-bold" style="font-size: 0.95rem;">
-      <span>Total pago:</span>
-      <span id="pgto-total-pago" style="color: var(--cor-fundo);">R$ 0,00</span>
-    </div>
-    <div id="pgto-aviso" class="small mt-1"></div>
+  <button type="button" id="btn-continuar-venda" class="btn-ellba fs-5 py-3" onclick="continuarParaProximaEtapa()">➡️ CONTINUAR</button>
   </div>
 
-  <button type="button" id="btn-salvar-venda" class="btn-ellba fs-5 py-3" onclick="finalizarVenda()">💳 REGISTRAR VENDA</button>
-  <div id="aviso-salvando-venda" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div><br><strong>Processando venda...</strong></div>
+  <!-- APLICAR CASHBACK / DESCONTO ANIVERSÁRIO -->
+  <div id="tela-aplicar-desconto" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cashback / Desconto</h4>
+    <div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;">
+      <div class="text-center p-3 mb-3 rounded" style="background-color: var(--cor-fundo);">
+        <div class="text-white mb-1">TOTAL DO CARRINHO</div>
+        <div id="desconto-total-carrinho" style="color: var(--cor-dourado); font-size: 1.6rem; font-weight: bold;">R$ 0,00</div>
+      </div>
+      <div id="desconto-cashback-info" class="small mb-1"></div>
+      <div id="div-desconto-cashback-usar" class="d-none mb-3">
+        <label class="form-label fw-bold small mb-1">Cashback a usar (R$)</label>
+        <input type="text" id="desconto-cashback-usado" class="form-control" inputmode="numeric" oninput="mascaraMoeda(this)">
+      </div>
+      <div id="desconto-aniversario-info" class="small mb-1"></div>
+      <div id="div-desconto-aniversario-usar" class="d-none form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="desconto-usar-aniversario" checked>
+        <label class="form-check-label small" for="desconto-usar-aniversario">Aplicar 10% de desconto de aniversário nesta compra</label>
+      </div>
+    </div>
+    <button type="button" class="btn-ellba fs-5 py-3" onclick="aplicarCashbackDesconto()">✅ APLICAR CASHBACK</button>
+  </div>
+
+  <!-- PAGAMENTO -->
+  <div id="tela-pagamento-venda" class="container d-none pb-5">
+    <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Pagamento</h4>
+    <div class="text-center p-3 mb-3 rounded" style="background-color: var(--cor-fundo);">
+      <div class="text-white mb-1">TOTAL A PAGAR</div>
+      <div id="pagamento-total-a-pagar" style="color: var(--cor-dourado); font-size: 1.6rem; font-weight: bold;">R$ 0,00</div>
+    </div>
+    <div class="card shadow-sm border-0 p-3 mb-3">
+      <h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Forma(s) de Pagamento</h6>
+      <div class="row g-2 mb-2">
+        <div class="col-5"><select id="pgto-forma" class="form-select" onchange="verificarParcelasPagamento()"><option value="Débito">Débito</option><option value="Crédito">Crédito</option><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option></select></div>
+        <div class="col-3 d-none" id="div-pgto-parcelas"><select id="pgto-parcelas" class="form-select"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option></select></div>
+        <div class="col-4"><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="pgto-valor" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div>
+      </div>
+      <button type="button" class="btn btn-secondary w-100 fw-bold mb-2" onclick="adicionarFormaPagamento()">➕ Adicionar forma de pagamento</button>
+      <div id="lista-pagamentos" class="mb-2"></div>
+      <div class="d-flex justify-content-between fw-bold" style="font-size: 0.95rem;">
+        <span>Total pago:</span>
+        <span id="pgto-total-pago" style="color: var(--cor-fundo);">R$ 0,00</span>
+      </div>
+      <div id="pgto-aviso" class="small mt-1"></div>
+    </div>
+
+    <button type="button" id="btn-salvar-venda" class="btn-ellba fs-5 py-3" onclick="finalizarVenda()">💳 REGISTRAR VENDA</button>
+    <div id="aviso-salvando-venda" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div><br><strong>Processando venda...</strong></div>
   </div>
 
   <!-- VENDA REGISTRADA COM SUCESSO -->
@@ -443,6 +475,8 @@
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
       else if (['tela-cadastrar-peca-caminho', 'tela-dar-entrada-lista'].indexOf(telaAtual) > -1) { irPara('tela-pecas-caminho-menu'); }
       else if (['tela-cadastrar-venda', 'tela-cadastrar-cliente'].indexOf(telaAtual) > -1) { irPara('tela-venda'); }
+      else if (telaAtual === 'tela-aplicar-desconto') { irPara('tela-cadastrar-venda'); }
+      else if (telaAtual === 'tela-pagamento-venda') { irPara(telaAnteriorPagamento); }
       else if (telaAtual === 'tela-venda-sucesso') { irPara('tela-menu'); }
       else if (telaAtual === 'tela-compras-menu') { irPara('tela-menu'); }
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
@@ -1025,61 +1059,133 @@
     }
 
     let clienteVendaSelecionado = null;
+    // Guarda o resultado já calculado de cashback/desconto de aniversário da
+    // venda em andamento (definido em continuarParaProximaEtapa(), quando a
+    // etapa B é pulada, ou em aplicarCashbackDesconto(), quando é usada).
+    // Isso evita recalcular a partir de campos que já podem não existir mais
+    // na tela de pagamento (o valor fica "travado" antes de entrar as formas
+    // de pagamento, resolvendo o erro de total não bater).
+    let descontosVendaAtual = null;
+    // Pra onde o botão "Voltar" deve levar a partir da tela de pagamento
+    // (tela-aplicar-desconto se ela foi mostrada, ou tela-cadastrar-venda se
+    // foi pulada por a cliente não ter benefícios disponíveis).
+    let telaAnteriorPagamento = 'tela-cadastrar-venda';
 
     function aoSelecionarClienteVenda() {
       const sel = document.getElementById('venda-cliente').value;
       if (sel === 'Sem Cadastro' || !sel) {
         clienteVendaSelecionado = null;
         document.getElementById('div-venda-beneficios').classList.add('d-none');
-        atualizarInterfacePagamentos();
         return;
       }
       const idCliente = sel.split(' - ')[0].trim();
       google.script.run.withSuccessHandler(function(cli) {
         clienteVendaSelecionado = cli;
         renderizarBeneficiosCliente(cli);
-        atualizarInterfacePagamentos();
       }).withFailureHandler(function(err) { console.error('Erro ao buscar cliente:', err); }).buscarClienteDetalhe(idCliente);
     }
 
+    // Nesta tela (Carrinho de Venda) o cashback/aniversário aparecem só como
+    // informação — a cliente aplica de fato na próxima etapa (tela-aplicar-desconto).
     function renderizarBeneficiosCliente(cli) {
       document.getElementById('div-venda-beneficios').classList.remove('d-none');
       const cashbackDiv = document.getElementById('venda-cashback-info');
-      const usarDiv = document.getElementById('div-venda-cashback-usar');
-      const usarInput = document.getElementById('venda-cashback-usado');
       if (cli.cashbackDisponivel > 0) {
         cashbackDiv.innerHTML = '💰 Cashback disponível: <strong>R$ ' + formatarPrecoExibicao(cli.cashbackDisponivel) + '</strong>';
+      } else {
+        cashbackDiv.innerHTML = '';
+      }
+      const aniversarioDiv = document.getElementById('venda-aniversario-info');
+      if (cli.aniversarioElegivel) {
+        aniversarioDiv.innerHTML = '🎂 Cliente aniversariante do mês — 10% de desconto disponível!';
+      } else {
+        aniversarioDiv.innerHTML = '';
+      }
+    }
+
+    // Decide, ao clicar em "Continuar" na tela do carrinho, se mostra a etapa
+    // de aplicar cashback/desconto (quando há algo pra aplicar) ou se pula
+    // direto pra tela de pagamento.
+    function continuarParaProximaEtapa() {
+      if (carrinho.length === 0) { alert("O carrinho está vazio!"); return; }
+      const vendedora = document.getElementById('venda-vendedora'); const local = document.getElementById('venda-local');
+      const dataInput = document.getElementById('venda-data');
+      if (!vendedora.value || !local.value) { alert("Preencha Vendedora e Local."); return; }
+      if (!dataInput.value) { alert("Preencha a Data da venda."); return; }
+
+      const temBeneficio = clienteVendaSelecionado && (clienteVendaSelecionado.cashbackDisponivel > 0 || clienteVendaSelecionado.aniversarioElegivel);
+      if (temBeneficio) {
+        prepararTelaAplicarDesconto();
+        telaAnteriorPagamento = 'tela-aplicar-desconto';
+        irPara('tela-aplicar-desconto');
+      } else {
+        descontosVendaAtual = { total: totalCarrinho(), cashback: 0, aniversario: 0, totalLiquido: totalCarrinho() };
+        telaAnteriorPagamento = 'tela-cadastrar-venda';
+        irParaTelaPagamento();
+      }
+    }
+
+    function prepararTelaAplicarDesconto() {
+      const total = totalCarrinho();
+      document.getElementById('desconto-total-carrinho').innerText = "R$ " + formatarPrecoExibicao(total);
+
+      const cashbackDiv = document.getElementById('desconto-cashback-info');
+      const usarDiv = document.getElementById('div-desconto-cashback-usar');
+      const usarInput = document.getElementById('desconto-cashback-usado');
+      if (clienteVendaSelecionado && clienteVendaSelecionado.cashbackDisponivel > 0) {
+        cashbackDiv.innerHTML = '💰 Cashback disponível: <strong>R$ ' + formatarPrecoExibicao(clienteVendaSelecionado.cashbackDisponivel) + '</strong>';
         usarDiv.classList.remove('d-none');
-        usarInput.value = formatarPrecoExibicao(Math.min(cli.cashbackDisponivel, totalCarrinho()));
+        // Já vem pré-preenchido com o total disponível da cliente (editável).
+        usarInput.value = formatarPrecoExibicao(clienteVendaSelecionado.cashbackDisponivel);
       } else {
         cashbackDiv.innerHTML = '';
         usarDiv.classList.add('d-none');
         usarInput.value = '';
       }
-      const aniversarioDiv = document.getElementById('venda-aniversario-info');
-      const aniversarioCheckDiv = document.getElementById('div-venda-aniversario-usar');
-      if (cli.aniversarioElegivel) {
+
+      const aniversarioDiv = document.getElementById('desconto-aniversario-info');
+      const aniversarioCheckDiv = document.getElementById('div-desconto-aniversario-usar');
+      if (clienteVendaSelecionado && clienteVendaSelecionado.aniversarioElegivel) {
         aniversarioDiv.innerHTML = '🎂 Cliente aniversariante do mês — 10% de desconto disponível!';
         aniversarioCheckDiv.classList.remove('d-none');
+        document.getElementById('desconto-usar-aniversario').checked = true;
       } else {
         aniversarioDiv.innerHTML = '';
         aniversarioCheckDiv.classList.add('d-none');
       }
     }
 
-    // Calcula cashback usado + desconto de aniversário (se marcados) e o total líquido da venda.
-    function calcularDescontosVenda() {
+    // Botão "Aplicar Cashback" da tela B: calcula o total líquido definitivo
+    // (a partir daqui esse valor não muda mais, então os pagamentos entrados
+    // na próxima tela sempre batem com ele) e segue pra tela de pagamento.
+    function aplicarCashbackDesconto() {
       const total = totalCarrinho();
       let cashback = 0, aniversario = 0;
       if (clienteVendaSelecionado) {
-        if (!document.getElementById('div-venda-cashback-usar').classList.contains('d-none')) {
-          cashback = Math.min(converterParaNumero(document.getElementById('venda-cashback-usado').value) || 0, clienteVendaSelecionado.cashbackDisponivel, total);
+        if (!document.getElementById('div-desconto-cashback-usar').classList.contains('d-none')) {
+          cashback = Math.min(converterParaNumero(document.getElementById('desconto-cashback-usado').value) || 0, clienteVendaSelecionado.cashbackDisponivel, total);
         }
-        if (clienteVendaSelecionado.aniversarioElegivel && !document.getElementById('div-venda-aniversario-usar').classList.contains('d-none') && document.getElementById('venda-usar-desconto-aniversario').checked) {
+        if (clienteVendaSelecionado.aniversarioElegivel && !document.getElementById('div-desconto-aniversario-usar').classList.contains('d-none') && document.getElementById('desconto-usar-aniversario').checked) {
           aniversario = Math.round(total * 0.10 * 100) / 100;
         }
       }
-      return { total: total, cashback: cashback, aniversario: aniversario, totalLiquido: Math.max(0, total - cashback - aniversario) };
+      descontosVendaAtual = { total: total, cashback: cashback, aniversario: aniversario, totalLiquido: Math.max(0, total - cashback - aniversario) };
+      irParaTelaPagamento();
+    }
+
+    function irParaTelaPagamento() {
+      document.getElementById('pagamento-total-a-pagar').innerText = "R$ " + formatarPrecoExibicao(descontosVendaAtual.totalLiquido);
+      atualizarInterfacePagamentos();
+      irPara('tela-pagamento-venda');
+    }
+
+    // Retorna os descontos já travados nesta venda (ver descontosVendaAtual).
+    // Se por algum motivo ainda não foram definidos, cai pro total puro do
+    // carrinho sem cashback/aniversário.
+    function calcularDescontosVenda() {
+      if (descontosVendaAtual) return descontosVendaAtual;
+      const total = totalCarrinho();
+      return { total: total, cashback: 0, aniversario: 0, totalLiquido: total };
     }
 
     function adicionarFormaPagamento() {
@@ -1219,8 +1325,8 @@
     // registrada e já dá pra começar outra — mas mantém Vendedora, Data e Local
     // preenchidos, já que normalmente é tudo a mesma coisa na venda seguinte.
     function limparCarrinhoParaNovaVenda() {
-      carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null;
-      atualizarInterfaceCarrinho(); atualizarInterfacePagamentos();
+      carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null; descontosVendaAtual = null; telaAnteriorPagamento = 'tela-cadastrar-venda';
+      atualizarInterfaceCarrinho();
       document.getElementById('venda-cliente').value = "Sem Cadastro";
       document.getElementById('div-venda-beneficios').classList.add('d-none');
       document.getElementById('carrinho-produto').value = '';
