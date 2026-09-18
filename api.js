@@ -20,14 +20,17 @@ const ACOES_GET = [
   'gerarRelatorio',
   'buscarClienteDetalhe',
   'buscarMinhasVendas',
-  'buscarAniversariantesHoje'
+  'buscarAniversariantesHoje',
+  'buscarOpcoesProdutoCadastro',
+  'buscarDetalheVenda'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
 const PARAM_NOME_GET = {
   buscarProdutoConsulta: 'idProduto',
   buscarCategoriasPorLoja: 'loja',
-  buscarClienteDetalhe: 'idCliente'
+  buscarClienteDetalhe: 'idCliente',
+  buscarDetalheVenda: 'idVenda'
 };
 
 function chamarApi(action, args) {
