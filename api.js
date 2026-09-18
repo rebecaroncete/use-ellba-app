@@ -17,13 +17,17 @@ const ACOES_GET = [
   'buscarNomesDisponiveis',
   'buscarVendedoras',
   'buscarPecasACaminho',
-  'gerarRelatorio'
+  'gerarRelatorio',
+  'buscarClienteDetalhe',
+  'buscarMinhasVendas',
+  'buscarAniversariantesHoje'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
 const PARAM_NOME_GET = {
   buscarProdutoConsulta: 'idProduto',
-  buscarCategoriasPorLoja: 'loja'
+  buscarCategoriasPorLoja: 'loja',
+  buscarClienteDetalhe: 'idCliente'
 };
 
 function chamarApi(action, args) {
@@ -36,6 +40,9 @@ function chamarApi(action, args) {
     } else if (action === 'gerarRelatorio') {
       // 2 argumentos simples: (dataInicio, dataFim), formato "YYYY-MM-DD"
       url += "&dataInicio=" + encodeURIComponent(args[0]) + "&dataFim=" + encodeURIComponent(args[1]);
+    } else if (action === 'buscarMinhasVendas') {
+      // 4 argumentos simples: (usuaria, perfil, dataInicio, dataFim)
+      url += "&usuaria=" + encodeURIComponent(args[0]) + "&perfil=" + encodeURIComponent(args[1]) + "&dataInicio=" + encodeURIComponent(args[2]) + "&dataFim=" + encodeURIComponent(args[3]);
     } else if (args.length > 0 && args[0] !== undefined) {
       const nomeParam = PARAM_NOME_GET[action] || 'valor';
       url += "&" + nomeParam + "=" + encodeURIComponent(args[0]);
@@ -80,6 +87,7 @@ function criarExecutor(onSuccess, onFailure) {
             if (onSuccess) onSuccess(resp.data);
           } else {
             const erro = new Error((resp && resp.erro) || 'Erro desconhecido');
+            if (resp && resp.erroDetalhe) erro.message += '\n\n[DEBUG] ' + resp.erroDetalhe;
             if (onFailure) onFailure(erro);
             else console.error('Erro API (' + propName + '):', erro.message);
           }
