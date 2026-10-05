@@ -1,13 +1,13 @@
-const CACHE_NAME = 'use-ellba-v4';
+const CACHE_NAME = 'use-ellba-v5';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',
   './config.js',
   './api.js',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-180.png'
+  './icon-192.png',
+  './icon-512.png',
+  './icon-180.png'
 ];
 
 self.addEventListener('install', function(event) {
