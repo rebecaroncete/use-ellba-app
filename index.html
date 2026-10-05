@@ -695,6 +695,18 @@
       leitor.readAsDataURL(arquivo);
     }
 
+    function enviarFotoCloudinary(imgBase64, nome, aoSucesso, aoFalhar) {
+      fetch(imgBase64).then(function(r) { return r.blob(); }).then(function(blob) {
+        const fd = new FormData();
+        fd.append('file', blob, (nome || 'foto') + '.jpg');
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+        return fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', { method: 'POST', body: fd });
+      }).then(function(r) { return r.json(); }).then(function(j) {
+        if (j && j.secure_url) { aoSucesso(j.secure_url); }
+        else { aoFalhar(new Error((j && j.error && j.error.message) || 'Falha ao enviar a foto')); }
+      }).catch(function(e) { aoFalhar(e); });
+    }
+
     let cadastroProdutoEmProcessamento = false;
     let ultimoProdutoCadastrado = null;
 
@@ -716,9 +728,7 @@
         const arquivo = arquivoInput.files[0];
         comprimirImagem(arquivo, function(imgBase64) {
           document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Enviando foto...';
-          const objImagem = { nome: arquivo.name, mimeType: 'image/jpeg', dados: imgBase64 };
-          google.script.run.withSuccessHandler(function(urlFoto) { processarSalvamentoProduto(urlFoto, falhou); })
-          .withFailureHandler(falhou).salvarImagemNoDrive(objImagem);
+          enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) { processarSalvamentoProduto(urlFoto, falhou); }, falhou);
         });
       } else { processarSalvamentoProduto("", falhou); }
     }
@@ -794,10 +804,8 @@
         document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Processando foto...';
         const arquivo = arquivoInput.files[0];
         comprimirImagem(arquivo, function(imgBase64) {
-          document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Enviando para o Drive...';
-          const objImagem = { nome: arquivo.name, mimeType: 'image/jpeg', dados: imgBase64 };
-          google.script.run.withSuccessHandler(function(urlFoto) { processarSalvamentoPecaCaminho(urlFoto); })
-          .withFailureHandler(function(err) { erroFormulario('btn-salvar-pac', 'aviso-salvando-pac', err); }).salvarImagemNoDrive(objImagem);
+          document.getElementById('aviso-salvando-pac').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Enviando foto...';
+          enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) { processarSalvamentoPecaCaminho(urlFoto); }, function(err) { erroFormulario('btn-salvar-pac', 'aviso-salvando-pac', err); });
         });
       } else { processarSalvamentoPecaCaminho(""); }
     }
@@ -2097,15 +2105,14 @@
       botoes.forEach(function(b) { b.disabled = true; });
       const reabilitar = function() { document.querySelectorAll('#mkt-lista button').forEach(function(b) { b.disabled = false; }); };
       comprimirImagem(arquivo, function(imgBase64) {
-        const objImagem = { nome: arquivo.name, mimeType: 'image/jpeg', dados: imgBase64 };
-        google.script.run.withSuccessHandler(function(urlFoto) {
+        enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) {
           google.script.run.withSuccessHandler(function() {
             produtosMarketing.forEach(function(p) { if (ids.indexOf(p.id) > -1) p.foto = urlFoto; });
             marketingCarregado = true; catalogoCarregado = false;
             if (document.getElementById('mkt-busca').value) { filtrarProdutosMarketing(); } else { renderizarProdutosMarketing(produtosMarketing); }
             alert('✅ Foto atualizada! (' + ids.length + ' peça' + (ids.length === 1 ? '' : 's') + ')');
           }).withFailureHandler(function(err) { reabilitar(); alert('❌ Erro ao salvar foto: ' + (err.message || err)); }).atualizarFotoProduto({ ids: ids, fotoUrl: urlFoto });
-        }).withFailureHandler(function(err) { reabilitar(); alert('❌ Erro ao enviar foto: ' + (err.message || err)); }).salvarImagemNoDrive(objImagem);
+        }, function(err) { reabilitar(); alert('❌ Erro ao enviar foto: ' + (err.message || err)); });
       });
       inputElement.value = '';
     }
