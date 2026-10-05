@@ -43,14 +43,9 @@
   <div id="avisoOffline" class="offline-msg">Você está sem conexão com a internet no momento.</div>
 
   <!-- TELAS INICIAIS E MENUS -->
-  <div id="tela-perfil" class="container text-center mt-5">
-    <h3 class="mb-4" style="color: var(--cor-fundo);">Bem-vinda!</h3>
-    <button class="btn-ellba mb-3" onclick="acessarComoCliente()">🛍️ Sou Cliente</button>
-    <button class="btn-ellba-outline" onclick="abrirTelaSenha()">👩‍💻 Sou Funcionária</button>
-  </div>
-
-  <div id="tela-senha" class="container text-center mt-5 d-none">
-    <h3 class="mb-4" style="color: var(--cor-fundo);">Acesso Restrito</h3>
+  <div id="tela-senha" class="container text-center mt-4">
+    <img src="icons/icon-192.png" alt="USE ELLBA" style="width:110px;height:110px;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,.2);" class="mb-3">
+    <h3 class="mb-4" style="color: var(--cor-fundo);">Entrar</h3>
     <input type="text" id="input-login" class="form-control mb-3 mx-auto" style="max-width: 300px; text-align: center;" placeholder="Login" autocapitalize="off">
     <input type="password" id="input-senha" class="form-control mb-3 mx-auto" style="max-width: 300px; text-align: center;" placeholder="Senha">
     <button class="btn-ellba mx-auto" style="max-width: 300px;" onclick="verificarSenha()">Entrar</button>
@@ -59,7 +54,8 @@
   </div>
 
   <div id="tela-menu" class="container d-none">
-    <p class="text-center text-muted small mb-3" id="menu-boas-vindas"></p>
+    <p class="text-center text-muted small mb-1" id="menu-boas-vindas"></p>
+    <p class="text-center mb-3"><a href="#" onclick="sairDoApp(); return false;" style="color: var(--cor-fundo); font-size:0.85rem;">Sair</a></p>
     <div class="menu-grid">
       <button class="btn-menu" onclick="irPara('tela-estoque')">📦<br>Estoque</button>
       <button class="btn-menu" onclick="irPara('tela-venda')">🛒<br>Venda</button>
@@ -405,7 +401,7 @@
 
   <script>
     const SENHA_MARKETING = "9271";
-    let perfilAtual = ""; let telaAtual = "tela-perfil";
+    let perfilAtual = "funcionaria"; let telaAtual = "tela-senha";
     window.usuariaAtual = ""; let perfilUsuaria = ""; let loginUsuariaAtual = ""; let senhaUsuariaAtual = "";
 
     if (!navigator.onLine) document.getElementById('avisoOffline').style.display = 'block';
@@ -424,8 +420,7 @@
     }
 
     function irPara(idTela) { document.getElementById(telaAtual).classList.add('d-none'); document.getElementById(idTela).classList.remove('d-none'); telaAtual = idTela; atualizarBotaoVoltar(); }
-    function acessarComoCliente() { perfilAtual = "cliente"; irPara("tela-selecao-loja"); }
-    function abrirTelaSenha() { document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = ''; irPara("tela-senha"); }
+        function abrirTelaSenha() { document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = ''; irPara("tela-senha"); }
     function verificarSenha() {
       const login = document.getElementById('input-login').value.trim();
       const senha = document.getElementById('input-senha').value;
@@ -442,6 +437,12 @@
         document.getElementById('aviso-logando').classList.add('d-none');
         alert("❌ " + (err.message || err));
       }).loginUsuaria({ login: login, senha: senha });
+    }
+    function acessarComoCliente() { perfilAtual = "cliente"; irPara("tela-selecao-loja"); }
+    function sairDoApp() {
+      window.usuariaAtual = ""; perfilUsuaria = ""; loginUsuariaAtual = ""; senhaUsuariaAtual = "";
+      document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = '';
+      irPara('tela-senha');
     }
     function atualizarVisibilidadeMenu() {
       document.querySelectorAll('.menu-admin').forEach(function(el) {
@@ -482,10 +483,10 @@
     }
     function voltarTela() {
       if (telaAtual === 'tela-cadastrar-usuaria' && !window.usuariaAtual) { irPara('tela-senha'); }
-      else if (telaAtual === 'tela-senha' || telaAtual === 'tela-menu' || telaAtual === 'tela-senha-marketing' || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { irPara('tela-perfil'); }
-      else if (telaAtual === 'tela-selecao-loja' && perfilAtual !== 'cliente') { irPara('tela-menu'); }
+      else if (telaAtual === 'tela-senha-marketing') { irPara('tela-senha'); }
+      else if (telaAtual === 'tela-selecao-loja') { if (perfilAtual !== 'cliente') irPara('tela-menu'); }
       else if (telaAtual === 'tela-marketing-a-caminho') { irPara('tela-marketing'); }
-      else if (['tela-estoque', 'tela-venda', 'tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { if (perfilAtual === 'cliente') { irPara('tela-perfil'); } else { irPara('tela-menu'); } }
+      else if (['tela-estoque', 'tela-venda', 'tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
       else if (['tela-cadastrar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-consultar-produto', 'tela-inventario-config', 'tela-pecas-caminho-menu'].indexOf(telaAtual) > -1) { irPara('tela-estoque'); }
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
       else if (telaAtual === 'tela-produto-sucesso') { irPara('tela-estoque'); }
@@ -501,7 +502,7 @@
       else if (['tela-minhas-vendas', 'tela-historico-cliente', 'tela-aniversariantes'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
       else if (telaAtual === 'tela-detalhe-venda') { irPara(origemDetalheVenda); }
     }
-    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (telaAtual === 'tela-perfil') { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
+    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (telaAtual === 'tela-senha' || telaAtual === 'tela-menu' || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
     function mascaraMoeda(input) { let v = input.value.replace(/\D/g, ''); if (v === '') { input.value = ''; return; } v = (parseInt(v) / 100).toFixed(2).replace('.', ','); input.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.'); }
     function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); input.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
     function mascaraCPF(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); input.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
@@ -1951,16 +1952,13 @@
     }
 
     // --- ATALHOS DE LINK DIRETO ---
-    // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (perfil cliente)
-    // ?acesso=funcionaria  -> vai direto para a tela de senha (perfil funcionária)
+    // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (link que a agente de IA compartilha com as clientes)
     // ?acesso=marketing    -> vai direto para a tela de senha do Marketing
     (function() {
       const params = new URLSearchParams(window.location.search);
       const acesso = params.get('acesso');
       if (acesso === 'cliente') {
         acessarComoCliente();
-      } else if (acesso === 'funcionaria') {
-        abrirTelaSenha();
       } else if (acesso === 'marketing') {
         abrirTelaSenhaMarketing();
       }
