@@ -13,4 +13,4 @@ const CLOUDINARY_PRESET = "use_ellba_app";
 
 // Link do grupo de WhatsApp da loja (convite). Aparece na tela de sucesso do autocadastro.
 // Deixe vazio ("") para esconder o botão.
-const LINK_GRUPO_WHATSAPP = "";
+const LINK_GRUPO_WHATSAPP = "https://chat.whatsapp.com/KSsy3194ED3HhmBTYFgk31?mode=gi_t";
