@@ -440,6 +440,11 @@
         <label class="form-label fw-bold small mb-1">Cashback a usar (R$)</label>
         <input type="text" id="desconto-cashback-usado" class="form-control" inputmode="numeric" oninput="mascaraMoeda(this)">
       </div>
+      <div id="desconto-primeira-info" class="small mb-1"></div>
+      <div id="div-desconto-primeira-usar" class="d-none form-check mb-2">
+        <input type="checkbox" class="form-check-input" id="desconto-usar-primeira" checked>
+        <label class="form-check-label small" for="desconto-usar-primeira">Aplicar 5% de desconto de 1ª compra nesta compra</label>
+      </div>
       <div id="desconto-aniversario-info" class="small mb-1"></div>
       <div id="div-desconto-aniversario-usar" class="d-none form-check mb-2">
         <input type="checkbox" class="form-check-input" id="desconto-usar-aniversario" checked>
@@ -979,7 +984,7 @@
         else if (window.usuariaAtual && nomes.indexOf(window.usuariaAtual) > -1) { select.value = window.usuariaAtual; }
       }).buscarVendedoras();
     }
-    function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); ativarAutocomplete('carrinho-produto', function() { return listaOpcoesProdutos; }); const campoData = document.getElementById('venda-data'); const hojeISO = hojeISOLocal(); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(!listaClientesCarregada) { document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); } else { preencherSelectClientes(); } }
+    function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); ativarAutocomplete('carrinho-produto', function() { return listaOpcoesProdutos; }); const campoData = document.getElementById('venda-data'); const hojeISO = hojeISOLocal(); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(listaClientesCarregada) { preencherSelectClientes(); } document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); }
     function preencherSelectClientes() { const select = document.getElementById('venda-cliente'); const valorAtual = select.value; select.innerHTML = '<option value="Sem Cadastro">-- Cliente Sem Cadastro --</option>'; listaObjClientes.forEach(function(cli) { const option = document.createElement('option'); option.value = cli.label; option.text = cli.label; select.appendChild(option); }); if(valorAtual) select.value = valorAtual; }
     function normalizarIdFrontend_(v) { return (v || '').toString().trim().toUpperCase().replace(/\s+/g, ''); }
     // Aceita o produto tanto se bateu exatamente com a lista (ex: escolhido no dropdown)
@@ -1172,10 +1177,11 @@
       }
       html += '</div>';
 
-      if (dv.cashbackUsado > 0 || dv.descontoAniversario > 0 || dv.cashbackGerado > 0) {
+      if (dv.cashbackUsado > 0 || dv.descontoAniversario > 0 || dv.descontoPrimeiraCompra > 0 || dv.cashbackGerado > 0) {
         html += '<div class="card shadow-sm border-0 p-3 mb-0" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">🎁 Cashback / Benefícios</h6>';
         if (dv.cashbackUsado > 0) html += '<p class="mb-1">Cashback usado: <strong>R$ ' + formatarPrecoExibicao(dv.cashbackUsado) + '</strong></p>';
         if (dv.descontoAniversario > 0) html += '<p class="mb-1">Desconto aniversário usado: <strong>R$ ' + formatarPrecoExibicao(dv.descontoAniversario) + '</strong></p>';
+        if (dv.descontoPrimeiraCompra > 0) html += '<p class="mb-1">Desconto 1ª compra (5%): <strong>R$ ' + formatarPrecoExibicao(dv.descontoPrimeiraCompra) + '</strong></p>';
         if (dv.cashbackGerado > 0) html += '<p class="mb-1">Cashback gerado nesta venda: <strong>R$ ' + formatarPrecoExibicao(dv.cashbackGerado) + '</strong></p>';
         html += '</div>';
       }
@@ -1343,7 +1349,7 @@
     }
 
     let clienteSendoCadastrado = null;
-    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { document.getElementById('venda-cliente').value = novoLabel; }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
+    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { preencherSelectClientes(); document.getElementById('venda-cliente').value = novoLabel; aoSelecionarClienteVenda(); }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
 
     let carrinho = []; let ultimoReciboGerado = ""; let ultimoTelefoneCliente = "";
     let pagamentosVenda = [];
@@ -1398,6 +1404,8 @@
       const aniversarioDiv = document.getElementById('venda-aniversario-info');
       if (cli.aniversarioElegivel) {
         aniversarioDiv.innerHTML = '🎂 Cliente aniversariante do mês — 10% de desconto disponível!';
+      } else if (cli.primeiraCompraElegivel) {
+        aniversarioDiv.innerHTML = '🎁 1ª compra da cliente — 5% de desconto disponível!';
       } else {
         aniversarioDiv.innerHTML = '';
       }
@@ -1413,13 +1421,13 @@
       if (!vendedora.value || !local.value) { alert("Preencha Vendedora e Local."); return; }
       if (!dataInput.value) { alert("Preencha a Data da venda."); return; }
 
-      const temBeneficio = clienteVendaSelecionado && (clienteVendaSelecionado.cashbackDisponivel > 0 || clienteVendaSelecionado.aniversarioElegivel);
+      const temBeneficio = clienteVendaSelecionado && (clienteVendaSelecionado.cashbackDisponivel > 0 || clienteVendaSelecionado.aniversarioElegivel || clienteVendaSelecionado.primeiraCompraElegivel);
       if (temBeneficio) {
         prepararTelaAplicarDesconto();
         telaAnteriorPagamento = 'tela-aplicar-desconto';
         irPara('tela-aplicar-desconto');
       } else {
-        descontosVendaAtual = { total: totalCarrinho(), cashback: 0, aniversario: 0, totalLiquido: totalCarrinho() };
+        descontosVendaAtual = { total: totalCarrinho(), cashback: 0, aniversario: 0, primeiraCompra: 0, totalLiquido: totalCarrinho() };
         telaAnteriorPagamento = 'tela-cadastrar-venda';
         irParaTelaPagamento();
       }
@@ -1443,6 +1451,17 @@
         usarInput.value = '';
       }
 
+      const primeiraDiv = document.getElementById('desconto-primeira-info');
+      const primeiraCheckDiv = document.getElementById('div-desconto-primeira-usar');
+      if (clienteVendaSelecionado && clienteVendaSelecionado.primeiraCompraElegivel) {
+        primeiraDiv.innerHTML = '🎁 1ª compra da cliente — 5% de desconto disponível!';
+        primeiraCheckDiv.classList.remove('d-none');
+        document.getElementById('desconto-usar-primeira').checked = true;
+      } else {
+        primeiraDiv.innerHTML = '';
+        primeiraCheckDiv.classList.add('d-none');
+      }
+
       const aniversarioDiv = document.getElementById('desconto-aniversario-info');
       const aniversarioCheckDiv = document.getElementById('div-desconto-aniversario-usar');
       if (clienteVendaSelecionado && clienteVendaSelecionado.aniversarioElegivel) {
@@ -1460,7 +1479,7 @@
     // na próxima tela sempre batem com ele) e segue pra tela de pagamento.
     function aplicarCashbackDesconto() {
       const total = totalCarrinho();
-      let cashback = 0, aniversario = 0;
+      let cashback = 0, aniversario = 0, primeiraCompra = 0;
       if (clienteVendaSelecionado) {
         if (!document.getElementById('div-desconto-cashback-usar').classList.contains('d-none')) {
           cashback = Math.min(converterParaNumero(document.getElementById('desconto-cashback-usado').value) || 0, clienteVendaSelecionado.cashbackDisponivel, total);
@@ -1468,8 +1487,11 @@
         if (clienteVendaSelecionado.aniversarioElegivel && !document.getElementById('div-desconto-aniversario-usar').classList.contains('d-none') && document.getElementById('desconto-usar-aniversario').checked) {
           aniversario = Math.round(total * 0.10 * 100) / 100;
         }
+        if (clienteVendaSelecionado.primeiraCompraElegivel && !document.getElementById('div-desconto-primeira-usar').classList.contains('d-none') && document.getElementById('desconto-usar-primeira').checked && aniversario === 0) {
+          primeiraCompra = Math.round(total * 0.05 * 100) / 100;
+        }
       }
-      descontosVendaAtual = { total: total, cashback: cashback, aniversario: aniversario, totalLiquido: Math.max(0, total - cashback - aniversario) };
+      descontosVendaAtual = { total: total, cashback: cashback, aniversario: aniversario, primeiraCompra: primeiraCompra, totalLiquido: Math.max(0, total - cashback - aniversario - primeiraCompra) };
       irParaTelaPagamento();
     }
 
@@ -1485,7 +1507,7 @@
     function calcularDescontosVenda() {
       if (descontosVendaAtual) return descontosVendaAtual;
       const total = totalCarrinho();
-      return { total: total, cashback: 0, aniversario: 0, totalLiquido: total };
+      return { total: total, cashback: 0, aniversario: 0, primeiraCompra: 0, totalLiquido: total };
     }
 
     function adicionarFormaPagamento() {
@@ -1578,7 +1600,7 @@
       document.getElementById('aviso-salvando-venda').classList.remove('d-none');
 
       const pagamentosFormatados = pagamentosVenda.map(function(p) { return { forma: p.forma, parcelas: p.parcelas, valor: p.valor.toFixed(2).replace('.', ',') }; });
-      const dadosVenda = { vendedora: vendedora.value, vendedoraOutro: document.getElementById('venda-vendedora-outro').value, local: local.value, localOutro: document.getElementById('venda-local-outro').value, dataVenda: dataInput.value, pagamentos: pagamentosFormatados, cliente: document.getElementById('venda-cliente').value, cashbackUsado: descontos.cashback, descontoAniversario: descontos.aniversario, itens: carrinho };
+      const dadosVenda = { vendedora: vendedora.value, vendedoraOutro: document.getElementById('venda-vendedora-outro').value, local: local.value, localOutro: document.getElementById('venda-local-outro').value, dataVenda: dataInput.value, pagamentos: pagamentosFormatados, cliente: document.getElementById('venda-cliente').value, cashbackUsado: descontos.cashback, descontoAniversario: descontos.aniversario, descontoPrimeiraCompra: descontos.primeiraCompra || 0, itens: carrinho };
 
       // Guarda o telefone da cliente ANTES de limpar a tela, pra "Enviar Recibo
       // WhatsApp" continuar funcionando mesmo depois do formulário já ter sido limpo.
