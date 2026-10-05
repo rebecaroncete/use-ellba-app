@@ -422,7 +422,7 @@
 
   <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc. *</label><input type="text" id="cli-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
-  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
+  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><div style="position:relative;"><input type="text" id="venda-cliente-busca" class="form-control fw-bold" style="border: 2px solid var(--cor-dourado); padding-right:44px;" placeholder="Digite o nome da cliente (ou deixe vazio)" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" id="venda-cliente-limpar" class="d-none" onclick="limparClienteVenda()" aria-label="Limpar cliente" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); border:none; background:none; color:var(--cor-fundo); font-size:1.4rem; line-height:1; width:36px; height:36px;">&times;</button></div><input type="hidden" id="venda-cliente" value="Sem Cadastro"><div id="venda-cliente-status" class="small mt-1 text-center text-muted">Sem cliente cadastrada (venda avulsa)</div><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
 
   <button type="button" id="btn-continuar-venda" class="btn-ellba fs-5 py-3" onclick="continuarParaProximaEtapa()">CONTINUAR</button>
   </div>
@@ -985,7 +985,134 @@
       }).buscarVendedoras();
     }
     function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); ativarAutocomplete('carrinho-produto', function() { return listaOpcoesProdutos; }); const campoData = document.getElementById('venda-data'); const hojeISO = hojeISOLocal(); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(listaClientesCarregada) { preencherSelectClientes(); } document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); }
-    function preencherSelectClientes() { const select = document.getElementById('venda-cliente'); const valorAtual = select.value; select.innerHTML = '<option value="Sem Cadastro">-- Cliente Sem Cadastro --</option>'; listaObjClientes.forEach(function(cli) { const option = document.createElement('option'); option.value = cli.label; option.text = cli.label; select.appendChild(option); }); if(valorAtual) select.value = valorAtual; }
+    // ===== BUSCA INTELIGENTE DE CLIENTES =====
+    // Ignora maiúsculas/minúsculas, acentos e pequenos erros de digitação.
+    function normBusca_(t) { return (t || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+    function distanciaEdicao_(a, b) { // Damerau-Levenshtein (troca de letras vizinhas conta como 1 erro)
+      const la = a.length, lb = b.length;
+      if (Math.abs(la - lb) > 3) return 9;
+      const d = [];
+      for (let i = 0; i <= la; i++) { d[i] = [i]; }
+      for (let j = 1; j <= lb; j++) d[0][j] = j;
+      for (let i = 1; i <= la; i++) {
+        for (let j = 1; j <= lb; j++) {
+          const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+          d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + custo);
+          if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+        }
+      }
+      return d[la][lb];
+    }
+    function prepararClienteBusca_(c) {
+      if (c._b) return c._b;
+      const partes = (c.label || '').split(' - ');
+      const nome = c.nome || partes[1] || '';
+      const tel = (c.telefoneLimpo || (c.telefone || partes[2] || '').toString().replace(/\D/g, ''));
+      c._b = { palavras: normBusca_(nome).split(' ').filter(Boolean), nomeNorm: normBusca_(nome), tel: tel, id: normBusca_((c.id || partes[0] || '').toString()) };
+      return c._b;
+    }
+    function pontuarCliente_(c, tokens) {
+      const b = prepararClienteBusca_(c);
+      let total = 0;
+      for (let k = 0; k < tokens.length; k++) {
+        const t = tokens[k];
+        let melhor = 99;
+        if (/^\d+$/.test(t)) {
+          if (t.length >= 3 && b.tel.indexOf(t) > -1) melhor = 0;
+          else if (b.id.indexOf(t) > -1) melhor = 0;
+        } else {
+          if (b.id && b.id.indexOf(t) === 0) melhor = 0;
+          const tol = t.length >= 6 ? 2 : (t.length >= 4 ? 1 : 0);
+          b.palavras.forEach(function(w) {
+            if (w.indexOf(t) === 0) melhor = Math.min(melhor, 0);
+            else if (t.length >= 2 && w.indexOf(t) > -1) melhor = Math.min(melhor, 1);
+            else if (tol > 0) {
+              if (distanciaEdicao_(t, w.slice(0, t.length)) <= tol || distanciaEdicao_(t, w) <= tol) melhor = Math.min(melhor, 2);
+            }
+          });
+        }
+        if (melhor === 99) return -1;
+        total += melhor;
+      }
+      return total;
+    }
+    function buscarClientesLista_(texto, lista, limite) {
+      const tokens = normBusca_(texto).split(' ').filter(Boolean);
+      if (tokens.length === 0) return [];
+      const achados = [];
+      lista.forEach(function(c) { const p = pontuarCliente_(c, tokens); if (p >= 0) achados.push({ c: c, p: p }); });
+      achados.sort(function(x, y) { return x.p - y.p || prepararClienteBusca_(x.c).nomeNorm.localeCompare(prepararClienteBusca_(y.c).nomeNorm); });
+      return achados.slice(0, limite || 8).map(function(x) { return x.c; });
+    }
+    function ativarBuscaClientes(inputId, obterLista, aoEscolher, aoDigitar) {
+      const input = document.getElementById(inputId);
+      if (!input || input._buscaClientes) return;
+      input._buscaClientes = true;
+      input.setAttribute('autocomplete', 'off');
+      const wrapper = input.parentElement;
+      if (wrapper && getComputedStyle(wrapper).position === 'static') wrapper.style.position = 'relative';
+      const dd = document.createElement('div');
+      dd.style.cssText = 'position:absolute; left:0; right:0; top:100%; margin-top:4px; z-index:1050; background:#fff; border:1px solid var(--linha); border-radius:12px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(74,21,27,.18); display:none;';
+      (wrapper || input.parentNode).appendChild(dd);
+      function fechar() { dd.style.display = 'none'; dd.innerHTML = ''; }
+      function mostrar() {
+        const termo = input.value;
+        if (!normBusca_(termo)) { fechar(); return; }
+        const achados = buscarClientesLista_(termo, obterLista() || [], 8);
+        dd.innerHTML = '';
+        if (achados.length === 0) {
+          const v = document.createElement('div');
+          v.style.cssText = 'padding:12px 14px; color:var(--muted); font-size:.9rem;';
+          v.textContent = 'Nenhuma cliente encontrada. Confira o nome ou cadastre uma nova.';
+          dd.appendChild(v); dd.style.display = 'block'; return;
+        }
+        achados.forEach(function(c) {
+          const partes = (c.label || '').split(' - ');
+          const item = document.createElement('div');
+          item.style.cssText = 'padding:10px 14px; cursor:pointer; border-bottom:1px solid #f3ece6;';
+          const n = document.createElement('div'); n.style.cssText = 'font-weight:700; color:var(--cor-fundo); font-size:.95rem;'; n.textContent = c.nome || partes[1] || c.label;
+          const sub = document.createElement('div'); sub.style.cssText = 'font-size:.8rem; color:var(--muted);'; sub.textContent = (partes[0] || '') + (partes[2] ? '  ·  ' + partes[2] : '');
+          item.appendChild(n); item.appendChild(sub);
+          item.onmousedown = function(e) { e.preventDefault(); fechar(); aoEscolher(c); };
+          item.ontouchend = function(e) { e.preventDefault(); fechar(); aoEscolher(c); };
+          dd.appendChild(item);
+        });
+        dd.style.display = 'block';
+      }
+      input.addEventListener('input', function() { if (aoDigitar) aoDigitar(); mostrar(); });
+      input.addEventListener('focus', mostrar);
+      input.addEventListener('blur', function() { setTimeout(fechar, 180); });
+    }
+    function definirClienteVenda(c) {
+      document.getElementById('venda-cliente').value = c.label;
+      document.getElementById('venda-cliente-busca').value = c.nome || (c.label || '').split(' - ')[1] || c.label;
+      document.getElementById('venda-cliente-limpar').classList.remove('d-none');
+      document.getElementById('venda-cliente-status').innerText = 'Cliente selecionada: ' + c.label;
+      aoSelecionarClienteVenda();
+    }
+    function limparClienteVenda() {
+      document.getElementById('venda-cliente').value = 'Sem Cadastro';
+      document.getElementById('venda-cliente-busca').value = '';
+      document.getElementById('venda-cliente-limpar').classList.add('d-none');
+      document.getElementById('venda-cliente-status').innerText = 'Sem cliente cadastrada (venda avulsa)';
+      aoSelecionarClienteVenda();
+    }
+    function aoDigitarClienteVenda() {
+      // Se mexeu no texto depois de escolher, a escolha anterior deixa de valer.
+      if (document.getElementById('venda-cliente').value !== 'Sem Cadastro') {
+        document.getElementById('venda-cliente').value = 'Sem Cadastro';
+        document.getElementById('venda-cliente-limpar').classList.add('d-none');
+        document.getElementById('venda-cliente-status').innerText = 'Escolha a cliente na lista que aparece abaixo';
+        clienteVendaSelecionado = null;
+        document.getElementById('div-venda-beneficios').classList.add('d-none');
+      } else {
+        document.getElementById('venda-cliente-status').innerText = document.getElementById('venda-cliente-busca').value.trim() ? 'Escolha a cliente na lista que aparece abaixo' : 'Sem cliente cadastrada (venda avulsa)';
+      }
+      document.getElementById('venda-cliente-limpar').classList.toggle('d-none', !document.getElementById('venda-cliente-busca').value);
+    }
+    function preencherSelectClientes() {
+      ativarBuscaClientes('venda-cliente-busca', function() { return listaObjClientes; }, definirClienteVenda, aoDigitarClienteVenda);
+    }
     function normalizarIdFrontend_(v) { return (v || '').toString().trim().toUpperCase().replace(/\s+/g, ''); }
     // Aceita o produto tanto se bateu exatamente com a lista (ex: escolhido no dropdown)
     // quanto se o código digitado bate ignorando maiúscula/minúscula e espaços (ex: "prd 008").
@@ -1225,7 +1352,7 @@
       irPara('tela-historico-cliente');
       document.getElementById('hc-conteudo').classList.add('d-none');
       document.getElementById('hc-cliente-input').value = '';
-      ativarAutocomplete('hc-cliente-input', function() { return listaObjClientes.map(function(c) { return c.label; }); });
+      ativarBuscaClientes('hc-cliente-input', function() { return listaObjClientes; }, function(c) { document.getElementById('hc-cliente-input').value = c.label; buscarHistoricoCliente(); });
       if (!listaClientesCarregada) {
         google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; montarBuscaHistorico(); }).carregarListaClientes();
       } else {
@@ -1349,7 +1476,7 @@
     }
 
     let clienteSendoCadastrado = null;
-    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { preencherSelectClientes(); document.getElementById('venda-cliente').value = novoLabel; aoSelecionarClienteVenda(); }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
+    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { preencherSelectClientes(); definirClienteVenda({ id: idGerado, label: novoLabel, nome: clienteSendoCadastrado.nome, telefone: clienteSendoCadastrado.telefone }); }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
 
     let carrinho = []; let ultimoReciboGerado = ""; let ultimoTelefoneCliente = "";
     let pagamentosVenda = [];
@@ -1420,6 +1547,7 @@
       const dataInput = document.getElementById('venda-data');
       if (!vendedora.value || !local.value) { alert("Preencha Vendedora e Local."); return; }
       if (!dataInput.value) { alert("Preencha a Data da venda."); return; }
+      if (document.getElementById('venda-cliente-busca').value.trim() && document.getElementById('venda-cliente').value === 'Sem Cadastro') { alert("Você digitou um nome de cliente mas não escolheu ninguém na lista.\n\nToque no nome da cliente na lista que aparece, ou apague o campo se for venda sem cadastro."); return; }
 
       const temBeneficio = clienteVendaSelecionado && (clienteVendaSelecionado.cashbackDisponivel > 0 || clienteVendaSelecionado.aniversarioElegivel || clienteVendaSelecionado.primeiraCompraElegivel);
       if (temBeneficio) {
@@ -1649,7 +1777,7 @@
     function limparCarrinhoParaNovaVenda() {
       carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null; descontosVendaAtual = null; telaAnteriorPagamento = 'tela-cadastrar-venda';
       atualizarInterfaceCarrinho();
-      document.getElementById('venda-cliente').value = "Sem Cadastro";
+      limparClienteVenda();
       document.getElementById('div-venda-beneficios').classList.add('d-none');
       document.getElementById('carrinho-produto').value = '';
       document.getElementById('carrinho-qtd').value = '1';
