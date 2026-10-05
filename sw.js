@@ -1,4 +1,4 @@
-const CACHE_NAME = 'use-ellba-v7';
+const CACHE_NAME = 'use-ellba-v8';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',

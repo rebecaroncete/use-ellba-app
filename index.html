@@ -389,6 +389,37 @@
       <button type="button" class="tile" onclick="abrirAniversariantes()"><span class="tile-ic"><svg class="ic"><use href="#i-gift"/></svg></span><span class="tile-tx"><b>Aniversariantes de hoje</b><small>Enviar mensagem pelo WhatsApp</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
     </div>
   </div>
+  <div id="tela-autocadastro" class="container d-none pb-5" style="max-width:520px;">
+    <div class="text-center mb-3 mt-2"><h4 class="fw-bold mb-1" style="color: var(--cor-fundo);">Bem-vinda à USE ELLBA</h4><div class="text-muted" style="font-size:.95rem;">Faça seu cadastro em 1 minuto e ganhe <strong>5% de desconto na primeira compra</strong>.</div></div>
+    <form id="formAutoCadastro" onsubmit="enviarAutoCadastro(event)" autocomplete="on">
+      <div class="card shadow-sm border-0 p-3 mb-3">
+        <div class="mb-3"><label class="form-label fw-bold">Seu nome *</label><input type="text" id="auto-nome" class="form-control" required maxlength="80" placeholder="Nome completo" autocomplete="name"></div>
+        <div class="mb-3"><label class="form-label fw-bold">WhatsApp *</label><input type="tel" id="auto-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)" autocomplete="tel"></div>
+        <div class="mb-3"><label class="form-label fw-bold">Data de nascimento *</label><input type="text" id="auto-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" oninput="mascaraData(this)"></div>
+        <div class="mb-3"><label class="form-label fw-bold">E-mail (opcional)</label><input type="email" id="auto-email" class="form-control" placeholder="exemplo@email.com" autocomplete="email"></div>
+        <div class="mb-1"><label class="form-label fw-bold">Como conheceu a loja? (opcional)</label><select id="auto-conheceu" class="form-select"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro</option></select></div>
+        <input type="text" id="auto-site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+      </div>
+      <div class="text-muted mb-3" style="font-size:.78rem;">Usamos seus dados só para identificar suas compras, dar seus benefícios e enviar novidades da loja.</div>
+      <button type="submit" id="btn-auto-salvar" class="btn-ellba">Fazer meu cadastro</button>
+      <div id="aviso-auto-salvando" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div>
+    </form>
+  </div>
+
+  <div id="tela-autocadastro-sucesso" class="container d-none pb-5" style="max-width:520px;">
+    <div class="text-center mt-3 mb-3">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--cor-fundo);color:var(--cor-dourado);display:inline-flex;align-items:center;justify-content:center;"><svg class="ic" style="width:38px;height:38px;"><use href="#i-ok"/></svg></div>
+      <h4 class="fw-bold mt-3 mb-1" id="auto-sucesso-titulo" style="color: var(--cor-fundo);">Cadastro realizado com sucesso!</h4>
+      <div class="text-muted" id="auto-sucesso-sub"></div>
+    </div>
+    <div id="auto-beneficios">
+      <div class="card shadow-sm border-0 p-3 mb-2"><div class="fw-bold" style="color: var(--cor-fundo);">5% de desconto na primeira compra</div><div class="text-muted" style="font-size:.9rem;">Avise a vendedora que você já fez o cadastro e o desconto é aplicado na hora.</div></div>
+      <div class="card shadow-sm border-0 p-3 mb-3"><div class="fw-bold" style="color: var(--cor-fundo);">Cashback em todas as compras</div><div class="text-muted" style="font-size:.9rem;">A cada compra você ganha <strong id="auto-cb-pct">5%</strong> de volta em cashback para usar nas próximas compras. Cada cashback vale por <strong id="auto-cb-dias">40</strong> dias, então aproveite!</div></div>
+    </div>
+    <a id="btn-grupo-whatsapp" href="#" target="_blank" rel="noopener" class="btn-ellba text-decoration-none d-none" style="background:#1f9d55;color:#fff;">Entrar no grupo de novidades e promoções</a>
+    <div class="text-center text-muted mt-3" style="font-size:.85rem;">Obrigada por fazer parte da USE ELLBA!</div>
+  </div>
+
   <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc. *</label><input type="text" id="cli-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
   <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
@@ -574,7 +605,7 @@
     function irAba(aba) { irPara(ABA_RAIZ[aba]); }
     function atualizarNavegacao() {
       const nav = document.getElementById('nav-inferior');
-      const logada = !!window.usuariaAtual && perfilAtual !== 'cliente' && telaAtual !== 'tela-senha' && telaAtual !== 'tela-senha-marketing';
+      const logada = !!window.usuariaAtual && perfilAtual !== 'cliente' && perfilAtual !== 'autocadastro' && telaAtual !== 'tela-senha' && telaAtual !== 'tela-senha-marketing';
       nav.classList.toggle('d-none', !logada);
       document.body.classList.toggle('com-nav', logada);
       nav.querySelectorAll('button').forEach(function(b) {
@@ -667,7 +698,7 @@
       else if (['tela-minhas-vendas', 'tela-historico-cliente', 'tela-aniversariantes'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
       else if (telaAtual === 'tela-detalhe-venda') { irPara(origemDetalheVenda); }
     }
-    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (['tela-senha', 'tela-menu', 'tela-venda', 'tela-estoque', 'tela-gestao'].indexOf(telaAtual) > -1 || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
+    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (perfilAtual === 'autocadastro' || ['tela-senha', 'tela-menu', 'tela-venda', 'tela-estoque', 'tela-gestao'].indexOf(telaAtual) > -1 || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
     function mascaraMoeda(input) { let v = input.value.replace(/\D/g, ''); if (v === '') { input.value = ''; return; } v = (parseInt(v) / 100).toFixed(2).replace('.', ','); input.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.'); }
     function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); input.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
     function mascaraCPF(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); input.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
@@ -2123,14 +2154,51 @@
       });
     }
 
+
+    // --- AUTOCADASTRO DE CLIENTES (link/QR code ?acesso=cadastro) ---
+    function enviarAutoCadastro(e) {
+      e.preventDefault();
+      const nasc = document.getElementById('auto-nasc').value;
+      const m = nasc.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      const ano = m ? parseInt(m[3], 10) : 0, mes = m ? parseInt(m[2], 10) : 0, dia = m ? parseInt(m[1], 10) : 0;
+      if (!m || mes < 1 || mes > 12 || dia < 1 || dia > 31 || ano < 1920 || ano > new Date().getFullYear() - 10) { alert('Confira a data de nascimento (DD/MM/AAAA).'); return; }
+      const tel = document.getElementById('auto-tel').value;
+      if (tel.replace(/\D/g, '').length < 10) { alert('Confira o número do WhatsApp (com DDD).'); return; }
+      document.getElementById('btn-auto-salvar').classList.add('d-none');
+      document.getElementById('aviso-auto-salvando').classList.remove('d-none');
+      const dados = { nome: document.getElementById('auto-nome').value, telefone: tel, nascimento: nasc, email: document.getElementById('auto-email').value, conheceu: document.getElementById('auto-conheceu').value, site: document.getElementById('auto-site').value, usuaria: 'Autocadastro' };
+      google.script.run.withSuccessHandler(function(res) {
+        restaurarBotao('btn-auto-salvar', 'aviso-auto-salvando');
+        mostrarSucessoAutoCadastro(res, dados.nome);
+      }).withFailureHandler(function(err) { erroFormulario('btn-auto-salvar', 'aviso-auto-salvando', err); }).cadastrarClientePublico(dados);
+    }
+    function mostrarSucessoAutoCadastro(res, nome) {
+      res = res || {};
+      const primeiro = (nome || '').trim().split(' ')[0];
+      const ja = !!res.jaCadastrada;
+      document.getElementById('auto-sucesso-titulo').innerText = ja ? 'Você já tem cadastro!' : 'Cadastro realizado com sucesso!';
+      document.getElementById('auto-sucesso-sub').innerText = ja ? 'Seu cadastro já estava na nossa loja. É só avisar a vendedora na hora da compra.' : (primeiro ? primeiro + ', agora você faz parte da USE ELLBA.' : 'Agora você faz parte da USE ELLBA.');
+      document.getElementById('auto-beneficios').classList.toggle('d-none', ja);
+      document.getElementById('auto-cb-pct').innerText = Math.round((res.cashbackPercentual || 0.05) * 100) + '%';
+      document.getElementById('auto-cb-dias').innerText = res.cashbackDias || 40;
+      const btn = document.getElementById('btn-grupo-whatsapp');
+      if (typeof LINK_GRUPO_WHATSAPP === 'string' && LINK_GRUPO_WHATSAPP) { btn.href = LINK_GRUPO_WHATSAPP; btn.classList.remove('d-none'); } else { btn.classList.add('d-none'); }
+      document.getElementById('formAutoCadastro').reset();
+      irPara('tela-autocadastro-sucesso');
+    }
+
     // --- ATALHOS DE LINK DIRETO ---
     // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (link que a agente de IA compartilha com as clientes)
+    // ?acesso=cadastro     -> tela pública de autocadastro (QR code da loja)
     // ?acesso=marketing    -> vai direto para a tela de senha do Marketing
     (function() {
       const params = new URLSearchParams(window.location.search);
       const acesso = params.get('acesso');
       if (acesso === 'cliente') {
         acessarComoCliente();
+      } else if (acesso === 'cadastro') {
+        perfilAtual = 'autocadastro';
+        irPara('tela-autocadastro');
       } else if (acesso === 'marketing') {
         abrirTelaSenhaMarketing();
       }
