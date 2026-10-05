@@ -10,70 +10,162 @@
   <link rel="apple-touch-icon" href="icon-180.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    :root { --cor-fundo: #4a151b; --cor-dourado: #dcb881; }
-    body { background-color: #fdfbfb; }
-    .header-ellba { background-color: var(--cor-fundo); padding: 15px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 20px; position: relative; }
-    .logo-texto { font-family: 'Georgia', serif; color: var(--cor-dourado); font-size: 2rem; margin: 0; letter-spacing: 2px; font-weight: bold; text-align: center; }
-    #btn-voltar { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-dourado); font-size: 1.5rem; cursor: pointer; border: none; background: none; }
-    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-    .btn-menu { background-color: white; border: 2px solid var(--cor-fundo); color: var(--cor-fundo); padding: 30px 10px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-    .btn-ellba { background-color: var(--cor-fundo); color: var(--cor-dourado); padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; width: 100%; border: none; }
-    .btn-ellba-outline { background-color: white; color: var(--cor-fundo); border: 2px solid var(--cor-fundo); padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; width: 100%; }
-    .form-control, .form-select { border-color: #e0d0a6; }
-    .form-control:focus, .form-select:focus { border-color: var(--cor-fundo); box-shadow: 0 0 0 0.25rem rgba(74, 21, 27, 0.25); }
-    .input-group-text { background-color: var(--cor-fundo); color: var(--cor-dourado); border-color: var(--cor-fundo); font-weight: bold; }
+    :root { --cor-fundo: #4a151b; --cor-dourado: #dcb881; --cor-dourado-esc: #b98f4f; --bg: #f8f5f2; --ink: #2b1a1c; --muted: #7d6e70; --linha: #eadfd6; --raio: 16px; --sombra: 0 1px 2px rgba(74,21,27,.06), 0 8px 24px rgba(74,21,27,.07); }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
+    body.com-nav { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+    body.com-nav .container { max-width: 720px; }
+    body.com-nav #tela-catalogo.container, body.com-nav #tela-marketing.container { max-width: 1140px; }
+    h3, h4, h5, h6 { color: var(--cor-fundo); }
+    h4 { font-size: 1.2rem; font-weight: 700; }
+    .ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .btn .ic, .btn-ellba .ic, .btn-ellba-outline .ic { width: 18px; height: 18px; }
+
+    /* Cabeçalho */
+    .header-ellba { position: sticky; top: 0; z-index: 1030; background: linear-gradient(180deg, #5a1b22 0%, #4a151b 100%); padding: 10px 0; margin-bottom: 16px; box-shadow: 0 2px 14px rgba(0,0,0,.2); }
+    .header-ellba .marca { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .header-ellba .marca img { width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(220,184,129,.55); }
+    .logo-texto { font-family: 'Georgia', serif; color: var(--cor-dourado); font-size: 1.25rem; margin: 0; letter-spacing: 3px; font-weight: bold; }
+    #btn-voltar { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); color: var(--cor-dourado); border: none; background: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    #btn-voltar .ic { width: 26px; height: 26px; stroke-width: 2.2; }
+    #btn-voltar:active { background: rgba(255,255,255,.12); }
+
+    /* Cartões, campos e botões */
+    .card { border: 0; border-radius: var(--raio); }
+    .shadow-sm { box-shadow: var(--sombra) !important; }
+    .form-label { color: var(--ink); font-size: .85rem; margin-bottom: .3rem; }
+    .form-control, .form-select { border: 1.5px solid var(--linha); border-radius: 12px; padding: .7rem .85rem; font-size: 16px; background-color: #fff; color: var(--ink); }
+    .form-select { padding-right: 2.25rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--cor-fundo); box-shadow: 0 0 0 .22rem rgba(74, 21, 27, 0.14); }
+    .input-group-text { background-color: var(--cor-fundo); color: var(--cor-dourado); border-color: var(--cor-fundo); font-weight: bold; border-radius: 12px 0 0 12px; }
+    .input-group > .form-control:not(:last-child), .input-group > .form-select:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .input-group > .form-control:not(:first-child) { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .input-group > .btn-ellba { border-radius: 0 12px 12px 0; box-shadow: none; }
+    .btn-ellba { background: var(--cor-fundo); color: var(--cor-dourado); padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 700; width: 100%; border: none; box-shadow: 0 4px 14px rgba(74,21,27,.25); display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .08s; }
+    .btn-ellba:active, .btn-ellba-outline:active, .tile:active, .cta-venda:active { transform: scale(.985); }
+    .btn-ellba-outline { background: #fff; color: var(--cor-fundo); border: 1.5px solid var(--cor-fundo); padding: 13px; border-radius: 14px; font-size: 1rem; font-weight: 700; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-secondary { background: #efe6e0; color: var(--cor-fundo); border: 0; border-radius: 12px; font-weight: 700; }
+    .btn-secondary:hover, .btn-secondary:active, .btn-secondary:focus { background: #e6dad2; color: var(--cor-fundo); }
+    .btn-success { border-radius: 14px; }
     .badge-tamanho { background-color: var(--cor-dourado); color: #4a151b; font-weight: bold;}
-    .item-carrinho { background-color: white; border: 1px solid #e0d0a6; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .btn-lixeira { color: #dc3545; background: none; border: none; font-size: 1.3rem; }
+    .item-carrinho { background-color: #fff; border: 0; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--sombra); }
+    .btn-lixeira { color: #c0392b; background: none; border: none; padding: 6px; display: inline-flex; }
     #visor-total { font-size: 1.8rem; font-weight: bold; color: var(--cor-fundo); }
-    .variacao-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-    .variacao-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px; border: 1px solid #ddd;}
+    .variacao-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0e8e2; }
+    .variacao-img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; margin-right: 15px; border: 1px solid #eee;}
     .variacao-info { flex-grow: 1; text-align: left; }
-    .btn-wpp-small { background-color: #25D366; color: white; border: none; border-radius: 5px; padding: 5px 10px; font-size: 0.9rem; font-weight: bold; }
-    .offline-msg { background-color: #FFF3E0; color: #E65100; padding: 10px; border-radius: 8px; font-size: 0.85em; margin: 0 15px 15px 15px; display: none; }
+    .btn-wpp-small { background-color: #25D366; color: white; border: none; border-radius: 10px; padding: 6px 12px; font-size: 0.9rem; font-weight: bold; }
+    .offline-msg { background-color: #FFF3E0; color: #E65100; padding: 10px; border-radius: 12px; font-size: 0.85em; margin: 0 15px 15px 15px; display: none; }
+    .table { --bs-table-bg: transparent; }
+
+    /* Menu: início, grupos e atalhos */
+    .hero { padding: 4px 4px 14px; }
+    .hero small { display: block; color: var(--muted); }
+    .hero small::first-letter { text-transform: uppercase; }
+    input[type="date"].form-control { font-size: 14.5px; padding-left: .65rem; padding-right: .35rem; min-width: 0; }
+    .hero h2 { font-size: 1.6rem; font-weight: 800; color: var(--cor-fundo); margin: 2px 0 0; }
+    .cta-venda { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; border-radius: 20px; padding: 18px; margin-bottom: 14px; color: var(--cor-dourado); background: linear-gradient(135deg, #5d1c24 0%, #3d1015 100%); box-shadow: 0 10px 28px rgba(74,21,27,.32); }
+    .cta-venda .ic-cta { width: 52px; height: 52px; border-radius: 16px; background: rgba(220,184,129,.16); display: flex; align-items: center; justify-content: center; flex: none; }
+    .cta-venda .ic-cta .ic { width: 28px; height: 28px; }
+    .cta-venda b { display: block; font-size: 1.15rem; }
+    .cta-venda small { color: rgba(255,255,255,.72); }
+    .grade-atalhos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .lista-tiles { display: flex; flex-direction: column; gap: 10px; }
+    .tile { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: #fff; border: 0; border-radius: var(--raio); padding: 14px 16px; box-shadow: var(--sombra); color: var(--ink); }
+    .tile-ic { flex: none; width: 44px; height: 44px; border-radius: 13px; background: rgba(74,21,27,.08); color: var(--cor-fundo); display: flex; align-items: center; justify-content: center; }
+    .tile-tx { flex: 1; display: flex; flex-direction: column; line-height: 1.2; }
+    .tile-tx b { font-size: 1rem; color: var(--cor-fundo); }
+    .tile-tx small { color: var(--muted); font-size: .8rem; margin-top: 3px; }
+    .tile .chev { color: #cdbdb4; width: 20px; height: 20px; }
+    .tile-sq { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+    .tile-sq .tile-tx small { display: none; }
+    .link-sair { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .85rem; text-decoration: none; }
+    .link-sair .ic { width: 16px; height: 16px; }
+
+    /* Barra fixa de baixo */
+    .nav-inf { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1040; display: flex; background: rgba(255,255,255,.97); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--linha); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 18px rgba(74,21,27,.06); }
+    .nav-inf button { flex: 1; border: 0; background: none; color: #a9999b; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: .72rem; font-weight: 600; padding: 7px 0 5px; border-radius: 14px; position: relative; }
+    .nav-inf button .ic { width: 24px; height: 24px; }
+    .nav-inf button.ativo { color: var(--cor-fundo); }
+    .nav-inf button.ativo .ic { stroke-width: 2.3; }
+    .nav-inf button.ativo::after { content: ''; position: absolute; top: -7px; left: 50%; width: 28px; height: 3px; margin-left: -14px; border-radius: 0 0 4px 4px; background: var(--cor-dourado-esc); }
+
+    /* Login */
+    .login-card { max-width: 380px; margin: 8px auto 0; background: #fff; border-radius: 22px; padding: 26px 22px; box-shadow: var(--sombra); }
+    .login-card img { width: 92px; height: 92px; border-radius: 50%; box-shadow: 0 6px 18px rgba(74,21,27,.28); }
   </style>
 </head>
 <body>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-userplus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+    <symbol id="i-entrada" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+    <symbol id="i-saida" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chevl" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  </defs></svg>
+
   <header class="header-ellba">
-    <button id="btn-voltar" class="d-none" onclick="voltarTela()">⬅️</button>
-    <div class="container"><h1 class="logo-texto">USE ELLBA</h1></div>
+    <button id="btn-voltar" class="d-none" onclick="voltarTela()" aria-label="Voltar"><svg class="ic"><use href="#i-chevl"/></svg></button>
+    <div class="container marca"><img src="icon-192.png" alt=""><h1 class="logo-texto">USE ELLBA</h1></div>
   </header>
 
   <div id="avisoOffline" class="offline-msg">Você está sem conexão com a internet no momento.</div>
 
   <!-- TELAS INICIAIS E MENUS -->
-  <div id="tela-senha" class="container text-center mt-4">
-    <img src="icon-192.png" alt="USE ELLBA" style="width:110px;height:110px;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,.2);" class="mb-3">
-    <h3 class="mb-4" style="color: var(--cor-fundo);">Entrar</h3>
-    <input type="text" id="input-login" class="form-control mb-3 mx-auto" style="max-width: 300px; text-align: center;" placeholder="Login" autocapitalize="off">
-    <input type="password" id="input-senha" class="form-control mb-3 mx-auto" style="max-width: 300px; text-align: center;" placeholder="Senha">
-    <button class="btn-ellba mx-auto" style="max-width: 300px;" onclick="verificarSenha()">Entrar</button>
-    <div id="aviso-logando" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Entrando...</strong></div>
-    <div class="mt-4"><a href="#" onclick="abrirCadastroUsuaria(); return false;" style="color: var(--cor-fundo);">Ainda não tem login? Criar agora</a></div>
+  <div id="tela-senha" class="container mt-3">
+    <div class="login-card text-center">
+      <img src="icon-192.png" alt="USE ELLBA" class="mb-3">
+      <h3 class="mb-1" style="font-weight:800;">Bem-vinda!</h3>
+      <p class="text-muted small mb-4">Entre com o seu login para começar.</p>
+      <input type="text" id="input-login" class="form-control mb-3 text-center" placeholder="Login" autocapitalize="off" autocomplete="username">
+      <input type="password" id="input-senha" class="form-control mb-3 text-center" placeholder="Senha" autocomplete="current-password">
+      <button class="btn-ellba" onclick="verificarSenha()">Entrar</button>
+      <div id="aviso-logando" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Entrando...</strong></div>
+      <div class="mt-4"><a href="#" onclick="abrirCadastroUsuaria(); return false;" style="color: var(--cor-fundo); font-size:.9rem;">Ainda não tem login? Criar agora</a></div>
+    </div>
   </div>
 
-  <div id="tela-menu" class="container d-none">
-    <p class="text-center text-muted small mb-1" id="menu-boas-vindas"></p>
-    <p class="text-center mb-3"><a href="#" onclick="sairDoApp(); return false;" style="color: var(--cor-fundo); font-size:0.85rem;">Sair</a></p>
-    <div class="menu-grid">
-      <button class="btn-menu" onclick="irPara('tela-estoque')">📦<br>Estoque</button>
-      <button class="btn-menu" onclick="irPara('tela-venda')">🛒<br>Venda</button>
-      <button class="btn-menu menu-admin d-none" onclick="irPara('tela-compras-menu')">📝<br>Compras</button>
-      <button class="btn-menu" onclick="irPara('tela-selecao-loja');">👗<br>Catálogo</button>
-      <button class="btn-menu menu-admin d-none" onclick="abrirMarketingMenu()">📣<br>Marketing</button>
-      <button class="btn-menu menu-admin d-none" onclick="abrirCadastroUsuaria()">👤<br>Cadastrar Usuária</button>
-      <button class="btn-menu menu-admin d-none" onclick="abrirRelatorios()">📊<br>Relatórios</button>
-      <button class="btn-menu" onclick="abrirMinhasVendas()">🧾<br>Minhas Vendas</button>
-      <button class="btn-menu" onclick="abrirHistoricoCliente()">💳<br>Cliente</button>
-      <button class="btn-menu" onclick="abrirAniversariantes()">🎂<br>Aniversariantes</button>
+  <div id="tela-menu" class="container d-none pb-4">
+    <div class="hero"><small id="menu-data"></small><h2 id="menu-boas-vindas">Olá!</h2></div>
+    <button type="button" class="cta-venda" onclick="abrirFormularioVendas('tela-cadastrar-venda')">
+      <span class="ic-cta"><svg class="ic"><use href="#i-cart"/></svg></span>
+      <span class="flex-grow-1"><b>Nova venda</b><small>Montar o carrinho e registrar</small></span>
+      <svg class="ic"><use href="#i-chev"/></svg>
+    </button>
+    <div class="grade-atalhos">
+        <button type="button" class="tile tile-sq" onclick="abrirFormularioComLista('tela-consultar-produto')"><span class="tile-ic"><svg class="ic"><use href="#i-search"/></svg></span><span class="tile-tx"><b>Consultar produto</b></span></button>
+        <button type="button" class="tile tile-sq" onclick="abrirMinhasVendas()"><span class="tile-ic"><svg class="ic"><use href="#i-receipt"/></svg></span><span class="tile-tx"><b>Minhas vendas</b></span></button>
+        <button type="button" class="tile tile-sq" onclick="abrirHistoricoCliente()"><span class="tile-ic"><svg class="ic"><use href="#i-user"/></svg></span><span class="tile-tx"><b>Cliente</b></span></button>
+        <button type="button" class="tile tile-sq" onclick="abrirAniversariantes()"><span class="tile-ic"><svg class="ic"><use href="#i-gift"/></svg></span><span class="tile-tx"><b>Aniversariantes</b></span></button>
     </div>
+    <div class="text-center mt-4"><a href="#" class="link-sair" onclick="sairDoApp(); return false;"><svg class="ic"><use href="#i-logout"/></svg> Sair</a></div>
   </div>
 
   <!-- MINHAS VENDAS -->
   <div id="tela-minhas-vendas" class="container d-none pb-5">
     <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Minhas Vendas</h4>
-    <div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label fw-bold small">De</label><input type="date" id="mv-data-inicio" class="form-control"></div><div class="col-5"><label class="form-label fw-bold small">Até</label><input type="date" id="mv-data-fim" class="form-control"></div><div class="col-2"><button class="btn-ellba p-2" style="font-size:0.85rem;" onclick="buscarMinhasVendasTela()">🔎</button></div></div><div class="mt-2 d-none" id="div-mv-vendedora-filtro"><label class="form-label fw-bold small">Vendedora</label><select id="mv-vendedora" class="form-select" onchange="buscarMinhasVendasTela()"><option value="">Todas</option></select></div></div>
+    <div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label fw-bold small">De</label><input type="date" id="mv-data-inicio" class="form-control"></div><div class="col-5"><label class="form-label fw-bold small">Até</label><input type="date" id="mv-data-fim" class="form-control"></div><div class="col-2"><button class="btn-ellba p-2" style="font-size:0.85rem;" onclick="buscarMinhasVendasTela()"><svg class="ic"><use href="#i-search"/></svg></button></div></div><div class="mt-2 d-none" id="div-mv-vendedora-filtro"><label class="form-label fw-bold small">Vendedora</label><select id="mv-vendedora" class="form-select" onchange="buscarMinhasVendasTela()"><option value="">Todas</option></select></div></div>
     <div id="mv-resumo" class="card shadow-sm border-0 p-3 mb-3" style="background-color: var(--cor-fundo); color:#fff; display:none;"><div class="row text-center"><div class="col-6"><div class="small">Qtd. Vendas</div><div class="fw-bold fs-5" id="mv-qtd">0</div></div><div class="col-6"><div class="small">Total</div><div class="fw-bold fs-5" style="color: var(--cor-dourado);" id="mv-total">R$ 0,00</div></div></div></div>
     <div id="mv-ranking" class="d-none"></div>
     <div id="mv-lista"></div>
@@ -88,10 +180,10 @@
   <!-- HISTÓRICO DA CLIENTE -->
   <div id="tela-historico-cliente" class="container d-none pb-5">
     <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cliente</h4>
-    <div class="mb-3"><div class="input-group"><input type="text" id="hc-cliente-input" class="form-control" placeholder="Comece a digitar o nome da cliente..."><button type="button" class="btn-ellba" style="max-width:120px;" onclick="buscarHistoricoCliente()">🔎 Buscar</button></div><datalist id="lista-clientes-hc"></datalist></div>
+    <div class="mb-3"><div class="input-group"><input type="text" id="hc-cliente-input" class="form-control" placeholder="Comece a digitar o nome da cliente..."><button type="button" class="btn-ellba" style="max-width:120px;" onclick="buscarHistoricoCliente()">Buscar</button></div><datalist id="lista-clientes-hc"></datalist></div>
     <div id="hc-conteudo" class="d-none">
       <div class="card shadow-sm border-0 p-3 mb-3">
-        <h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">Dados Cadastrais <button type="button" class="btn btn-sm btn-secondary float-end" onclick="editarHistoricoCliente()">✏️ Editar</button></h6>
+        <h6 class="fw-bold mb-2" style="color: var(--cor-fundo);">Dados Cadastrais <button type="button" class="btn btn-sm btn-secondary float-end" onclick="editarHistoricoCliente()">Editar</button></h6>
         <div id="hc-dados-view"></div>
         <form id="hc-dados-form" class="d-none" onsubmit="salvarEdicaoCliente(event)">
           <div class="mb-2"><label class="form-label fw-bold small">Nome</label><input type="text" id="hc-edit-nome" class="form-control"></div>
@@ -101,7 +193,7 @@
           <div class="mb-2"><label class="form-label fw-bold small">Data Nasc.</label><input type="text" id="hc-edit-nascimento" class="form-control" placeholder="DD/MM/AAAA" oninput="mascaraData(this)"></div>
           <div class="mb-2"><label class="form-label fw-bold small">Endereço</label><input type="text" id="hc-edit-endereco" class="form-control"></div>
           <div class="mb-2"><label class="form-label fw-bold small">Observação</label><textarea id="hc-edit-obs" class="form-control" rows="2"></textarea></div>
-          <button type="submit" class="btn-ellba w-100">💾 Salvar Alterações</button>
+          <button type="submit" class="btn-ellba w-100">Salvar Alterações</button>
         </form>
       </div>
       <div class="card shadow-sm border-0 p-3 mb-3 text-center" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div class="small">💰 Cashback Disponível</div><div class="fw-bold fs-4" id="hc-cashback" style="color: var(--cor-fundo);">R$ 0,00</div></div>
@@ -136,22 +228,40 @@
         <input type="text" id="usu-senha" class="form-control" required>
       </div>
     </div>
-    <button type="button" id="btn-salvar-usuaria" class="btn-ellba" onclick="enviarFormularioUsuaria()">💾 Criar Login</button>
+    <button type="button" id="btn-salvar-usuaria" class="btn-ellba" onclick="enviarFormularioUsuaria()">Criar Login</button>
     <div id="aviso-salvando-usu" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div>
   </div>
 
   <div id="tela-selecao-loja" class="container text-center mt-5 d-none pb-5">
     <h3 class="mb-4" style="color: var(--cor-fundo);">Onde você está?</h3>
     <div class="d-grid gap-3 mx-auto" style="max-width: 400px;">
-      <button class="btn-ellba py-4 fs-4" onclick="escolherLojaCatalogo('Loja Recreio')">📍 Loja Recreio</button>
-      <button class="btn-ellba py-4 fs-4" onclick="escolherLojaCatalogo('Loja Penha')">📍 Loja Penha</button>
+      <button class="btn-ellba py-4 fs-4" onclick="escolherLojaCatalogo('Loja Recreio')">Loja Recreio</button>
+      <button class="btn-ellba py-4 fs-4" onclick="escolherLojaCatalogo('Loja Penha')">Loja Penha</button>
     </div>
   </div>
 
   <!-- ESTOQUE -->
-  <div id="tela-estoque" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Controle de Estoque</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioComLista('tela-consultar-produto')">🔍 Consultar Produto</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-cadastrar-produto')">➕ Cadastrar Novo</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-adicionar-estoque')">📥 Adicionar Entrada</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-retirar-estoque')">📤 Retirar Saída</button><button class="btn-ellba-outline" onclick="abrirFormularioComLista('tela-transferencia-estoque')">🔄 Transferência</button><button class="btn-ellba-outline" onclick="abrirInventario()">📋 Inventário</button><button class="btn-ellba-outline" onclick="irPara('tela-pecas-caminho-menu')">📦 Peças a Caminho</button></div></div>
+  <div id="tela-estoque" class="container pb-5 d-none">
+    <h4 class="mb-3 text-center">Estoque e Catálogo</h4>
+    <div class="lista-tiles">
+      <button type="button" class="tile" onclick="abrirFormularioComLista('tela-consultar-produto')"><span class="tile-ic"><svg class="ic"><use href="#i-search"/></svg></span><span class="tile-tx"><b>Consultar produto</b><small>Saldo por loja e outras peças da família</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirFormularioComLista('tela-cadastrar-produto')"><span class="tile-ic"><svg class="ic"><use href="#i-plus"/></svg></span><span class="tile-tx"><b>Cadastrar novo produto</b><small>Código gerado automaticamente</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirFormularioComLista('tela-adicionar-estoque')"><span class="tile-ic"><svg class="ic"><use href="#i-entrada"/></svg></span><span class="tile-tx"><b>Adicionar entrada</b><small>Reposição, troca ou devolução</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirFormularioComLista('tela-retirar-estoque')"><span class="tile-ic"><svg class="ic"><use href="#i-saida"/></svg></span><span class="tile-tx"><b>Retirar saída</b><small>Defeito, perda, uso próprio</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirFormularioComLista('tela-transferencia-estoque')"><span class="tile-ic"><svg class="ic"><use href="#i-repeat"/></svg></span><span class="tile-tx"><b>Transferência</b><small>Entre as lojas</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirInventario()"><span class="tile-ic"><svg class="ic"><use href="#i-clipboard"/></svg></span><span class="tile-tx"><b>Inventário</b><small>Contagem por loja e categoria</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="irPara('tela-pecas-caminho-menu')"><span class="tile-ic"><svg class="ic"><use href="#i-truck"/></svg></span><span class="tile-tx"><b>Peças a caminho</b><small>Cadastrar e dar entrada</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="irPara('tela-selecao-loja')"><span class="tile-ic"><svg class="ic"><use href="#i-shirt"/></svg></span><span class="tile-tx"><b>Catálogo das lojas</b><small>Ver as peças disponíveis</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
 
-  <div id="tela-pecas-caminho-menu" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Peças a Caminho</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirCadastroPecaCaminho()">➕ Cadastrar Peça a Caminho</button><button class="btn-ellba-outline" onclick="abrirDarEntradaLista()">📥 Dar Entrada</button></div></div>
+  <div id="tela-pecas-caminho-menu" class="container pb-5 d-none">
+    <h4 class="mb-3 text-center">Peças a Caminho</h4>
+    <div class="lista-tiles">
+      <button type="button" class="tile" onclick="abrirCadastroPecaCaminho()"><span class="tile-ic"><svg class="ic"><use href="#i-plus"/></svg></span><span class="tile-tx"><b>Cadastrar peça a caminho</b><small>Peça comprada que ainda não chegou</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirDarEntradaLista()"><span class="tile-ic"><svg class="ic"><use href="#i-entrada"/></svg></span><span class="tile-tx"><b>Dar entrada</b><small>Quando a peça chegar na loja</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
 
   <div id="tela-cadastrar-peca-caminho" class="container d-none pb-5">
     <h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Cadastrar Peça a Caminho</h4>
@@ -165,7 +275,7 @@
         <div class="mb-3"><label class="form-label fw-bold">Quantidade Esperada *</label><input type="number" id="pac-qtd" class="form-control" inputmode="numeric" required min="1"></div>
         <div class="mb-3"><label class="form-label fw-bold">Foto da Peça (Opcional)</label><input type="file" id="pac-foto" class="form-control" accept="image/*"></div>
       </div>
-      <button type="submit" id="btn-salvar-pac" class="btn-ellba w-100">💾 Cadastrar Peça a Caminho</button>
+      <button type="submit" id="btn-salvar-pac" class="btn-ellba w-100">Cadastrar Peça a Caminho</button>
       <div id="aviso-salvando-pac" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div>
     </form>
   </div>
@@ -185,7 +295,7 @@
         <div class="col-6"><label class="form-label fw-bold">De</label><input type="date" id="rel-data-inicio" class="form-control"></div>
         <div class="col-6"><label class="form-label fw-bold">Até</label><input type="date" id="rel-data-fim" class="form-control"></div>
       </div>
-      <button type="button" class="btn-ellba w-100 mt-3" id="btn-filtrar-relatorio" onclick="buscarRelatorio()">🔍 Filtrar</button>
+      <button type="button" class="btn-ellba w-100 mt-3" id="btn-filtrar-relatorio" onclick="buscarRelatorio()">Filtrar</button>
       <div id="aviso-carregando-rel" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Calculando...</strong></div>
     </div>
     <div id="resultado-relatorio"></div>
@@ -210,7 +320,7 @@
         </select>
       </div>
     </div>
-    <button type="button" class="btn-ellba" onclick="carregarProdutosInventario()">🔍 Iniciar Contagem</button>
+    <button type="button" class="btn-ellba" onclick="carregarProdutosInventario()">Iniciar Contagem</button>
   </div>
 
   <div id="tela-inventario-lista" class="container d-none pb-5">
@@ -220,12 +330,12 @@
     <div class="mb-3 d-none" id="div-inv-busca"><input type="text" id="inv-busca" class="form-control" list="lista-inv-itens" placeholder="Buscar peça por código ou nome, pra ir direto nela..." onchange="pularParaItemInventario(this.value)"><datalist id="lista-inv-itens"></datalist></div>
     <div id="inv-lista-itens"></div>
     <div id="inv-paginacao" class="d-flex justify-content-between align-items-center mt-2 mb-3 d-none">
-      <button type="button" class="btn btn-secondary btn-sm fw-bold" onclick="mudarPaginaInventario(-1)">⬅️ Anteriores</button>
+      <button type="button" class="btn btn-secondary btn-sm fw-bold" onclick="mudarPaginaInventario(-1)">Anteriores</button>
       <span class="small text-muted" id="inv-pagina-info"></span>
       <button type="button" class="btn btn-secondary btn-sm fw-bold" onclick="mudarPaginaInventario(1)">Próximas ➡️</button>
     </div>
     <div id="inv-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça com estoque diferente de zero nessa loja/categoria.</div>
-    <button type="button" id="btn-finalizar-inventario" class="btn-ellba fs-5 py-3 mt-3 d-none" onclick="irPara('tela-inventario-config')">✅ Concluir Contagem</button>
+    <button type="button" id="btn-finalizar-inventario" class="btn-ellba fs-5 py-3 mt-3 d-none" onclick="irPara('tela-inventario-config')">Concluir Contagem</button>
   </div>
 
   <div id="tela-cadastrar-produto" class="container d-none pb-5">
@@ -242,8 +352,8 @@
         <div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="cad-localizacao" class="form-select" required onchange="verificarOpcaoOutro('cad-localizacao')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cad-localizacao-outro"><input type="text" id="cad-localizacao-outro" class="form-control"></div>
       </div>
       <div class="row g-2">
-        <div class="col-8"><button type="submit" id="btn-salvar-produto" class="btn-ellba w-100">💾 Cadastrar</button></div>
-        <div class="col-4"><button type="button" class="btn btn-secondary w-100 fw-bold p-3" onclick="document.getElementById('formCadastro').reset()">🧹 Limpar</button></div>
+        <div class="col-8"><button type="submit" id="btn-salvar-produto" class="btn-ellba w-100">Cadastrar</button></div>
+        <div class="col-4"><button type="button" class="btn btn-secondary w-100 fw-bold p-3" onclick="document.getElementById('formCadastro').reset()">Limpar</button></div>
       </div>
       <div id="aviso-salvando-cad" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div>
     </form>
@@ -251,30 +361,39 @@
 
 
   <div id="tela-produto-sucesso" class="container text-center mt-5 d-none pb-5">
-    <div style="font-size:4rem;">✅</div>
+    <div class="mb-2" style="color:#2e7d4f;"><svg class="ic" style="width:84px;height:84px;stroke-width:1.5;"><use href="#i-ok"/></svg></div>
     <h3 class="mb-2" style="color: var(--cor-fundo);">Produto cadastrado com sucesso!</h3>
     <div class="text-muted mb-1">Código do produto:</div>
     <div id="prod-sucesso-codigo" class="fw-bold mb-2" style="font-size:2.4rem; letter-spacing:2px; color: var(--cor-fundo);"></div>
     <div id="prod-sucesso-resumo" class="text-muted mb-4"></div>
     <div class="d-grid gap-3 mx-auto" style="max-width: 400px;">
-      <button type="button" class="btn-ellba py-3" onclick="novaVariacaoProduto()">➕ Cadastrar outro tamanho/cor desta peça</button>
-      <button type="button" class="btn-ellba-outline py-3" onclick="novoProdutoDoZero()">🆕 Cadastrar outro produto</button>
-      <button type="button" class="btn btn-secondary py-3 fw-bold" onclick="irPara('tela-estoque')">📦 Voltar ao Estoque</button>
+      <button type="button" class="btn-ellba py-3" onclick="novaVariacaoProduto()">Cadastrar outro tamanho/cor desta peça</button>
+      <button type="button" class="btn-ellba-outline py-3" onclick="novoProdutoDoZero()">Cadastrar outro produto</button>
+      <button type="button" class="btn btn-secondary py-3 fw-bold" onclick="irPara('tela-estoque')">Voltar ao Estoque</button>
     </div>
   </div>
 
-  <div id="tela-consultar-produto" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Consultar Peça</h4><div class="mb-3"><input type="text" id="consulta-input" class="form-control text-center fw-bold fs-5 p-3" placeholder="Nome ou código..." onchange="acionarConsultaProduto(this)"><div class="text-muted mt-1 msg-loading-produtos text-center">Carregando...</div></div><div id="loading-consulta" class="text-center d-none mt-4" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div><div id="resultado-consulta" class="d-none"><div class="card shadow-sm border-0 mb-4 mx-auto" style="max-width: 450px;"><img id="consulta-foto" src="" class="card-img-top" style="max-height: 350px; object-fit: contain;" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400';"><div class="card-body text-center p-4"><h5 class="fw-bold mb-1" id="consulta-desc" style="color: var(--cor-fundo);"></h5><p class="text-muted small mb-3">CÓDIGO: <span id="consulta-id"></span></p><h3 class="fw-bold mb-4" id="consulta-preco" style="color: var(--cor-dourado);"></h3><div class="row text-start mb-3" style="font-size: 0.95rem;"><div class="col-6"><p class="mb-2"><strong>Cat:</strong> <span id="consulta-cat"></span></p></div><div class="col-6"><p class="mb-2"><strong>Loc:</strong> <span id="consulta-loc"></span></p></div><div class="col-6"><p class="mb-2"><strong>Tam:</strong> <span id="consulta-tam"></span></p></div><div class="col-6"><p class="mb-2"><strong>Cor:</strong> <span id="consulta-cor"></span></p></div></div><div class="p-3 rounded mb-2" style="background-color: #f8f9fa; border: 1px solid #ddd;"><h5 class="mb-0 fw-bold">SALDO TOTAL: <span id="consulta-saldo" class="fs-4"></span></h5><div class="row text-start mt-2" style="font-size:0.9rem;"><div class="col-6">📍 Recreio: <strong id="consulta-saldo-recreio"></strong></div><div class="col-6">📍 Penha: <strong id="consulta-saldo-penha"></strong></div></div></div></div></div><div id="consulta-familia" class="mx-auto mb-4 d-none" style="max-width: 450px;"></div><div class="d-grid gap-2 mx-auto" style="max-width: 450px;"><div class="row g-2"><div class="col-6"><button class="btn-ellba" onclick="atalhoParaEntrada()" style="font-size: 0.95rem;">📥 Adicionar</button></div><div class="col-6"><button class="btn-ellba-outline" onclick="atalhoParaSaida()" style="font-size: 0.95rem;">📤 Retirar</button></div></div><button class="btn btn-secondary fw-bold p-3 mt-2" onclick="limparConsulta()">🔄 Limpar Nova</button></div></div></div>
-  <div id="tela-adicionar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Entrada Estoque</h4><form id="formAdicionarEstoque" onsubmit="enviarFormularioEntrada(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="add-produto" class="form-control" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="add-tipo" class="form-select" required onchange="verificarOpcaoOutro('add-tipo'); verificarCustoEntrada();"><option value="">Selecione...</option><option value="Troca">Troca</option><option value="Devolucao">Devolução</option><option value="Reposicao">Reposição</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-tipo-outro"><input type="text" id="add-tipo-outro" class="form-control"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd *</label><input type="number" id="add-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="col-7"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="add-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="add-localizacao" class="form-select" required onchange="verificarOpcaoOutro('add-localizacao')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-localizacao-outro"><input type="text" id="add-localizacao-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="add-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-entrada" class="btn-ellba">📥 Registrar</button><div id="aviso-salvando-add" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
-  <div id="tela-retirar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Saída Estoque</h4><form id="formRetirarEstoque" onsubmit="enviarFormularioSaida(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="out-produto" class="form-control" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Loja *</label><select id="out-loja" class="form-select" required onchange="verificarOpcaoOutro('out-loja')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-loja-outro"><input type="text" id="out-loja-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="out-tipo" class="form-select" required onchange="verificarOpcaoOutro('out-tipo')"><option value="">Selecione...</option><option value="Defeito">Defeito</option><option value="Uso Próprio">Uso Próprio</option><option value="Perda">Perda</option><option value="Doação">Doação</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-tipo-outro"><input type="text" id="out-tipo-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="out-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs *</label><textarea id="out-obs" class="form-control" rows="2" required></textarea></div></div><button type="submit" id="btn-salvar-saida" class="btn-ellba">📤 Registrar</button><div id="aviso-salvando-out" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
-  <div id="tela-transferencia-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Transferência</h4><form id="formTransferenciaEstoque" onsubmit="enviarFormularioTransferencia(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="trans-produto" class="form-control" required onchange="preencherTransferenciaAutomatico(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Origem *</label><select id="trans-origem" class="form-select" required onchange="verificarOpcaoOutro('trans-origem')"><option value="">Retirar de...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-origem-outro"><input type="text" id="trans-origem-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Destino *</label><select id="trans-destino" class="form-select" required onchange="verificarOpcaoOutro('trans-destino')"><option value="">Enviar para...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-destino-outro"><input type="text" id="trans-destino-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="trans-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="trans-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-trans" class="btn-ellba">🔄 Registrar</button><div id="aviso-salvando-trans" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-consultar-produto" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Consultar Peça</h4><div class="mb-3"><input type="text" id="consulta-input" class="form-control text-center fw-bold fs-5 p-3" placeholder="Nome ou código..." onchange="acionarConsultaProduto(this)"><div class="text-muted mt-1 msg-loading-produtos text-center">Carregando...</div></div><div id="loading-consulta" class="text-center d-none mt-4" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div><div id="resultado-consulta" class="d-none"><div class="card shadow-sm border-0 mb-4 mx-auto" style="max-width: 450px;"><img id="consulta-foto" src="" class="card-img-top" style="max-height: 350px; object-fit: contain;" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400';"><div class="card-body text-center p-4"><h5 class="fw-bold mb-1" id="consulta-desc" style="color: var(--cor-fundo);"></h5><p class="text-muted small mb-3">CÓDIGO: <span id="consulta-id"></span></p><h3 class="fw-bold mb-4" id="consulta-preco" style="color: var(--cor-dourado);"></h3><div class="row text-start mb-3" style="font-size: 0.95rem;"><div class="col-6"><p class="mb-2"><strong>Cat:</strong> <span id="consulta-cat"></span></p></div><div class="col-6"><p class="mb-2"><strong>Loc:</strong> <span id="consulta-loc"></span></p></div><div class="col-6"><p class="mb-2"><strong>Tam:</strong> <span id="consulta-tam"></span></p></div><div class="col-6"><p class="mb-2"><strong>Cor:</strong> <span id="consulta-cor"></span></p></div></div><div class="p-3 rounded mb-2" style="background-color: #f8f9fa; border: 1px solid #ddd;"><h5 class="mb-0 fw-bold">SALDO TOTAL: <span id="consulta-saldo" class="fs-4"></span></h5><div class="row text-start mt-2" style="font-size:0.9rem;"><div class="col-6">📍 Recreio: <strong id="consulta-saldo-recreio"></strong></div><div class="col-6">📍 Penha: <strong id="consulta-saldo-penha"></strong></div></div></div></div></div><div id="consulta-familia" class="mx-auto mb-4 d-none" style="max-width: 450px;"></div><div class="d-grid gap-2 mx-auto" style="max-width: 450px;"><div class="row g-2"><div class="col-6"><button class="btn-ellba" onclick="atalhoParaEntrada()" style="font-size: 0.95rem;">Adicionar</button></div><div class="col-6"><button class="btn-ellba-outline" onclick="atalhoParaSaida()" style="font-size: 0.95rem;">Retirar</button></div></div><button class="btn btn-secondary fw-bold p-3 mt-2" onclick="limparConsulta()">Limpar Nova</button></div></div></div>
+  <div id="tela-adicionar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Entrada Estoque</h4><form id="formAdicionarEstoque" onsubmit="enviarFormularioEntrada(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="add-produto" class="form-control" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="add-tipo" class="form-select" required onchange="verificarOpcaoOutro('add-tipo'); verificarCustoEntrada();"><option value="">Selecione...</option><option value="Troca">Troca</option><option value="Devolucao">Devolução</option><option value="Reposicao">Reposição</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-tipo-outro"><input type="text" id="add-tipo-outro" class="form-control"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd *</label><input type="number" id="add-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="col-7"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="add-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="add-localizacao" class="form-select" required onchange="verificarOpcaoOutro('add-localizacao')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-add-localizacao-outro"><input type="text" id="add-localizacao-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="add-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-entrada" class="btn-ellba">Registrar</button><div id="aviso-salvando-add" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-retirar-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Saída Estoque</h4><form id="formRetirarEstoque" onsubmit="enviarFormularioSaida(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="out-produto" class="form-control" required onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Loja *</label><select id="out-loja" class="form-select" required onchange="verificarOpcaoOutro('out-loja')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-loja-outro"><input type="text" id="out-loja-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Tipo *</label><select id="out-tipo" class="form-select" required onchange="verificarOpcaoOutro('out-tipo')"><option value="">Selecione...</option><option value="Defeito">Defeito</option><option value="Uso Próprio">Uso Próprio</option><option value="Perda">Perda</option><option value="Doação">Doação</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-out-tipo-outro"><input type="text" id="out-tipo-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="out-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs *</label><textarea id="out-obs" class="form-control" rows="2" required></textarea></div></div><button type="submit" id="btn-salvar-saida" class="btn-ellba">Registrar</button><div id="aviso-salvando-out" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-transferencia-estoque" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Transferência</h4><form id="formTransferenciaEstoque" onsubmit="enviarFormularioTransferencia(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Produto *</label><input type="text" id="trans-produto" class="form-control" required onchange="preencherTransferenciaAutomatico(this)"><div class="text-muted mt-1 msg-loading-produtos">Carregando...</div></div><div class="mb-3"><label class="form-label fw-bold">Origem *</label><select id="trans-origem" class="form-select" required onchange="verificarOpcaoOutro('trans-origem')"><option value="">Retirar de...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-origem-outro"><input type="text" id="trans-origem-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Destino *</label><select id="trans-destino" class="form-select" required onchange="verificarOpcaoOutro('trans-destino')"><option value="">Enviar para...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-trans-destino-outro"><input type="text" id="trans-destino-outro" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">Qtd *</label><input type="number" id="trans-qtd" class="form-control" inputmode="numeric" required min="1"></div><div class="mb-2"><label class="form-label fw-bold">Obs</label><textarea id="trans-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-trans" class="btn-ellba">Registrar</button><div id="aviso-salvando-trans" class="text-center mt-3 d-none"><div class="spinner-border spinner-border-sm"></div></div></form></div>
 
   <!-- VENDAS E CLIENTES -->
-  <div id="tela-venda" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Módulo de Venda</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioVendas('tela-cadastrar-venda')">🛒 Cadastrar Venda</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-cliente')">👩 Cadastrar Cliente</button></div></div>
-  <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc. *</label><input type="text" id="cli-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">💾 Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
+  <div id="tela-venda" class="container pb-5 d-none">
+    <h4 class="mb-3 text-center">Vendas e Clientes</h4>
+    <div class="lista-tiles">
+      <button type="button" class="tile" onclick="abrirFormularioVendas('tela-cadastrar-venda')"><span class="tile-ic"><svg class="ic"><use href="#i-cart"/></svg></span><span class="tile-tx"><b>Nova venda</b><small>Carrinho, cashback e pagamento</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="irPara('tela-cadastrar-cliente')"><span class="tile-ic"><svg class="ic"><use href="#i-userplus"/></svg></span><span class="tile-tx"><b>Cadastrar cliente</b><small>Nova cliente no sistema</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirMinhasVendas()"><span class="tile-ic"><svg class="ic"><use href="#i-receipt"/></svg></span><span class="tile-tx"><b>Minhas vendas</b><small>Histórico por data</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirHistoricoCliente()"><span class="tile-ic"><svg class="ic"><use href="#i-user"/></svg></span><span class="tile-tx"><b>Cliente</b><small>Dados, cashback e compras</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirAniversariantes()"><span class="tile-ic"><svg class="ic"><use href="#i-gift"/></svg></span><span class="tile-tx"><b>Aniversariantes de hoje</b><small>Enviar mensagem pelo WhatsApp</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
+  <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc. *</label><input type="text" id="cli-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
-  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">➕ Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
+  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><select id="venda-cliente" class="form-select fw-bold text-center" style="border: 2px solid var(--cor-dourado);" onchange="aoSelecionarClienteVenda()"><option value="Sem Cadastro">-- Cliente Sem Cadastro --</option></select><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
 
-  <button type="button" id="btn-continuar-venda" class="btn-ellba fs-5 py-3" onclick="continuarParaProximaEtapa()">➡️ CONTINUAR</button>
+  <button type="button" id="btn-continuar-venda" class="btn-ellba fs-5 py-3" onclick="continuarParaProximaEtapa()">CONTINUAR</button>
   </div>
 
   <!-- APLICAR CASHBACK / DESCONTO ANIVERSÁRIO -->
@@ -296,7 +415,7 @@
         <label class="form-check-label small" for="desconto-usar-aniversario">Aplicar 10% de desconto de aniversário nesta compra</label>
       </div>
     </div>
-    <button type="button" class="btn-ellba fs-5 py-3" onclick="aplicarCashbackDesconto()">✅ APLICAR CASHBACK</button>
+    <button type="button" class="btn-ellba fs-5 py-3" onclick="aplicarCashbackDesconto()">APLICAR CASHBACK</button>
   </div>
 
   <!-- PAGAMENTO -->
@@ -313,7 +432,7 @@
         <div class="col-3 d-none" id="div-pgto-parcelas"><select id="pgto-parcelas" class="form-select"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option></select></div>
         <div class="col-4"><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="pgto-valor" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div>
       </div>
-      <button type="button" class="btn btn-secondary w-100 fw-bold mb-2" onclick="adicionarFormaPagamento()">➕ Adicionar forma de pagamento</button>
+      <button type="button" class="btn btn-secondary w-100 fw-bold mb-2" onclick="adicionarFormaPagamento()">Adicionar forma de pagamento</button>
       <div id="lista-pagamentos" class="mb-2"></div>
       <div class="d-flex justify-content-between fw-bold" style="font-size: 0.95rem;">
         <span>Total pago:</span>
@@ -322,26 +441,42 @@
       <div id="pgto-aviso" class="small mt-1"></div>
     </div>
 
-    <button type="button" id="btn-salvar-venda" class="btn-ellba fs-5 py-3" onclick="finalizarVenda()">💳 REGISTRAR VENDA</button>
+    <button type="button" id="btn-salvar-venda" class="btn-ellba fs-5 py-3" onclick="finalizarVenda()">REGISTRAR VENDA</button>
     <div id="aviso-salvando-venda" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border"></div><br><strong>Processando venda...</strong></div>
   </div>
 
   <!-- VENDA REGISTRADA COM SUCESSO -->
   <div id="tela-venda-sucesso" class="container text-center mt-5 d-none pb-5">
-    <div style="font-size:4rem;">✅</div>
+    <div class="mb-2" style="color:#2e7d4f;"><svg class="ic" style="width:84px;height:84px;stroke-width:1.5;"><use href="#i-ok"/></svg></div>
     <h3 class="mb-4" style="color: var(--cor-fundo);">Venda registrada com sucesso!</h3>
     <div class="d-grid gap-3 mx-auto" style="max-width: 400px;">
-      <button type="button" class="btn btn-success py-3 fs-5 shadow-sm fw-bold" style="background-color: #25D366; border-color: #25D366;" onclick="enviarReciboWhatsApp()">📱 Enviar Recibo WhatsApp</button>
-      <button type="button" class="btn-ellba py-3 fs-5" onclick="irPara('tela-cadastrar-venda')">🔄 Iniciar Nova Venda</button>
-      <button type="button" class="btn btn-secondary py-3 fs-5 fw-bold" onclick="irPara('tela-menu')">🏠 Voltar ao Menu Principal</button>
+      <button type="button" class="btn btn-success py-3 fs-5 shadow-sm fw-bold" style="background-color: #25D366; border-color: #25D366;" onclick="enviarReciboWhatsApp()">Enviar Recibo WhatsApp</button>
+      <button type="button" class="btn-ellba py-3 fs-5" onclick="irPara('tela-cadastrar-venda')">Iniciar Nova Venda</button>
+      <button type="button" class="btn btn-secondary py-3 fs-5 fw-bold" onclick="irPara('tela-menu')">Voltar ao Menu Principal</button>
+    </div>
+  </div>
+
+  <div id="tela-gestao" class="container pb-5 d-none">
+    <h4 class="mb-3 text-center">Gestão</h4>
+    <div class="lista-tiles">
+      <button type="button" class="tile" onclick="irPara('tela-compras-menu')"><span class="tile-ic"><svg class="ic"><use href="#i-bag"/></svg></span><span class="tile-tx"><b>Compras</b><small>Despesas e fornecedores</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirMarketingMenu()"><span class="tile-ic"><svg class="ic"><use href="#i-megaphone"/></svg></span><span class="tile-tx"><b>Marketing</b><small>Peças por família, fotos e textos</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirRelatorios()"><span class="tile-ic"><svg class="ic"><use href="#i-chart"/></svg></span><span class="tile-tx"><b>Relatórios</b><small>Vendas, lucro e estoque</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirCadastroUsuaria()"><span class="tile-ic"><svg class="ic"><use href="#i-userplus"/></svg></span><span class="tile-tx"><b>Cadastrar usuária</b><small>Criar login de uma vendedora</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
     </div>
   </div>
 
   <!-- COMPRAS FINANCEIRO -->
   <div id="tela-senha-master" class="container text-center mt-5 d-none"><h3 class="mb-4" style="color: var(--cor-fundo);">Acesso Financeiro</h3><p class="text-muted small">Área exclusiva para gestão.</p><input type="password" id="input-senha-master" class="form-control mb-3 mx-auto" style="max-width: 300px; text-align: center;" placeholder="Digite a senha master"><button class="btn-ellba mx-auto" style="max-width: 300px;" onclick="verificarSenhaMaster()">Acessar</button></div>
-  <div id="tela-compras-menu" class="container text-center mt-3 d-none pb-5"><h4 class="mb-4 fw-bold" style="color: var(--cor-fundo);">Módulo de Compras</h4><div class="d-grid gap-3 mx-auto" style="max-width: 400px;"><button class="btn-ellba" onclick="abrirFormularioDespesas('tela-registrar-despesa')">💸 Registro de Compras/Despesas</button><button class="btn-ellba-outline" onclick="irPara('tela-cadastrar-fornecedor')">🤝 Cadastro de Fornecedores</button></div></div>
-  <div id="tela-cadastrar-fornecedor" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Novo Fornecedor</h4><form id="formCadastroFornecedor" onsubmit="enviarFormularioFornecedor(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="forn-nome" class="form-control" required placeholder="Nome do Fornecedor"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp</label><input type="tel" id="forn-tel" class="form-control" placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">Categoria de Produtos</label><input type="text" id="forn-cat" class="form-control" placeholder="Ex: Malhas, Aviamentos..."></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="forn-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-forn" class="btn-ellba">💾 Salvar Fornecedor</button><div id="aviso-salvando-forn" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div></form></div>
-  <div id="tela-registrar-despesa" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Registrar Despesa</h4><form id="formRegistroDespesa" onsubmit="enviarFormularioDespesa(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="desp-data" class="form-control" required></div><div class="col-6"><label class="form-label fw-bold">Valor (R$) *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="desp-valor" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><div class="mb-3"><label class="form-label fw-bold">Categoria *</label><select id="desp-categoria" class="form-select" required onchange="verificarOpcaoOutro('desp-categoria')"><option value="">Selecione...</option><option value="Alimentacao">Alimentação</option><option value="Frete">Frete</option><option value="Transporte">Transporte</option><option value="Conserto">Conserto</option><option value="Fornecedor">Fornecedor</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-desp-categoria-outro"><input type="text" id="desp-categoria-outro" class="form-control" placeholder="Qual categoria?"></div><div class="mb-3"><label class="form-label fw-bold">Descrição</label><input type="text" id="desp-desc" class="form-control" placeholder="Motivo do gasto..."></div><div class="mb-3"><label class="form-label fw-bold">Fornecedor</label><input type="text" id="desp-fornecedor" class="form-control" list="lista-fornecedores" placeholder="Busque ou deixe em branco"><div class="text-muted mt-1 msg-loading-fornecedores" style="font-size: 0.85rem;">Carregando lista...</div></div><div class="mb-3"><label class="form-label fw-bold">Formato de Pagamento *</label><select id="desp-pagamento" class="form-select" required><option value="">Selecione...</option><option value="Pix">Pix</option><option value="Boleto">Boleto</option><option value="Dinheiro">Dinheiro</option><option value="Cartão de Crédito">Cartão de Crédito</option><option value="Debito">Débito</option><option value="Transferência Bancária">Transferência Bancária</option></select></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="desp-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-desp" class="btn-ellba">💳 Registrar Despesa</button><div id="aviso-salvando-desp" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-compras-menu" class="container pb-5 d-none">
+    <h4 class="mb-3 text-center">Compras</h4>
+    <div class="lista-tiles">
+      <button type="button" class="tile" onclick="abrirFormularioDespesas('tela-registrar-despesa')"><span class="tile-ic"><svg class="ic"><use href="#i-bag"/></svg></span><span class="tile-tx"><b>Compras e despesas</b><small>Registrar um gasto</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="irPara('tela-cadastrar-fornecedor')"><span class="tile-ic"><svg class="ic"><use href="#i-users"/></svg></span><span class="tile-tx"><b>Fornecedores</b><small>Cadastrar fornecedor</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
+  <div id="tela-cadastrar-fornecedor" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Novo Fornecedor</h4><form id="formCadastroFornecedor" onsubmit="enviarFormularioFornecedor(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="forn-nome" class="form-control" required placeholder="Nome do Fornecedor"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp</label><input type="tel" id="forn-tel" class="form-control" placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">Categoria de Produtos</label><input type="text" id="forn-cat" class="form-control" placeholder="Ex: Malhas, Aviamentos..."></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="forn-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-forn" class="btn-ellba">Salvar Fornecedor</button><div id="aviso-salvando-forn" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div></form></div>
+  <div id="tela-registrar-despesa" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Registrar Despesa</h4><form id="formRegistroDespesa" onsubmit="enviarFormularioDespesa(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="desp-data" class="form-control" required></div><div class="col-6"><label class="form-label fw-bold">Valor (R$) *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="desp-valor" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><div class="mb-3"><label class="form-label fw-bold">Categoria *</label><select id="desp-categoria" class="form-select" required onchange="verificarOpcaoOutro('desp-categoria')"><option value="">Selecione...</option><option value="Alimentacao">Alimentação</option><option value="Frete">Frete</option><option value="Transporte">Transporte</option><option value="Conserto">Conserto</option><option value="Fornecedor">Fornecedor</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-desp-categoria-outro"><input type="text" id="desp-categoria-outro" class="form-control" placeholder="Qual categoria?"></div><div class="mb-3"><label class="form-label fw-bold">Descrição</label><input type="text" id="desp-desc" class="form-control" placeholder="Motivo do gasto..."></div><div class="mb-3"><label class="form-label fw-bold">Fornecedor</label><input type="text" id="desp-fornecedor" class="form-control" list="lista-fornecedores" placeholder="Busque ou deixe em branco"><div class="text-muted mt-1 msg-loading-fornecedores" style="font-size: 0.85rem;">Carregando lista...</div></div><div class="mb-3"><label class="form-label fw-bold">Formato de Pagamento *</label><select id="desp-pagamento" class="form-select" required><option value="">Selecione...</option><option value="Pix">Pix</option><option value="Boleto">Boleto</option><option value="Dinheiro">Dinheiro</option><option value="Cartão de Crédito">Cartão de Crédito</option><option value="Debito">Débito</option><option value="Transferência Bancária">Transferência Bancária</option></select></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="desp-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-desp" class="btn-ellba">Registrar Despesa</button><div id="aviso-salvando-desp" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div></form></div>
   <datalist id="lista-fornecedores"></datalist>
 
   <!-- MARKETING -->
@@ -357,8 +492,8 @@
     <div id="mkt-loading" class="text-center" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
     <div id="mkt-conteudo" class="d-none">
       <div class="mb-3"><input type="text" id="mkt-busca" class="form-control" placeholder="Buscar por nome ou código..." onkeyup="filtrarProdutosMarketing()"></div>
-      <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketing()">📋 Copiar tudo (lista completa)</button>
-      <button type="button" class="btn-ellba-outline w-100 fw-bold mb-3" onclick="abrirMarketingACaminho()">📦 Peças a Caminho (ainda não chegaram)</button>
+      <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketing()">Copiar tudo (lista completa)</button>
+      <button type="button" class="btn-ellba-outline w-100 fw-bold mb-3" onclick="abrirMarketingACaminho()">Peças a Caminho (ainda não chegaram)</button>
       <div id="mkt-lista" class="row g-3"></div>
     </div>
   </div>
@@ -370,7 +505,7 @@
     <div id="mktac-loading" class="text-center" style="color: var(--cor-fundo);"><div class="spinner-border"></div></div>
     <div id="mktac-vazio" class="text-center text-muted mt-4 d-none">Nenhuma peça a caminho no momento.</div>
     <div id="mktac-conteudo" class="d-none">
-      <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketingACaminho()">📋 Copiar tudo (lista completa)</button>
+      <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketingACaminho()">Copiar tudo (lista completa)</button>
       <div id="mktac-lista" class="row g-3"></div>
     </div>
   </div>
@@ -394,6 +529,13 @@
     </div>
     <div class="modal-body p-0" id="modalListaVariacoes"></div>
   </div></div></div>
+
+  <nav id="nav-inferior" class="nav-inf d-none" aria-label="Menu principal">
+    <button type="button" data-aba="inicio" onclick="irAba('inicio')"><svg class="ic"><use href="#i-home"/></svg><span>Início</span></button>
+    <button type="button" data-aba="vendas" onclick="irAba('vendas')"><svg class="ic"><use href="#i-cart"/></svg><span>Vendas</span></button>
+    <button type="button" data-aba="estoque" onclick="irAba('estoque')"><svg class="ic"><use href="#i-box"/></svg><span>Estoque</span></button>
+    <button type="button" data-aba="gestao" class="menu-admin d-none" onclick="irAba('gestao')"><svg class="ic"><use href="#i-grid"/></svg><span>Gestão</span></button>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
@@ -419,7 +561,27 @@
       return converterParaNumero(valor).toFixed(2).replace('.', ',');
     }
 
-    function irPara(idTela) { document.getElementById(telaAtual).classList.add('d-none'); document.getElementById(idTela).classList.remove('d-none'); telaAtual = idTela; atualizarBotaoVoltar(); }
+    function irPara(idTela) { document.getElementById(telaAtual).classList.add('d-none'); document.getElementById(idTela).classList.remove('d-none'); telaAtual = idTela; atualizarBotaoVoltar(); atualizarNavegacao(); window.scrollTo(0, 0); }
+
+    // ---- Barra fixa de baixo (Início / Vendas / Estoque / Gestão) ----
+    const ABA_RAIZ = { inicio: 'tela-menu', vendas: 'tela-venda', estoque: 'tela-estoque', gestao: 'tela-gestao' };
+    const TELAS_DA_ABA = {
+      inicio: ['tela-menu'],
+      vendas: ['tela-venda', 'tela-cadastrar-venda', 'tela-aplicar-desconto', 'tela-pagamento-venda', 'tela-venda-sucesso', 'tela-cadastrar-cliente', 'tela-minhas-vendas', 'tela-detalhe-venda', 'tela-historico-cliente', 'tela-aniversariantes'],
+      estoque: ['tela-estoque', 'tela-cadastrar-produto', 'tela-produto-sucesso', 'tela-consultar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-inventario-config', 'tela-inventario-lista', 'tela-pecas-caminho-menu', 'tela-cadastrar-peca-caminho', 'tela-dar-entrada-lista', 'tela-selecao-loja', 'tela-catalogo'],
+      gestao: ['tela-gestao', 'tela-compras-menu', 'tela-cadastrar-fornecedor', 'tela-registrar-despesa', 'tela-relatorios', 'tela-cadastrar-usuaria', 'tela-marketing', 'tela-marketing-a-caminho']
+    };
+    function irAba(aba) { irPara(ABA_RAIZ[aba]); }
+    function atualizarNavegacao() {
+      const nav = document.getElementById('nav-inferior');
+      const logada = !!window.usuariaAtual && perfilAtual !== 'cliente' && telaAtual !== 'tela-senha' && telaAtual !== 'tela-senha-marketing';
+      nav.classList.toggle('d-none', !logada);
+      document.body.classList.toggle('com-nav', logada);
+      nav.querySelectorAll('button').forEach(function(b) {
+        const aba = b.getAttribute('data-aba');
+        b.classList.toggle('ativo', TELAS_DA_ABA[aba].indexOf(telaAtual) > -1);
+      });
+    }
         function abrirTelaSenha() { document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = ''; irPara("tela-senha"); }
     function verificarSenha() {
       const login = document.getElementById('input-login').value.trim();
@@ -430,7 +592,8 @@
         document.getElementById('aviso-logando').classList.add('d-none');
         perfilAtual = "funcionaria";
         window.usuariaAtual = res.nome; perfilUsuaria = res.perfil; loginUsuariaAtual = login; senhaUsuariaAtual = senha;
-        document.getElementById('menu-boas-vindas').innerText = "Olá, " + res.nome + "!";
+        document.getElementById('menu-boas-vindas').innerText = "Olá, " + res.nome.split(' ')[0] + "!";
+        document.getElementById('menu-data').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
         atualizarVisibilidadeMenu();
         irPara("tela-menu");
       }).withFailureHandler(function(err) {
@@ -484,9 +647,11 @@
     function voltarTela() {
       if (telaAtual === 'tela-cadastrar-usuaria' && !window.usuariaAtual) { irPara('tela-senha'); }
       else if (telaAtual === 'tela-senha-marketing') { irPara('tela-senha'); }
-      else if (telaAtual === 'tela-selecao-loja') { if (perfilAtual !== 'cliente') irPara('tela-menu'); }
+      else if (telaAtual === 'tela-selecao-loja') { if (perfilAtual !== 'cliente') irPara('tela-estoque'); }
       else if (telaAtual === 'tela-marketing-a-caminho') { irPara('tela-marketing'); }
-      else if (['tela-estoque', 'tela-venda', 'tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
+      else if (['tela-estoque', 'tela-venda'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
+      else if (['tela-marketing', 'tela-cadastrar-usuaria'].indexOf(telaAtual) > -1) { irPara(perfilUsuaria === 'Admin' ? 'tela-gestao' : 'tela-menu'); }
+      else if (telaAtual === 'tela-gestao') { irPara('tela-menu'); }
       else if (['tela-cadastrar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-consultar-produto', 'tela-inventario-config', 'tela-pecas-caminho-menu'].indexOf(telaAtual) > -1) { irPara('tela-estoque'); }
       else if (telaAtual === 'tela-inventario-lista') { irPara('tela-inventario-config'); }
       else if (telaAtual === 'tela-produto-sucesso') { irPara('tela-estoque'); }
@@ -495,14 +660,14 @@
       else if (telaAtual === 'tela-aplicar-desconto') { irPara('tela-cadastrar-venda'); }
       else if (telaAtual === 'tela-pagamento-venda') { irPara(telaAnteriorPagamento); }
       else if (telaAtual === 'tela-venda-sucesso') { irPara('tela-menu'); }
-      else if (telaAtual === 'tela-compras-menu') { irPara('tela-menu'); }
+      else if (telaAtual === 'tela-compras-menu') { irPara('tela-gestao'); }
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
       else if (telaAtual === 'tela-catalogo') { irPara('tela-selecao-loja'); }
-      else if (telaAtual === 'tela-relatorios') { irPara('tela-menu'); }
+      else if (telaAtual === 'tela-relatorios') { irPara('tela-gestao'); }
       else if (['tela-minhas-vendas', 'tela-historico-cliente', 'tela-aniversariantes'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
       else if (telaAtual === 'tela-detalhe-venda') { irPara(origemDetalheVenda); }
     }
-    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (telaAtual === 'tela-senha' || telaAtual === 'tela-menu' || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
+    function atualizarBotaoVoltar() { const btn = document.getElementById('btn-voltar'); if (['tela-senha', 'tela-menu', 'tela-venda', 'tela-estoque', 'tela-gestao'].indexOf(telaAtual) > -1 || (telaAtual === 'tela-selecao-loja' && perfilAtual === 'cliente')) { btn.classList.add('d-none'); } else { btn.classList.remove('d-none'); } }
     function mascaraMoeda(input) { let v = input.value.replace(/\D/g, ''); if (v === '') { input.value = ''; return; } v = (parseInt(v) / 100).toFixed(2).replace('.', ','); input.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.'); }
     function mascaraTelefone(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); input.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
     function mascaraCPF(input) { let v = input.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); input.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
@@ -669,7 +834,7 @@
         html += '<div class="row g-2 align-items-end">';
         html += '<div class="col-4"><label class="form-label small fw-bold mb-1">Qtd Esperada</label><input type="number" class="form-control text-center" value="' + p.qtdEsperada + '" id="dar-entrada-qtd-' + index + '"></div>';
         html += '<div class="col-5"><label class="form-label small fw-bold mb-1">Loja</label><select class="form-select" id="dar-entrada-loja-' + index + '"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option></select></div>';
-        html += '<div class="col-3"><button type="button" class="btn-ellba w-100 p-2" style="font-size: 0.85rem;" id="btn-dar-entrada-' + index + '" onclick="confirmarDarEntrada(' + index + ')">✅ Entrada</button></div>';
+        html += '<div class="col-3"><button type="button" class="btn-ellba w-100 p-2" style="font-size: 0.85rem;" id="btn-dar-entrada-' + index + '" onclick="confirmarDarEntrada(' + index + ')">Entrada</button></div>';
         html += '</div></div>';
         div.innerHTML += html;
       });
@@ -691,7 +856,7 @@
             '<div class="card shadow-sm border-0 p-4 text-center">' +
             '<div class="fw-bold mb-2" style="color: var(--cor-fundo);">✅ Peça recebida! Código: ' + res.idGerado + '</div>' +
             '<div class="text-danger fw-bold mb-3">⚠️ Chegou menos do que o esperado (esperado: ' + res.qtdEsperada + ', recebido: ' + res.qtdRecebida + ').</div>' +
-            '<a href="' + link + '" target="_blank" rel="noopener" class="btn-ellba d-block mb-2">📲 Avisar Elba no WhatsApp</a>' +
+            '<a href="' + link + '" target="_blank" rel="noopener" class="btn-ellba d-block mb-2">Avisar Elba no WhatsApp</a>' +
             '<button type="button" class="btn btn-secondary w-100 fw-bold" onclick="abrirDarEntradaLista()">Voltar à lista</button>' +
             '</div>';
           document.getElementById('dar-entrada-vazio').classList.add('d-none');
@@ -1093,7 +1258,7 @@
         var div = document.getElementById('aniv-lista'); div.innerHTML = '';
         if (lista.length === 0) { document.getElementById('aniv-vazio').classList.remove('d-none'); return; }
         lista.forEach(function(a) {
-          div.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold" style="color: var(--cor-fundo);">🎉 ' + a.nome + '</div><div class="text-muted small">' + (a.telefone || 'Sem telefone') + '</div></div>' + (a.linkWhatsapp ? '<a href="' + a.linkWhatsapp + '" target="_blank" class="btn btn-success btn-sm fw-bold" style="background-color:#25D366; border-color:#25D366;">📱 Enviar</a>' : '') + '</div></div>';
+          div.innerHTML += '<div class="card shadow-sm border-0 p-3 mb-2"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold" style="color: var(--cor-fundo);">🎉 ' + a.nome + '</div><div class="text-muted small">' + (a.telefone || 'Sem telefone') + '</div></div>' + (a.linkWhatsapp ? '<a href="' + a.linkWhatsapp + '" target="_blank" class="btn btn-success btn-sm fw-bold" style="background-color:#25D366; border-color:#25D366;">Enviar</a>' : '') + '</div></div>';
         });
       }).withFailureHandler(function(err) { document.getElementById('aniv-lista').innerHTML = ''; alert('Erro ao buscar aniversariantes: ' + (err.message || err)); }).buscarAniversariantesHoje();
     }
@@ -1303,7 +1468,7 @@
       pagamentosVenda.forEach(function(p, index) {
         totalPago += p.valor;
         const parcelasTxt = p.parcelas ? ' (' + p.parcelas + 'x)' : '';
-        listaDiv.innerHTML += '<div class="item-carrinho"><div><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.9rem;">' + p.forma + parcelasTxt + '</div><div class="text-muted small">R$ ' + formatarPrecoExibicao(p.valor) + '</div></div><button type="button" class="btn-lixeira" onclick="removerFormaPagamento(' + index + ')">🗑️</button></div>';
+        listaDiv.innerHTML += '<div class="item-carrinho"><div><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.9rem;">' + p.forma + parcelasTxt + '</div><div class="text-muted small">R$ ' + formatarPrecoExibicao(p.valor) + '</div></div><button type="button" class="btn-lixeira" onclick="removerFormaPagamento(' + index + ')"><svg class="ic"><use href="#i-trash"/></svg></button></div>';
       });
       document.getElementById('pgto-total-pago').innerText = "R$ " + formatarPrecoExibicao(totalPago);
 
@@ -1348,7 +1513,7 @@
       carrinho.forEach(function(item, index) {
         const val = converterParaNumero(item.preco);
         const subtotal = val * item.qtd; total += subtotal;
-        let html = '<div class="item-carrinho"><div><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.95rem;">' + item.label + '</div><div class="text-muted small">' + item.qtd + 'x R$ ' + item.preco + ' = <strong>R$ ' + formatarPrecoExibicao(subtotal) + '</strong></div></div><button type="button" class="btn-lixeira" onclick="removerDoCarrinho(' + index + ')">🗑️</button></div>';
+        let html = '<div class="item-carrinho"><div><div class="fw-bold" style="color: var(--cor-fundo); font-size: 0.95rem;">' + item.label + '</div><div class="text-muted small">' + item.qtd + 'x R$ ' + item.preco + ' = <strong>R$ ' + formatarPrecoExibicao(subtotal) + '</strong></div></div><button type="button" class="btn-lixeira" onclick="removerDoCarrinho(' + index + ')"><svg class="ic"><use href="#i-trash"/></svg></button></div>';
         listaDiv.innerHTML += html;
       });
       document.getElementById('visor-total').innerText = "R$ " + formatarPrecoExibicao(total);
@@ -1584,7 +1749,7 @@
         const precoFormatado = formatarPrecoExibicao(p.preco);
         item += '<div class="text-muted small">Cód: ' + p.id + ' • R$ ' + precoFormatado + '</div>';
         item += '</div>';
-        item += '<button class="btn-wpp-small" onclick="pedirNoWhatsAppVariacao(\'' + p.id + '\')">📱 Pedir</button>';
+        item += '<button class="btn-wpp-small" onclick="pedirNoWhatsAppVariacao(\'' + p.id + '\')">Pedir</button>';
         item += '</div>';
         listaDiv.innerHTML += item;
       });
@@ -1709,7 +1874,7 @@
           } else {
             html += '<div class="small fw-bold text-success mt-2">✅ Bateu certinho!</div>';
           }
-          html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-2" onclick="salvarItemInventario(' + index + ')">💾 Salvar este item</button>';
+          html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-2" onclick="salvarItemInventario(' + index + ')">Salvar este item</button>';
         }
         html += '</div>';
         div.innerHTML += html;
@@ -1859,7 +2024,7 @@
         html += '<div class="text-muted small mb-1">Cód: ' + p.codigo + ' | Tam: ' + p.tamanho + ' | Cor: ' + p.cor + '</div>';
         html += '<div class="text-muted small mb-1">Categoria: ' + p.categoria + ' • Qtd esperada: ' + p.qtdEsperada + '</div>';
         html += '<div class="fw-bold mb-2" style="color:var(--cor-fundo)">R$ ' + formatarPrecoExibicao(p.preco) + '</div>';
-        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-auto" onclick="copiarPecaACaminhoMarketing(\'' + p.codigo + '\')">📋 Copiar</button>';
+        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mt-auto" onclick="copiarPecaACaminhoMarketing(\'' + p.codigo + '\')">Copiar</button>';
         html += '</div></div></div>';
         div.innerHTML += html;
       });
@@ -1906,9 +2071,9 @@
           html += '<div class="d-flex justify-content-between border-bottom py-1"><span>Tam <strong>' + p.tamanho + '</strong> • ' + p.cor + '</span><span class="text-muted">' + p.id + ' • ' + p.localizacao.replace('Loja ', '') + ' • ' + p.saldo + ' un.</span></div>';
         });
         html += '</div>';
-        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mb-1" onclick="copiarFamiliaMarketing(' + gIdx + ')">📋 Copiar família</button>';
+        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mb-1" onclick="copiarFamiliaMarketing(' + gIdx + ')">Copiar família</button>';
         g.cores.forEach(function(c, cIdx) {
-          html += '<button type="button" class="btn-ellba-outline w-100 fw-bold mt-1" style="font-size:0.85rem; padding:8px;" onclick="escolherFotoMarketing(' + gIdx + ',' + cIdx + ')">🖼️ Trocar foto' + (g.cores.length > 1 ? ' — ' + c.cor : '') + '</button>';
+          html += '<button type="button" class="btn-ellba-outline w-100 fw-bold mt-1" style="font-size:0.85rem; padding:8px;" onclick="escolherFotoMarketing(' + gIdx + ',' + cIdx + ')">Trocar foto' + (g.cores.length > 1 ? ' — ' + c.cor : '') + '</button>';
         });
         html += '</div></div></div>';
         partes.push(html);
