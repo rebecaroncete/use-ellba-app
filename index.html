@@ -992,6 +992,17 @@
       }
     }
     let vendedorasCarregadas = false;
+    function aplicarVendedoraLogada() {
+      var sel = document.getElementById('venda-vendedora'); var u = window.usuariaAtual || '';
+      if (!sel) return false;
+      if (sel.value && sel.value !== 'Outro') return true;
+      if (!u) return false;
+      var nu = normBusca_(u), achou = '';
+      Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && normBusca_(o.value) === nu) achou = o.value; });
+      if (!achou) Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && normBusca_(o.value).split(' ')[0] === nu.split(' ')[0]) achou = o.value; });
+      if (achou) { sel.value = achou; verificarOpcaoOutro('venda-vendedora'); return true; }
+      return false;
+    }
     function carregarVendedoras() {
       const select = document.getElementById('venda-vendedora');
       google.script.run.withSuccessHandler(function(nomes) {
@@ -1001,8 +1012,8 @@
         nomes.forEach(function(n) { const opt = document.createElement('option'); opt.value = n; opt.text = n; select.appendChild(opt); });
         const opt2 = document.createElement('option'); opt2.value = 'Outro'; opt2.text = 'Outro...'; select.appendChild(opt2);
         if (valorAtual) { select.value = valorAtual; }
-        else if (window.usuariaAtual && nomes.indexOf(window.usuariaAtual) > -1) { select.value = window.usuariaAtual; }
-      }).buscarVendedoras();
+        aplicarVendedoraLogada();
+      }).withFailureHandler(function() { vendedorasCarregadas = false; }).buscarVendedoras();
     }
     function abrirFormularioVendas(idTela) { abrirFormularioComLista(idTela); ativarAutocomplete('carrinho-produto', function() { return listaOpcoesProdutos; }); const campoData = document.getElementById('venda-data'); const hojeISO = hojeISOLocal(); campoData.max = hojeISO; if (!campoData.value) campoData.value = hojeISO; if(!vendedorasCarregadas) carregarVendedoras(); if(listaClientesCarregada) { preencherSelectClientes(); } document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Buscando clientes...'; }); google.script.run.withSuccessHandler(function(res) { listaObjClientes = res; listaClientesCarregada = true; preencherSelectClientes(); document.querySelectorAll('.msg-loading-clientes').forEach(function(el) { el.innerText = 'Base atualizada!'; }); }).carregarListaClientes(); }
     // ===== BUSCA INTELIGENTE DE CLIENTES =====
@@ -1790,15 +1801,7 @@
         if (c) { definirClienteVenda(c); return true; }
         return false;
       }
-      function aplicarVendedora() {
-        var sel = document.getElementById('venda-vendedora'); var u = window.usuariaAtual || '';
-        if (!u || sel.value) return !!sel.value;
-        var nu = normBusca_(u), achou = '';
-        Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && normBusca_(o.value) === nu) achou = o.value; });
-        if (!achou) Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && (normBusca_(o.value).split(' ')[0] === nu.split(' ')[0])) achou = o.value; });
-        if (achou) { sel.value = achou; return true; }
-        return false;
-      }
+      function aplicarVendedora() { return aplicarVendedoraLogada(); }
       function mostrarNomePedido() {
         if (document.getElementById('venda-cliente').value === 'Sem Cadastro' && p.nome) {
           document.getElementById('venda-cliente-busca').value = p.nome;
@@ -1810,17 +1813,14 @@
       var tentativas = 0;
       var t = setInterval(function() {
         tentativas++;
-        var atualizado = Array.prototype.some.call(document.querySelectorAll('.msg-loading-clientes'), function(el) { return el.innerText === 'Base atualizada!'; });
+        var sel = document.getElementById('venda-vendedora');
+        if (tentativas === 10 && sel.options.length <= 2) { vendedorasCarregadas = false; carregarVendedoras(); }
         var okV = aplicarVendedora();
         var okC = aplicarCliente();
-        if (okC) { clearInterval(t); }
-        else if (atualizado || tentativas > 25) { mostrarNomePedido(); clearInterval(t); }
-        if (okC && !okV && tentativas > 25) clearInterval(t);
+        var atualizado = Array.prototype.some.call(document.querySelectorAll('.msg-loading-clientes'), function(el) { return el.innerText === 'Base atualizada!'; });
+        if (!okC && (atualizado || tentativas > 25)) mostrarNomePedido();
+        if ((okC && okV) || tentativas > 60) clearInterval(t);
       }, 400);
-      var b = document.getElementById('banner-pedido');
-      b.innerHTML = '<b>Pedido ' + escP(p.id) + '</b> · ' + escP(p.nome) + '. Confira vendedora, cliente e itens e siga até o pagamento.' + (p.entrega === 'correios' && p.frete ? '<br>Frete de R$ ' + formatarPrecoExibicao(p.frete) + ' (' + escP(p.servico) + '): combine o pagamento com a cliente; ele não entra na lista de peças.' : '') + ' <a href="#" onclick="limparVinculoPedido();return false;">Desvincular</a>';
-      b.classList.remove('d-none');
-      irPara('tela-cadastrar-venda');
     }
 
     function adicionarAoCarrinho() { const prodInput = document.getElementById('carrinho-produto'); const precoInput = document.getElementById('carrinho-preco'); const qtdInput = document.getElementById('carrinho-qtd'); if (!prodInput.value || !precoInput.value || !qtdInput.value) { alert("Preencha todos os campos."); return; } if (!validarProdutoSelecionado(prodInput)) return; carrinho.push({ label: prodInput.value, idProduto: prodInput.value.split(' - ')[0].trim(), qtd: parseInt(qtdInput.value), preco: precoInput.value }); prodInput.value = ""; precoInput.value = ""; qtdInput.value = "1"; atualizarInterfaceCarrinho(); }
