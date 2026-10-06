@@ -628,6 +628,7 @@
   <script src="api.js"></script>
 
   <script>
+    const URL_CATALOGO_NOVO = 'https://catalogo-useellba.netlify.app/';
     const SENHA_MARKETING = "9271";
     let perfilAtual = "funcionaria"; let telaAtual = "tela-senha";
     window.usuariaAtual = ""; let perfilUsuaria = ""; let loginUsuariaAtual = ""; let senhaUsuariaAtual = "";
@@ -687,7 +688,6 @@
         alert("❌ " + (err.message || err));
       }).loginUsuaria({ login: login, senha: senha });
     }
-    function acessarComoCliente() { perfilAtual = "cliente"; irPara("tela-selecao-loja"); }
     function sairDoApp() {
       window.usuariaAtual = ""; perfilUsuaria = ""; loginUsuariaAtual = ""; senhaUsuariaAtual = "";
       document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = '';
@@ -2540,14 +2540,15 @@
     }
 
     // --- ATALHOS DE LINK DIRETO ---
-    // ?acesso=cliente      -> vai direto para a escolha de loja/catálogo (link que a agente de IA compartilha com as clientes)
+    // ?acesso=cliente      -> link antigo: redireciona para o catálogo novo (URL_CATALOGO_NOVO)
     // ?acesso=cadastro     -> tela pública de autocadastro (QR code da loja)
     // ?acesso=marketing    -> vai direto para a tela de senha do Marketing
     (function() {
       const params = new URLSearchParams(window.location.search);
       const acesso = params.get('acesso');
       if (acesso === 'cliente') {
-        acessarComoCliente();
+        // link antigo das clientes: agora o catálogo é o site novo
+        if (URL_CATALOGO_NOVO) { window.location.replace(URL_CATALOGO_NOVO + (params.get('cupom') ? '?cupom=' + encodeURIComponent(params.get('cupom')) : '')); }
       } else if (acesso === 'cadastro') {
         perfilAtual = 'autocadastro';
         irPara('tela-autocadastro');
