@@ -1778,10 +1778,45 @@
       atualizarInterfaceCarrinho();
       limparClienteVenda();
       var tel = String(p.telefone || '').replace(/\D/g, '').slice(-9);
-      function achar() { return tel ? (listaObjClientes || []).filter(function(c) { return String(c.telefoneLimpo || '').replace(/\D/g, '').slice(-9) === tel; })[0] : null; }
-      function aplicarCliente() { var c = achar(); if (c) definirClienteVenda(c); }
-      aplicarCliente();
-      if (!listaClientesCarregada) { var t = setInterval(function() { if (listaClientesCarregada) { clearInterval(t); aplicarCliente(); } }, 400); setTimeout(function() { clearInterval(t); }, 8000); }
+      function achar() {
+        var lista = listaObjClientes || [];
+        var c = tel ? lista.filter(function(x) { return String(x.telefoneLimpo || '').replace(/\D/g, '').slice(-9) === tel; })[0] : null;
+        if (!c && p.nome) { var n = normBusca_(p.nome); c = lista.filter(function(x) { return normBusca_(x.nome) === n; })[0]; }
+        return c || null;
+      }
+      function aplicarCliente() {
+        if (document.getElementById('venda-cliente').value !== 'Sem Cadastro') return true;
+        var c = achar();
+        if (c) { definirClienteVenda(c); return true; }
+        return false;
+      }
+      function aplicarVendedora() {
+        var sel = document.getElementById('venda-vendedora'); var u = window.usuariaAtual || '';
+        if (!u || sel.value) return !!sel.value;
+        var nu = normBusca_(u), achou = '';
+        Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && normBusca_(o.value) === nu) achou = o.value; });
+        if (!achou) Array.prototype.forEach.call(sel.options, function(o) { if (!achou && o.value && o.value !== 'Outro' && (normBusca_(o.value).split(' ')[0] === nu.split(' ')[0])) achou = o.value; });
+        if (achou) { sel.value = achou; return true; }
+        return false;
+      }
+      function mostrarNomePedido() {
+        if (document.getElementById('venda-cliente').value === 'Sem Cadastro' && p.nome) {
+          document.getElementById('venda-cliente-busca').value = p.nome;
+          document.getElementById('venda-cliente-limpar').classList.remove('d-none');
+          document.getElementById('venda-cliente-status').innerText = 'Nome do pedido: ' + p.nome + ' (escolha a cliente na lista, se ela tiver cadastro)';
+        }
+      }
+      aplicarCliente(); aplicarVendedora(); mostrarNomePedido();
+      var tentativas = 0;
+      var t = setInterval(function() {
+        tentativas++;
+        var atualizado = Array.prototype.some.call(document.querySelectorAll('.msg-loading-clientes'), function(el) { return el.innerText === 'Base atualizada!'; });
+        var okV = aplicarVendedora();
+        var okC = aplicarCliente();
+        if (okC) { clearInterval(t); }
+        else if (atualizado || tentativas > 25) { mostrarNomePedido(); clearInterval(t); }
+        if (okC && !okV && tentativas > 25) clearInterval(t);
+      }, 400);
       var b = document.getElementById('banner-pedido');
       b.innerHTML = '<b>Pedido ' + escP(p.id) + '</b> · ' + escP(p.nome) + '. Confira vendedora, cliente e itens e siga até o pagamento.' + (p.entrega === 'correios' && p.frete ? '<br>Frete de R$ ' + formatarPrecoExibicao(p.frete) + ' (' + escP(p.servico) + '): combine o pagamento com a cliente; ele não entra na lista de peças.' : '') + ' <a href="#" onclick="limparVinculoPedido();return false;">Desvincular</a>';
       b.classList.remove('d-none');
