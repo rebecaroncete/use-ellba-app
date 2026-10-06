@@ -16,6 +16,14 @@
     body.com-nav { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
     body.com-nav .container { max-width: 720px; }
     body.com-nav #tela-catalogo.container, body.com-nav #tela-marketing.container { max-width: 1140px; }
+    .mkt-cat { margin: 18px 0 8px; display: flex; align-items: baseline; gap: 8px; border-bottom: 1px solid var(--linha); padding-bottom: 4px; }
+    .mkt-cat b { color: var(--cor-fundo); font-size: 1.05rem; } .mkt-cat small { color: var(--muted); }
+    .mkt-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+    .mkt-ico { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; border: 1px solid var(--linha); background: #e9e3de; padding: 0; cursor: pointer; }
+    .mkt-ico img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .mkt-ico .mkt-sf { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: .68rem; color: var(--muted); text-align: center; line-height: 1.1; padding: 4px; }
+    .mkt-ico .mkt-saldo { position: absolute; right: 4px; bottom: 4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--cor-fundo); color: #fff; font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .mkt-ico:focus-visible { outline: 3px solid var(--cor-dourado); }
     h3, h4, h5, h6 { color: var(--cor-fundo); }
     h4 { font-size: 1.2rem; font-weight: 700; }
     .ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -549,9 +557,32 @@
       <div class="mb-3"><input type="text" id="mkt-busca" class="form-control" placeholder="Buscar por nome ou código..." onkeyup="filtrarProdutosMarketing()"></div>
       <button type="button" class="btn btn-secondary w-100 fw-bold mb-3" onclick="copiarTudoMarketing()">Copiar tudo (lista completa)</button>
       <button type="button" class="btn-ellba-outline w-100 fw-bold mb-3" onclick="abrirMarketingACaminho()">Peças a Caminho (ainda não chegaram)</button>
-      <div id="mkt-lista" class="row g-3"></div>
+      <div id="mkt-lista"></div>
     </div>
   </div>
+
+  <div class="modal fade" id="modalMktPeca" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header" style="background-color: var(--cor-fundo);">
+      <h5 class="modal-title fw-bold text-white" id="mktm-titulo">Peça</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+      <div id="mktm-foto" class="text-center mb-3"></div>
+      <div id="mktm-dados" class="small mb-3"></div>
+      <div class="mb-3">
+        <label class="form-label fw-bold small mb-1">Código da família</label>
+        <div class="input-group">
+          <input type="text" id="mktm-familia" class="form-control text-uppercase" list="mktm-familias" maxlength="20" placeholder="Ex: FAM042">
+          <button type="button" class="btn btn-secondary fw-bold" id="mktm-salvar-fam" onclick="salvarFamiliaMarketing()">Salvar</button>
+        </div>
+        <datalist id="mktm-familias"></datalist>
+        <div class="text-muted small mt-1">Muda só esta peça. Deixe vazio para voltar à família automática.</div>
+      </div>
+      <button type="button" class="btn-ellba w-100 fw-bold mb-2" onclick="trocarFotoDaPeca()">Trocar foto</button>
+      <div class="text-muted small mb-2" id="mktm-aviso-foto"></div>
+      <button type="button" class="btn btn-secondary w-100 fw-bold" onclick="copiarPecaMarketing()">Copiar informações</button>
+    </div>
+  </div></div></div>
 
   <input type="file" id="mkt-foto-input" accept="image/*" class="d-none" onchange="trocarFotoMarketingSelecionada(this)">
   <div id="tela-marketing-a-caminho" class="container d-none pb-5">
@@ -608,8 +639,8 @@
     function converterParaNumero(valor) {
       if (typeof valor === 'number') return valor;
       if (!valor) return 0;
-      let str = valor.toString();
-      if (str.includes(',')) return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+      let str = valor.toString().replace(/[^\d.,-]/g, '');
+      if (str.includes(',')) return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
       return parseFloat(str) || 0;
     }
     function formatarPrecoExibicao(valor) {
@@ -2353,55 +2384,89 @@
       });
     }
 
+    // Tela nova: peças separadas por categoria, em ícones pequenos. Clicar abre os detalhes.
+    function miniFotoMarketing(url) {
+      if (!url) return '';
+      if (url.indexOf('res.cloudinary.com') > -1 && url.indexOf('/upload/') > -1) return url.replace(/\/upload\/(q_auto,w_700\/)?/, '/upload/q_auto,f_auto,w_220,h_220,c_fill/');
+      return url.replace('sz=w800', 'sz=w220');
+    }
     function renderizarProdutosMarketing(lista) {
       const div = document.getElementById('mkt-lista');
-      if (lista.length === 0) { gruposMarketing = []; div.innerHTML = '<div class="col-12 text-center text-muted mt-4">Nenhuma peça encontrada.</div>'; return; }
-
-      // Agrupa por família (peças sem família ficam sozinhas no próprio grupo).
-      const mapa = {}; const ordem = [];
+      if (lista.length === 0) { div.innerHTML = '<div class="text-center text-muted mt-4">Nenhuma peça encontrada.</div>'; return; }
+      const cats = {}; const ordem = [];
       lista.forEach(function(p) {
-        const chave = p.idFamilia ? p.idFamilia : p.id;
-        if (!mapa[chave]) { mapa[chave] = { chave: chave, itens: [] }; ordem.push(chave); }
-        mapa[chave].itens.push(p);
+        const c = (p.categoria || 'Sem categoria').toString().trim() || 'Sem categoria';
+        if (!cats[c]) { cats[c] = []; ordem.push(c); }
+        cats[c].push(p);
       });
-      gruposMarketing = ordem.map(function(k) {
-        const g = mapa[k];
-        const coresMap = {}; const cores = [];
-        g.itens.forEach(function(p) {
-          const c = (p.cor || 'Sem cor');
-          if (!coresMap[c]) { coresMap[c] = { cor: c, ids: [] }; cores.push(coresMap[c]); }
-          coresMap[c].ids.push(p.id);
-        });
-        g.cores = cores;
-        return g;
-      });
-
+      ordem.sort(function(a, b) { return a.localeCompare(b); });
       const partes = [];
-      gruposMarketing.forEach(function(g, gIdx) {
-        const capa = g.itens.find(function(p) { return p.foto; }) || g.itens[0];
-        const precos = g.itens.map(function(p) { return converterParaNumero(p.preco); });
-        const minP = Math.min.apply(null, precos), maxP = Math.max.apply(null, precos);
-        const precoTxt = minP === maxP ? 'R$ ' + formatarPrecoExibicao(minP) : 'R$ ' + formatarPrecoExibicao(minP) + ' a R$ ' + formatarPrecoExibicao(maxP);
-        const totalSaldo = g.itens.reduce(function(s, p) { return s + (parseInt(p.saldo) || 0); }, 0);
-
-        let html = '<div class="col-12 col-md-6 col-lg-4"><div class="card h-100 border-0 shadow-sm">';
-        html += '<img src="' + (capa.foto || 'https://via.placeholder.com/280x280/4a151b/dcb881?text=Sem+Foto') + '" class="card-img-top" style="max-height:260px; object-fit:cover;" onerror="this.onerror=null; this.src=\'https://via.placeholder.com/280x280/4a151b/dcb881?text=Sem+Foto\';">';
-        html += '<div class="card-body p-3 d-flex flex-column">';
-        html += '<h6 class="fw-bold mb-1" style="color:var(--cor-fundo)">' + capa.descricao + '</h6>';
-        html += '<div class="text-muted small mb-2">' + g.itens.length + ' variaç' + (g.itens.length === 1 ? 'ão' : 'ões') + ' • ' + totalSaldo + ' em estoque • ' + precoTxt + '</div>';
-        html += '<div class="mb-2" style="font-size:0.85rem;">';
-        g.itens.forEach(function(p) {
-          html += '<div class="d-flex justify-content-between border-bottom py-1"><span>Tam <strong>' + p.tamanho + '</strong> • ' + p.cor + '</span><span class="text-muted">' + p.id + ' • ' + p.localizacao.replace('Loja ', '') + ' • ' + p.saldo + ' un.</span></div>';
-        });
-        html += '</div>';
-        html += '<button type="button" class="btn btn-secondary w-100 fw-bold mb-1" onclick="copiarFamiliaMarketing(' + gIdx + ')">Copiar família</button>';
-        g.cores.forEach(function(c, cIdx) {
-          html += '<button type="button" class="btn-ellba-outline w-100 fw-bold mt-1" style="font-size:0.85rem; padding:8px;" onclick="escolherFotoMarketing(' + gIdx + ',' + cIdx + ')">Trocar foto' + (g.cores.length > 1 ? ' — ' + c.cor : '') + '</button>';
-        });
-        html += '</div></div></div>';
-        partes.push(html);
+      ordem.forEach(function(c) {
+        const itens = cats[c].slice().sort(function(a, b) { return (a.idFamilia || '').localeCompare(b.idFamilia || '') || (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }); });
+        const totalSaldo = itens.reduce(function(s, p) { return s + (parseInt(p.saldo) || 0); }, 0);
+        const semFoto = itens.filter(function(p) { return !p.foto; }).length;
+        partes.push('<div class="mkt-cat"><b>' + escP(c) + '</b><small>' + itens.length + ' peça' + (itens.length === 1 ? '' : 's') + ' • ' + totalSaldo + ' em estoque' + (semFoto ? ' • ' + semFoto + ' sem foto' : '') + '</small></div>');
+        partes.push('<div class="mkt-grade">' + itens.map(function(p) {
+          const mini = miniFotoMarketing(p.foto);
+          const tit = escP(p.id + ' • ' + (p.descricao || ''));
+          return '<button type="button" class="mkt-ico" title="' + tit + '" onclick="abrirPecaMarketing(\'' + escP(p.id) + '\')">' +
+            (mini ? '<img src="' + escP(mini) + '" loading="lazy" alt="' + tit + '" onerror="this.parentNode.innerHTML=\'<span class=mkt-sf>sem foto</span><span class=mkt-saldo>' + (parseInt(p.saldo) || 0) + '</span>\'">' : '<span class="mkt-sf">sem foto</span>') +
+            '<span class="mkt-saldo">' + (parseInt(p.saldo) || 0) + '</span></button>';
+        }).join('') + '</div>');
       });
       div.innerHTML = partes.join('');
+    }
+
+    let pecaMktAtual = null;
+    function abrirPecaMarketing(id) {
+      const p = produtosMarketing.find(function(x) { return x.id === id; }); if (!p) return;
+      pecaMktAtual = p;
+      document.getElementById('mktm-titulo').innerText = p.id;
+      const foto = p.foto ? '<img src="' + escP(p.foto) + '" alt="" style="max-width:100%; max-height:360px; border-radius:12px;" onerror="this.outerHTML=\'<div class=text-muted>Foto não carregou</div>\'">' : '<div class="d-flex align-items-center justify-content-center text-muted" style="height:160px; background:#e9e3de; border-radius:12px;">Sem foto</div>';
+      document.getElementById('mktm-foto').innerHTML = foto;
+      const linhas = [
+        ['Código (ID)', '<b>' + escP(p.id) + '</b>'],
+        ['Descrição', escP(p.descricao || '-')],
+        ['Categoria', escP(p.categoria || '-')],
+        ['Tam / Cor', escP((p.tamanho || '-') + ' • ' + (p.cor || '-'))],
+        ['Saldo atual', '<b>' + (parseInt(p.saldo) || 0) + ' un.</b> ' + (p.localizacao ? '(' + escP(String(p.localizacao).replace('Loja ', '')) + ')' : '')],
+        ['Preço', 'R$ ' + formatarPrecoExibicao(converterParaNumero(p.preco))],
+        ['Família', '<b>' + escP(p.idFamilia || '-') + '</b>' + (p.familiaManual ? ' <span class="text-muted">(manual)</span>' : '')]
+      ];
+      document.getElementById('mktm-dados').innerHTML = linhas.map(function(l) { return '<div class="d-flex justify-content-between border-bottom py-1"><span class="text-muted">' + l[0] + '</span><span class="text-end">' + l[1] + '</span></div>'; }).join('');
+      document.getElementById('mktm-familia').value = p.idFamilia || '';
+      // sugestões: famílias existentes com a descrição de uma peça de exemplo
+      const vistos = {}; const opts = [];
+      produtosMarketing.forEach(function(x) { if (x.idFamilia && !vistos[x.idFamilia]) { vistos[x.idFamilia] = true; opts.push('<option value="' + escP(x.idFamilia) + '">' + escP(x.descricao || '') + '</option>'); } });
+      document.getElementById('mktm-familias').innerHTML = opts.join('');
+      const irmas = idsMesmaCor_(p);
+      document.getElementById('mktm-aviso-foto').innerText = irmas.length > 1 ? 'A nova foto vale para as ' + irmas.length + ' peças da mesma cor nesta família.' : 'A nova foto vale só para esta peça.';
+      new bootstrap.Modal(document.getElementById('modalMktPeca')).show();
+    }
+    function idsMesmaCor_(p) {
+      const cor = (p.cor || '').toString().trim().toLowerCase();
+      return produtosMarketing.filter(function(x) { return x.id === p.id || (p.idFamilia && x.idFamilia === p.idFamilia && (x.cor || '').toString().trim().toLowerCase() === cor); }).map(function(x) { return x.id; });
+    }
+    function trocarFotoDaPeca() {
+      if (!pecaMktAtual) return;
+      fotoMarketingAlvo = { ids: idsMesmaCor_(pecaMktAtual) };
+      document.getElementById('mkt-foto-input').click();
+    }
+    function copiarPecaMarketing() { if (pecaMktAtual) copiarTexto(textoProdutoMarketing(pecaMktAtual), '✅ Informações copiadas!'); }
+    function salvarFamiliaMarketing() {
+      const p = pecaMktAtual; if (!p) return;
+      const nova = document.getElementById('mktm-familia').value.trim().toUpperCase().replace(/\s+/g, '');
+      if ((nova || '') === (p.familiaManual || '') ) { alert('Nada para alterar.'); return; }
+      if (nova && !produtosMarketing.some(function(x) { return x.idFamilia === nova; }) && !confirm('O código ' + nova + ' ainda não existe entre as peças em estoque. Criar uma família nova com esse código?')) return;
+      const btn = document.getElementById('mktm-salvar-fam'); btn.disabled = true; btn.innerText = 'Salvando...';
+      google.script.run.withSuccessHandler(function() {
+        btn.disabled = false; btn.innerText = 'Salvar';
+        p.familiaManual = nova; if (nova) p.idFamilia = nova; else marketingCarregado = false;
+        catalogoCarregado = false;
+        if (!nova) { alert('Família voltou para a automática. A lista será recarregada.'); bootstrap.Modal.getInstance(document.getElementById('modalMktPeca')).hide(); marketingCarregado = false; carregarProdutosMarketing(); return; }
+        filtrarProdutosMarketing(); abrirPecaMarketing(p.id);
+        alert('✅ Família alterada para ' + nova + '.');
+      }).withFailureHandler(function(err) { btn.disabled = false; btn.innerText = 'Salvar'; alert('❌ Erro ao salvar família: ' + (err.message || err)); }).atualizarFamiliaProduto({ idProduto: p.id, familia: nova, usuaria: window.usuariaAtual || 'Marketing' });
     }
 
     // Trocar a foto vale para TODOS os tamanhos da mesma cor dentro da família.
@@ -2416,9 +2481,9 @@
       if (!inputElement.files || inputElement.files.length === 0 || !fotoMarketingAlvo) return;
       const arquivo = inputElement.files[0];
       const ids = fotoMarketingAlvo.ids; fotoMarketingAlvo = null;
-      const botoes = document.querySelectorAll('#mkt-lista button');
+      const botoes = document.querySelectorAll('#mkt-lista button, #modalMktPeca button');
       botoes.forEach(function(b) { b.disabled = true; });
-      const reabilitar = function() { document.querySelectorAll('#mkt-lista button').forEach(function(b) { b.disabled = false; }); };
+      const reabilitar = function() { document.querySelectorAll('#mkt-lista button, #modalMktPeca button').forEach(function(b) { b.disabled = false; }); };
       comprimirImagem(arquivo, function(imgBase64) {
         enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) {
           google.script.run.withSuccessHandler(function() {
@@ -2426,6 +2491,7 @@
             produtosMarketing.forEach(function(p) { if (ids.indexOf(p.id) > -1) p.foto = urlFoto; });
             marketingCarregado = true; catalogoCarregado = false;
             if (document.getElementById('mkt-busca').value) { filtrarProdutosMarketing(); } else { renderizarProdutosMarketing(produtosMarketing); }
+            try { const mm = bootstrap.Modal.getInstance(document.getElementById('modalMktPeca')); if (mm) mm.hide(); } catch (e) {}
             alert('✅ Foto atualizada! (' + ids.length + ' peça' + (ids.length === 1 ? '' : 's') + ')');
           }).withFailureHandler(function(err) { reabilitar(); alert('❌ Erro ao salvar foto: ' + (err.message || err)); }).atualizarFotoProduto({ ids: ids, fotoUrl: urlFoto });
         }, function(err) { reabilitar(); alert('❌ Erro ao enviar foto: ' + (err.message || err)); });
