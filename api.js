@@ -22,7 +22,8 @@ const ACOES_GET = [
   'buscarMinhasVendas',
   'buscarAniversariantesHoje',
   'buscarOpcoesProdutoCadastro',
-  'buscarDetalheVenda'
+  'buscarDetalheVenda',
+  'buscarPedidosCatalogo'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
@@ -30,7 +31,8 @@ const PARAM_NOME_GET = {
   buscarProdutoConsulta: 'idProduto',
   buscarCategoriasPorLoja: 'loja',
   buscarClienteDetalhe: 'idCliente',
-  buscarDetalheVenda: 'idVenda'
+  buscarDetalheVenda: 'idVenda',
+  buscarPedidosCatalogo: 'status'
 };
 
 function chamarApi(action, args) {

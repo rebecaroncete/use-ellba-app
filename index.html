@@ -382,12 +382,22 @@
   <div id="tela-venda" class="container pb-5 d-none">
     <h4 class="mb-3 text-center">Vendas e Clientes</h4>
     <div class="lista-tiles">
-      <button type="button" class="tile" onclick="abrirFormularioVendas('tela-cadastrar-venda')"><span class="tile-ic"><svg class="ic"><use href="#i-cart"/></svg></span><span class="tile-tx"><b>Nova venda</b><small>Carrinho, cashback e pagamento</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="limparVinculoPedido();abrirFormularioVendas('tela-cadastrar-venda')"><span class="tile-ic"><svg class="ic"><use href="#i-cart"/></svg></span><span class="tile-tx"><b>Nova venda</b><small>Carrinho, cashback e pagamento</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
       <button type="button" class="tile" onclick="irPara('tela-cadastrar-cliente')"><span class="tile-ic"><svg class="ic"><use href="#i-userplus"/></svg></span><span class="tile-tx"><b>Cadastrar cliente</b><small>Nova cliente no sistema</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
+      <button type="button" class="tile" onclick="abrirPedidosCatalogo()"><span class="tile-ic"><svg class="ic"><use href="#i-receipt"/></svg></span><span class="tile-tx"><b>Pedidos do catálogo</b><small>Reservas, pagamento e rastreio</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
       <button type="button" class="tile" onclick="abrirMinhasVendas()"><span class="tile-ic"><svg class="ic"><use href="#i-receipt"/></svg></span><span class="tile-tx"><b>Minhas vendas</b><small>Histórico por data</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
       <button type="button" class="tile" onclick="abrirHistoricoCliente()"><span class="tile-ic"><svg class="ic"><use href="#i-user"/></svg></span><span class="tile-tx"><b>Cliente</b><small>Dados, cashback e compras</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
       <button type="button" class="tile" onclick="abrirAniversariantes()"><span class="tile-ic"><svg class="ic"><use href="#i-gift"/></svg></span><span class="tile-tx"><b>Aniversariantes de hoje</b><small>Enviar mensagem pelo WhatsApp</small></span><svg class="ic chev"><use href="#i-chev"/></svg></button>
     </div>
+  </div>
+  <div id="tela-pedidos-catalogo" class="container d-none pb-5">
+    <h4 class="mb-3 text-center">Pedidos do catálogo</h4>
+    <div class="d-flex gap-2 mb-3" id="ped-filtros">
+      <button type="button" class="btn btn-sm btn-outline-dark flex-fill" data-f="abertos">Em aberto</button>
+      <button type="button" class="btn btn-sm btn-outline-dark flex-fill" data-f="andamento">A enviar</button>
+      <button type="button" class="btn btn-sm btn-outline-dark flex-fill" data-f="todos">Todos</button>
+    </div>
+    <div id="ped-lista"><p class="text-muted text-center">Carregando...</p></div>
   </div>
   <div id="tela-autocadastro" class="container d-none pb-5" style="max-width:520px;">
     <div class="text-center mb-3 mt-2"><h4 class="fw-bold mb-1" style="color: var(--cor-fundo);">Bem-vinda à USE ELLBA</h4><div class="text-muted" style="font-size:.95rem;">Faça seu cadastro em 1 minuto e ganhe <strong>5% de desconto na primeira compra</strong>.</div></div>
@@ -431,7 +441,7 @@
 
   <div id="tela-cadastrar-cliente" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Nova Cliente</h4><form id="formCadastroCliente" onsubmit="enviarFormularioCliente(event)"><div class="card shadow-sm border-0 p-3 mb-3"><div class="mb-3"><label class="form-label fw-bold">Nome *</label><input type="text" id="cli-nome" class="form-control" required placeholder="Nome completo"></div><div class="mb-3"><label class="form-label fw-bold">Telefone/WhatsApp *</label><input type="tel" id="cli-tel" class="form-control" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)"></div><div class="mb-3"><label class="form-label fw-bold">E-mail</label><input type="email" id="cli-email" class="form-control" placeholder="exemplo@email.com"></div><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">CPF</label><input type="text" id="cli-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div><div class="col-6"><label class="form-label fw-bold">Data Nasc. *</label><input type="text" id="cli-nasc" class="form-control" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)"></div></div><div class="mb-3"><label class="form-label fw-bold">Endereço</label><input type="text" id="cli-endereco" class="form-control" placeholder="Bairro, Cidade..."></div><div class="mb-3"><label class="form-label fw-bold">Como conheceu a loja?</label><select id="cli-conheceu" class="form-select" onchange="verificarOpcaoOutro('cli-conheceu')"><option value="">Selecione...</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Indicação de Amigo">Indicação de Amigo</option><option value="Passou na Porta">Passou na Porta</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-cli-conheceu-outro"><label class="form-label fw-bold">Especificar *</label><input type="text" id="cli-conheceu-outro" class="form-control"></div><div class="mb-2"><label class="form-label fw-bold">Observação</label><textarea id="cli-obs" class="form-control" rows="2"></textarea></div></div><button type="submit" id="btn-salvar-cliente" class="btn-ellba">Salvar e Ir p/ Venda</button><div id="aviso-salvando-cli" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Salvando...</strong></div></form></div>
   <datalist id="lista-produtos"></datalist><datalist id="lista-clientes"></datalist>
-  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><div style="position:relative;"><input type="text" id="venda-cliente-busca" class="form-control fw-bold" style="border: 2px solid var(--cor-dourado); padding-right:44px;" placeholder="Digite o nome da cliente (ou deixe vazio)" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" id="venda-cliente-limpar" class="d-none" onclick="limparClienteVenda()" aria-label="Limpar cliente" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); border:none; background:none; color:var(--cor-fundo); font-size:1.4rem; line-height:1; width:36px; height:36px;">&times;</button></div><input type="hidden" id="venda-cliente" value="Sem Cadastro"><div id="venda-cliente-status" class="small mt-1 text-center text-muted">Sem cliente cadastrada (venda avulsa)</div><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
+  <div id="tela-cadastrar-venda" class="container d-none pb-5"><h4 class="mb-3 fw-bold text-center" style="color: var(--cor-fundo);">Carrinho de Venda</h4><div id="banner-pedido" class="alert alert-warning d-none small"></div><div class="card shadow-sm border-0 p-3 mb-3" style="background-color: #fcf9f2;"><div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Vendedora *</label><select id="venda-vendedora" class="form-select" required onchange="verificarOpcaoOutro('venda-vendedora')"><option value="">Selecione...</option><option value="Outro">Outro...</option></select></div><div class="col-6"><label class="form-label fw-bold">Data *</label><input type="date" id="venda-data" class="form-control" required></div></div><div class="mb-3"><label class="form-label fw-bold">Local *</label><select id="venda-local" class="form-select" required onchange="verificarOpcaoOutro('venda-local')"><option value="">Selecione...</option><option value="Loja Recreio">Loja Recreio</option><option value="Loja Penha">Loja Penha</option><option value="Evento Attitude">Evento Attitude</option><option value="Outro Evento">Outro Evento</option><option value="Instagram">Instagram</option><option value="Whatsapp">Whatsapp</option><option value="Outro">Outro...</option></select></div><div class="mb-3 d-none" id="div-venda-vendedora-outro"><input type="text" id="venda-vendedora-outro" class="form-control" placeholder="Nome Vendedora"></div><div class="mb-3 d-none" id="div-venda-local-outro"><input type="text" id="venda-local-outro" class="form-control" placeholder="Local exato"></div><div class="mb-1"><label class="form-label fw-bold">Cliente (Opcional)</label><div style="position:relative;"><input type="text" id="venda-cliente-busca" class="form-control fw-bold" style="border: 2px solid var(--cor-dourado); padding-right:44px;" placeholder="Digite o nome da cliente (ou deixe vazio)" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" id="venda-cliente-limpar" class="d-none" onclick="limparClienteVenda()" aria-label="Limpar cliente" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); border:none; background:none; color:var(--cor-fundo); font-size:1.4rem; line-height:1; width:36px; height:36px;">&times;</button></div><input type="hidden" id="venda-cliente" value="Sem Cadastro"><div id="venda-cliente-status" class="small mt-1 text-center text-muted">Sem cliente cadastrada (venda avulsa)</div><div class="text-muted mt-1 msg-loading-clientes text-center" style="font-size: 0.85rem;">Carregando base...</div></div><div id="div-venda-beneficios" class="d-none mt-2"><div class="p-2 rounded mb-2" style="background-color:#fff8e6; border:1px solid var(--cor-dourado);"><div id="venda-cashback-info" class="small mb-1"></div><div id="venda-aniversario-info" class="small mb-1"></div></div></div></div><div class="card shadow-sm border-0 p-3 mb-3"><h6 class="fw-bold mb-3" style="color: var(--cor-fundo); border-bottom: 2px solid var(--cor-dourado); padding-bottom: 5px;">Adicionar Peça</h6><div class="mb-3"><input type="text" id="carrinho-produto" class="form-control" placeholder="Buscar peça pelo código ou nome..." onchange="aoSelecionarProdutoCarrinho()"></div><div class="row g-2 mb-3"><div class="col-5"><label class="form-label fw-bold">Qtd</label><input type="number" id="carrinho-qtd" class="form-control" inputmode="numeric" value="1" min="1"></div><div class="col-7"><label class="form-label fw-bold">Preço (R$)</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="carrinho-preco" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div><button type="button" class="btn btn-secondary w-100 fw-bold" onclick="adicionarAoCarrinho()">Adicionar ao Carrinho</button></div><div id="lista-carrinho" class="mb-3"></div><div class="text-center p-3 mb-4 rounded" style="background-color: var(--cor-fundo);"><div class="text-white mb-1">TOTAL DA VENDA</div><div id="visor-total" style="color: var(--cor-dourado);">R$ 0,00</div></div>
 
   <button type="button" id="btn-continuar-venda" class="btn-ellba fs-5 py-3" onclick="continuarParaProximaEtapa()">CONTINUAR</button>
   </div>
@@ -612,7 +622,7 @@
     const ABA_RAIZ = { inicio: 'tela-menu', vendas: 'tela-venda', estoque: 'tela-estoque', gestao: 'tela-gestao' };
     const TELAS_DA_ABA = {
       inicio: ['tela-menu'],
-      vendas: ['tela-venda', 'tela-cadastrar-venda', 'tela-aplicar-desconto', 'tela-pagamento-venda', 'tela-venda-sucesso', 'tela-cadastrar-cliente', 'tela-minhas-vendas', 'tela-detalhe-venda', 'tela-historico-cliente', 'tela-aniversariantes'],
+      vendas: ['tela-venda', 'tela-cadastrar-venda', 'tela-aplicar-desconto', 'tela-pagamento-venda', 'tela-venda-sucesso', 'tela-cadastrar-cliente', 'tela-minhas-vendas', 'tela-pedidos-catalogo', 'tela-detalhe-venda', 'tela-historico-cliente', 'tela-aniversariantes'],
       estoque: ['tela-estoque', 'tela-cadastrar-produto', 'tela-produto-sucesso', 'tela-consultar-produto', 'tela-adicionar-estoque', 'tela-retirar-estoque', 'tela-transferencia-estoque', 'tela-inventario-config', 'tela-inventario-lista', 'tela-pecas-caminho-menu', 'tela-cadastrar-peca-caminho', 'tela-dar-entrada-lista', 'tela-selecao-loja', 'tela-catalogo'],
       gestao: ['tela-gestao', 'tela-compras-menu', 'tela-cadastrar-fornecedor', 'tela-registrar-despesa', 'tela-relatorios', 'tela-cadastrar-usuaria', 'tela-marketing', 'tela-marketing-a-caminho']
     };
@@ -709,6 +719,7 @@
       else if (['tela-cadastrar-fornecedor', 'tela-registrar-despesa'].indexOf(telaAtual) > -1) { irPara('tela-compras-menu'); }
       else if (telaAtual === 'tela-catalogo') { irPara('tela-selecao-loja'); }
       else if (telaAtual === 'tela-relatorios') { irPara('tela-gestao'); }
+      else if (telaAtual === 'tela-pedidos-catalogo') { irPara('tela-venda'); }
       else if (['tela-minhas-vendas', 'tela-historico-cliente', 'tela-aniversariantes'].indexOf(telaAtual) > -1) { irPara('tela-menu'); }
       else if (telaAtual === 'tela-detalhe-venda') { irPara(origemDetalheVenda); }
     }
@@ -1702,6 +1713,81 @@
       }
     }
 
+
+    // ===== PEDIDOS DO CATÁLOGO =====
+    let pedidoEmVenda = null; let pedidosCat = []; let filtroPed = 'abertos';
+    function limparVinculoPedido() { pedidoEmVenda = null; var b = document.getElementById('banner-pedido'); if (b) b.classList.add('d-none'); }
+    function escP(t) { return (t == null ? '' : String(t)).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function abrirPedidosCatalogo() { irPara('tela-pedidos-catalogo'); carregarPedidosCat(); }
+    document.getElementById('ped-filtros').addEventListener('click', function(e) { var b = e.target.closest('button'); if (!b) return; filtroPed = b.dataset.f; desenharPedidosCat(); });
+    function carregarPedidosCat() {
+      document.getElementById('ped-lista').innerHTML = '<p class="text-muted text-center">Carregando...</p>';
+      google.script.run.withSuccessHandler(function(lista) { pedidosCat = lista || []; desenharPedidosCat(); })
+        .withFailureHandler(function(err) { document.getElementById('ped-lista').innerHTML = '<p class="text-danger text-center">Não consegui carregar: ' + escP(err && err.message) + '</p>'; }).buscarPedidosCatalogo();
+    }
+    function tempoRest(min) { if (min == null) return ''; if (min <= 0) return 'vence agora'; var h = Math.floor(min / 60), m = min % 60; return (h ? h + 'h ' : '') + m + 'min restantes'; }
+    function corStatus(st) { return { Novo: 'warning text-dark', Reservado: 'info text-dark', Pago: 'success', Enviado: 'primary', Entregue: 'secondary', Cancelado: 'dark', Expirado: 'danger' }[st] || 'secondary'; }
+    function desenharPedidosCat() {
+      Array.prototype.forEach.call(document.querySelectorAll('#ped-filtros button'), function(b) { b.classList.toggle('active', b.dataset.f === filtroPed); });
+      var lista = pedidosCat.filter(function(p) {
+        if (filtroPed === 'abertos') return p.status === 'Novo' || p.status === 'Reservado';
+        if (filtroPed === 'andamento') return p.status === 'Pago' || p.status === 'Enviado';
+        return true;
+      });
+      var box = document.getElementById('ped-lista');
+      if (!lista.length) { box.innerHTML = '<p class="text-muted text-center">Nenhum pedido aqui.</p>'; return; }
+      box.innerHTML = lista.map(function(p) {
+        var h = '<div class="card shadow-sm border-0 mb-2"><div class="p-3"><div class="d-flex justify-content-between align-items-start"><div><div class="fw-bold">' + escP(p.id) + ' · ' + escP(p.nome || 'Sem nome') + '</div><div class="small text-muted">' + escP(p.dataTxt) + ' · ' + escP(p.entrega) + (p.loja ? ' · ' + escP(p.loja) : '') + '</div></div><span class="badge bg-' + corStatus(p.status) + '">' + escP(p.status) + '</span></div>';
+        if (p.minutosRestantes != null) h += '<div class="small mt-1" style="color:#b45309;">&#9201; ' + tempoRest(p.minutosRestantes) + '</div>';
+        h += '<div class="mt-2 small">' + p.itens.map(function(i) { return i.qtd + 'x ' + escP(i.descricao) + ' <span class="text-muted">(' + escP([i.cor, i.tamanho].filter(Boolean).join(' / ')) + ') · ' + escP(i.id) + ' · ' + escP(i.loja) + '</span>'; }).join('<br>') + '</div>';
+        h += '<div class="mt-2 small"><b>Peças:</b> R$ ' + formatarPrecoExibicao(p.total) + (p.entrega === 'correios' ? ' · <b>Frete:</b> R$ ' + formatarPrecoExibicao(p.frete) + ' (' + escP(p.servico) + (p.prazo ? ', ' + p.prazo + ' dias' : '') + ')' : '') + '</div>';
+        if (p.endereco) h += '<div class="small"><b>Endereço:</b> ' + escP(p.endereco) + (p.cep ? ' · CEP ' + escP(p.cep) : '') + '</div>';
+        if (p.obs) h += '<div class="small"><b>Obs.:</b> ' + escP(p.obs) + '</div>';
+        if (p.cupom) h += '<div class="small"><b>Origem:</b> ' + escP(p.cupom) + '</div>';
+        if (p.telefone) h += '<div class="small mt-1"><a href="https://wa.me/55' + String(p.telefone).replace(/\D/g, '').replace(/^55/, '') + '" target="_blank" rel="noopener">&#128172; ' + escP(p.telefone) + ' (abrir WhatsApp)</a></div>';
+        if (p.idVenda) h += '<div class="small text-muted">Venda: ' + escP(p.idVenda) + '</div>';
+        h += '<div class="d-flex flex-wrap gap-2 mt-3">';
+        if (p.status === 'Novo') h += '<button class="btn btn-sm btn-info" onclick="mudarPedido(\'' + p.id + '\',\'Reservado\')">Reservei as peças</button>';
+        if (p.status === 'Novo' || p.status === 'Reservado') h += '<button class="btn btn-sm btn-success" onclick="registrarVendaDoPedido(\'' + p.id + '\')">Registrar venda (pago)</button><button class="btn btn-sm btn-outline-danger" onclick="mudarPedido(\'' + p.id + '\',\'Cancelado\',true)">Cancelar</button>';
+        if (p.status === 'Pago' || p.status === 'Enviado') {
+          if (p.entrega === 'correios') h += '<div class="w-100"><input type="text" class="form-control form-control-sm mb-2" id="rast-' + p.id + '" placeholder="Código de rastreio" value="' + escP(p.rastreio || '') + '"></div>';
+          h += p.entrega === 'correios' && p.status === 'Pago' ? '<button class="btn btn-sm btn-primary" onclick="mudarPedido(\'' + p.id + '\',\'Enviado\')">Marcar como enviado</button>' : (p.entrega === 'correios' ? '<button class="btn btn-sm btn-outline-primary" onclick="mudarPedido(\'' + p.id + '\',\'Enviado\')">Salvar rastreio</button>' : '');
+          h += '<button class="btn btn-sm btn-secondary" onclick="mudarPedido(\'' + p.id + '\',\'Entregue\')">Marcar como entregue</button>';
+        }
+        if (p.status === 'Expirado' || p.status === 'Cancelado') h += '<button class="btn btn-sm btn-outline-dark" onclick="mudarPedido(\'' + p.id + '\',\'Reservado\')">Reativar</button>';
+        return h + '</div></div></div>';
+      }).join('');
+    }
+    function mudarPedido(id, status, confirmar) {
+      if (confirmar && !confirm('Cancelar o pedido ' + id + '? As peças voltam a aparecer no catálogo.')) return;
+      var campo = document.getElementById('rast-' + id);
+      var dados = { id: id, status: status, usuaria: window.usuariaAtual };
+      if (campo) dados.rastreio = campo.value;
+      if (status === 'Enviado' && campo && !campo.value.trim() && !confirm('Marcar como enviado sem código de rastreio?')) return;
+      google.script.run.withSuccessHandler(carregarPedidosCat).withFailureHandler(function(err) { alert('Erro: ' + (err && err.message || err)); }).atualizarPedidoCatalogo(dados);
+    }
+    function registrarVendaDoPedido(id) {
+      var p = pedidosCat.filter(function(x) { return x.id === id; })[0]; if (!p) return;
+      abrirFormularioVendas('tela-cadastrar-venda');
+      pedidoEmVenda = p;
+      document.getElementById('venda-local').value = 'Whatsapp';
+      carrinho = p.itens.map(function(i) {
+        var achado = (listaObjProdutos || []).filter(function(x) { return normalizarIdFrontend_(x.id) === normalizarIdFrontend_(i.id); })[0];
+        return { label: achado ? achado.label : (i.id + ' - ' + i.descricao + (i.cor ? ' - ' + i.cor : '') + (i.tamanho ? ' - ' + i.tamanho : '')), idProduto: i.id, qtd: i.qtd, preco: formatarPrecoExibicao(i.preco), lojaPref: i.loja };
+      });
+      atualizarInterfaceCarrinho();
+      limparClienteVenda();
+      var tel = String(p.telefone || '').replace(/\D/g, '').slice(-9);
+      function achar() { return tel ? (listaObjClientes || []).filter(function(c) { return String(c.telefoneLimpo || '').replace(/\D/g, '').slice(-9) === tel; })[0] : null; }
+      function aplicarCliente() { var c = achar(); if (c) definirClienteVenda(c); }
+      aplicarCliente();
+      if (!listaClientesCarregada) { var t = setInterval(function() { if (listaClientesCarregada) { clearInterval(t); aplicarCliente(); } }, 400); setTimeout(function() { clearInterval(t); }, 8000); }
+      var b = document.getElementById('banner-pedido');
+      b.innerHTML = '<b>Pedido ' + escP(p.id) + '</b> · ' + escP(p.nome) + '. Confira vendedora, cliente e itens e siga até o pagamento.' + (p.entrega === 'correios' && p.frete ? '<br>Frete de R$ ' + formatarPrecoExibicao(p.frete) + ' (' + escP(p.servico) + '): combine o pagamento com a cliente; ele não entra na lista de peças.' : '') + ' <a href="#" onclick="limparVinculoPedido();return false;">Desvincular</a>';
+      b.classList.remove('d-none');
+      irPara('tela-cadastrar-venda');
+    }
+
     function adicionarAoCarrinho() { const prodInput = document.getElementById('carrinho-produto'); const precoInput = document.getElementById('carrinho-preco'); const qtdInput = document.getElementById('carrinho-qtd'); if (!prodInput.value || !precoInput.value || !qtdInput.value) { alert("Preencha todos os campos."); return; } if (!validarProdutoSelecionado(prodInput)) return; carrinho.push({ label: prodInput.value, idProduto: prodInput.value.split(' - ')[0].trim(), qtd: parseInt(qtdInput.value), preco: precoInput.value }); prodInput.value = ""; precoInput.value = ""; qtdInput.value = "1"; atualizarInterfaceCarrinho(); }
     function removerDoCarrinho(index) { carrinho.splice(index, 1); atualizarInterfaceCarrinho(); }
 
@@ -1758,7 +1844,9 @@
         irPara('tela-venda-sucesso');
       }
 
-      google.script.run.withSuccessHandler(function() {
+      const pedidoDestaVenda = pedidoEmVenda;
+      google.script.run.withSuccessHandler(function(idVendaNova) {
+        if (pedidoDestaVenda) { google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){ alert('A venda foi registrada, mas não consegui marcar o pedido como Pago. Abra Pedidos do catálogo e avise a administradora.'); }).vincularVendaPedido({ idPedido: pedidoDestaVenda.id, idVenda: idVendaNova, usuaria: window.usuariaAtual }); }
         if (dadosVenda.cliente !== "Sem Cadastro") {
           const idClienteVenda = dadosVenda.cliente.split(' - ')[0].trim();
           // Busca o saldo de cashback já atualizado (pós-venda) pra montar o recibo certinho.
@@ -1784,6 +1872,7 @@
     // registrada e já dá pra começar outra — mas mantém Vendedora, Data e Local
     // preenchidos, já que normalmente é tudo a mesma coisa na venda seguinte.
     function limparCarrinhoParaNovaVenda() {
+      limparVinculoPedido();
       carrinho = []; pagamentosVenda = []; clienteVendaSelecionado = null; descontosVendaAtual = null; telaAnteriorPagamento = 'tela-cadastrar-venda';
       atualizarInterfaceCarrinho();
       limparClienteVenda();
