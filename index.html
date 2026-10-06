@@ -795,6 +795,7 @@
       google.script.run.withSuccessHandler(function(res) {
         cadastroProdutoEmProcessamento = false;
         const idNovo = (res && res.id) ? res.id : res;
+        try { google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).gerarFotoIAProdutos({ ids: [idNovo] }); } catch (e) {}
         restaurarBotao('btn-salvar-produto', 'aviso-salvando-cad');
         document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
         listaProdutosCarregada = false; catalogoCarregado = false; marketingCarregado = false;
@@ -2421,6 +2422,7 @@
       comprimirImagem(arquivo, function(imgBase64) {
         enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) {
           google.script.run.withSuccessHandler(function() {
+            try { google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).gerarFotoIAProdutos({ ids: ids }); } catch (e) {}
             produtosMarketing.forEach(function(p) { if (ids.indexOf(p.id) > -1) p.foto = urlFoto; });
             marketingCarregado = true; catalogoCarregado = false;
             if (document.getElementById('mkt-busca').value) { filtrarProdutosMarketing(); } else { renderizarProdutosMarketing(produtosMarketing); }
