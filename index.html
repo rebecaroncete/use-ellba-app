@@ -151,7 +151,7 @@
       <input type="text" id="input-login" class="form-control mb-3 text-center" placeholder="Login" autocapitalize="off" autocomplete="username">
       <input type="password" id="input-senha" class="form-control mb-3 text-center" placeholder="Senha" autocomplete="current-password">
       <button class="btn-ellba" onclick="verificarSenha()">Entrar</button>
-      <div id="aviso-logando" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Entrando...</strong></div>
+      <div id="aviso-logando" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div> <strong>Entrando...</strong> <span class="small text-muted">(na 1ª vez do dia pode levar um pouco)</span></div>
       <div class="mt-4"><a href="#" onclick="abrirCadastroUsuaria(); return false;" style="color: var(--cor-fundo); font-size:.9rem;">Ainda não tem login? Criar agora</a></div>
     </div>
   </div>
@@ -682,19 +682,48 @@
       });
     }
         function abrirTelaSenha() { document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = ''; irPara("tela-senha"); }
+    // Login instantâneo neste celular: depois do 1º login com internet, guardamos só uma "impressão digital"
+    // (hash) da senha. Nas próximas vezes entra na hora e o servidor confere por trás.
+    function hashCredencial(login, senha) {
+      const txt = login.toLowerCase() + ':' + senha + ':ellba';
+      if (window.crypto && crypto.subtle && window.TextEncoder) {
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then(function(b) { return Array.from(new Uint8Array(b)).map(function(x) { return x.toString(16).padStart(2, '0'); }).join(''); });
+      }
+      let h = 5381; for (let i = 0; i < txt.length; i++) { h = ((h << 5) + h + txt.charCodeAt(i)) | 0; }
+      return Promise.resolve('d' + h);
+    }
+    function lerCreds() { try { return JSON.parse(localStorage.getItem('ellba_creds') || '{}'); } catch (e) { return {}; } }
+    function salvarCred(login, hash, res) { try { const c = lerCreds(); c[login.toLowerCase()] = { hash: hash, nome: res.nome, perfil: res.perfil }; localStorage.setItem('ellba_creds', JSON.stringify(c)); } catch (e) {} }
+    function apagarCred(login) { try { const c = lerCreds(); delete c[login.toLowerCase()]; localStorage.setItem('ellba_creds', JSON.stringify(c)); } catch (e) {} }
+
     function verificarSenha() {
       const login = document.getElementById('input-login').value.trim();
       const senha = document.getElementById('input-senha').value;
       if (!login || !senha) { alert("Preencha login e senha."); return; }
-      document.getElementById('aviso-logando').classList.remove('d-none');
-      google.script.run.withSuccessHandler(function(res) {
-        document.getElementById('aviso-logando').classList.add('d-none');
-        salvarSessaoLocal(res, login);
-        entrarNoApp(res, login, senha);
-      }).withFailureHandler(function(err) {
-        document.getElementById('aviso-logando').classList.add('d-none');
-        alert("❌ " + (err.message || err));
-      }).loginUsuaria({ login: login, senha: senha });
+      hashCredencial(login, senha).then(function(hash) {
+        const salva = lerCreds()[login.toLowerCase()];
+        if (salva && salva.hash === hash) {
+          // entra na hora; confere com o servidor em segundo plano
+          const res = { nome: salva.nome, perfil: salva.perfil };
+          salvarSessaoLocal(res, login);
+          entrarNoApp(res, login, senha);
+          google.script.run.withSuccessHandler(function(r) { salvarCred(login, hash, r); salvarSessaoLocal(r, login); })
+            .withFailureHandler(function(err) {
+              const m = (err && err.message) || '';
+              if (m.indexOf('inválidos') > -1) { apagarCred(login); alert('Seu login ou senha mudou. Entre novamente.'); sairDoApp(); }
+            }).loginUsuaria({ login: login, senha: senha });
+          return;
+        }
+        document.getElementById('aviso-logando').classList.remove('d-none');
+        google.script.run.withSuccessHandler(function(res) {
+          document.getElementById('aviso-logando').classList.add('d-none');
+          salvarSessaoLocal(res, login); salvarCred(login, hash, res);
+          entrarNoApp(res, login, senha);
+        }).withFailureHandler(function(err) {
+          document.getElementById('aviso-logando').classList.add('d-none');
+          alert("❌ " + (err.message || err));
+        }).loginUsuaria({ login: login, senha: senha });
+      });
     }
     function entrarNoApp(res, login, senha) {
       perfilAtual = "funcionaria";
