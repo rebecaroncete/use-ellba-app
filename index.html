@@ -24,6 +24,8 @@
     .mkt-ico .mkt-sf { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: .68rem; color: var(--muted); text-align: center; line-height: 1.1; padding: 4px; }
     .mkt-ico .mkt-saldo { position: absolute; right: 4px; bottom: 4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--cor-fundo); color: #fff; font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .mkt-ico:focus-visible { outline: 3px solid var(--cor-dourado); }
+    #faixa-sync { position: fixed; left: 8px; right: 8px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 1039; display: none; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; background: #fff8e6; border: 1px solid #e8c873; color: #5b4300; font-size: .9rem; box-shadow: var(--sombra); cursor: pointer; }
+    #faixa-sync.on { display: flex; } #faixa-sync.alerta { background: #fdecec; border-color: #e19a9a; color: #7a1d1d; } #faixa-sync.ok { background: #eaf6ec; border-color: #9ccaa3; color: #1d5a2b; } #faixa-sync.off { background: #eef0f3; border-color: #c9ced6; color: #3b4350; }
     h3, h4, h5, h6 { color: var(--cor-fundo); }
     h4 { font-size: 1.2rem; font-weight: 700; }
     .ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -561,6 +563,15 @@
     </div>
   </div>
 
+  <div id="faixa-sync" onclick="abrirPendenciasSync()" role="button"><span id="faixa-sync-txt"></span></div>
+  <div class="modal fade" id="modalSync" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header" style="background-color: var(--cor-fundo);"><h5 class="modal-title fw-bold text-white">Envios pendentes</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p class="small text-muted mb-2">Estas operações estão guardadas neste celular e serão enviadas ao sistema assim que houver internet. Mantenha o app aberto ou abra-o de novo com Wi-Fi.</p>
+      <div id="sync-lista"></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn-ellba w-100 fw-bold" onclick="enviarPendenciasAgora()">Enviar agora</button></div>
+  </div></div></div>
   <div class="modal fade" id="modalMktPeca" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
     <div class="modal-header" style="background-color: var(--cor-fundo);">
       <h5 class="modal-title fw-bold text-white" id="mktm-titulo">Peça</h5>
@@ -625,6 +636,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
+  <script src="sync-core.js"></script>
   <script src="api.js"></script>
 
   <script>
@@ -677,18 +689,24 @@
       document.getElementById('aviso-logando').classList.remove('d-none');
       google.script.run.withSuccessHandler(function(res) {
         document.getElementById('aviso-logando').classList.add('d-none');
-        perfilAtual = "funcionaria";
-        window.usuariaAtual = res.nome; perfilUsuaria = res.perfil; loginUsuariaAtual = login; senhaUsuariaAtual = senha;
-        document.getElementById('menu-boas-vindas').innerText = "Olá, " + res.nome.split(' ')[0] + "!";
-        document.getElementById('menu-data').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-        atualizarVisibilidadeMenu();
-        irPara("tela-menu");
+        salvarSessaoLocal(res, login);
+        entrarNoApp(res, login, senha);
       }).withFailureHandler(function(err) {
         document.getElementById('aviso-logando').classList.add('d-none');
         alert("❌ " + (err.message || err));
       }).loginUsuaria({ login: login, senha: senha });
     }
+    function entrarNoApp(res, login, senha) {
+      perfilAtual = "funcionaria";
+      window.usuariaAtual = res.nome; perfilUsuaria = res.perfil; loginUsuariaAtual = login; senhaUsuariaAtual = senha;
+      document.getElementById('menu-boas-vindas').innerText = "Olá, " + res.nome.split(' ')[0] + "!";
+      document.getElementById('menu-data').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+      atualizarVisibilidadeMenu();
+      irPara("tela-menu");
+      setTimeout(function() { try { sincronizarAgora(true); atualizarFaixaSync(); } catch (e) {} }, 800);
+    }
     function sairDoApp() {
+      limparSessaoLocal();
       window.usuariaAtual = ""; perfilUsuaria = ""; loginUsuariaAtual = ""; senhaUsuariaAtual = "";
       document.getElementById('input-login').value = ''; document.getElementById('input-senha').value = '';
       irPara('tela-senha');
@@ -815,14 +833,17 @@
         const arquivo = arquivoInput.files[0];
         comprimirImagem(arquivo, function(imgBase64) {
           document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Enviando foto...';
-          enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) { processarSalvamentoProduto(urlFoto, falhou); }, falhou);
+          const salvarSemFoto = function() { processarSalvamentoProduto("", falhou, { base64: imgBase64, nome: arquivo.name, campo: 'foto' }); };
+          if (navigator.onLine === false) { salvarSemFoto(); }
+          else { enviarFotoCloudinary(imgBase64, arquivo.name, function(urlFoto) { processarSalvamentoProduto(urlFoto, falhou); }, salvarSemFoto); }
         });
       } else { processarSalvamentoProduto("", falhou); }
     }
 
-    function processarSalvamentoProduto(urlFotoUrl, falhou) {
+    function processarSalvamentoProduto(urlFotoUrl, falhou, fotoPendente) {
       document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div> Registrando...';
       const dados = { descricao: document.getElementById('cad-descricao').value, categoria: document.getElementById('cad-categoria').value, tamanho: document.getElementById('cad-tamanho').value, cor: document.getElementById('cad-cor').value, custo: document.getElementById('cad-custo').value, preco: document.getElementById('cad-preco').value, qtd: document.getElementById('cad-qtd').value, localizacao: document.getElementById('cad-localizacao').value, localizacaoOutro: document.getElementById('cad-localizacao-outro').value, foto: urlFotoUrl, mesmaFamiliaDe: document.getElementById('cad-familia').value };
+      if (fotoPendente) dados.__foto = fotoPendente;
       google.script.run.withSuccessHandler(function(res) {
         cadastroProdutoEmProcessamento = false;
         const idNovo = (res && res.id) ? res.id : res;
@@ -831,7 +852,7 @@
         document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
         listaProdutosCarregada = false; catalogoCarregado = false; marketingCarregado = false;
         ultimoProdutoCadastrado = { id: idNovo, dados: dados };
-        document.getElementById('prod-sucesso-codigo').innerText = idNovo;
+        document.getElementById('prod-sucesso-codigo').innerText = (String(idNovo).indexOf('PENDENTE-') === 0) ? '⏳ gerado ao enviar' : idNovo;
         document.getElementById('prod-sucesso-resumo').innerText = dados.descricao + ' • Tam ' + dados.tamanho + ' • ' + dados.cor + ' • ' + dados.qtd + ' un.';
         // Limpa o formulário já agora: a tela de sucesso substitui o formulário, então
         // não sobra nada preenchido que possa ser enviado de novo sem querer.
@@ -1539,7 +1560,7 @@
     }
 
     let clienteSendoCadastrado = null;
-    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert("✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { preencherSelectClientes(); definirClienteVenda({ id: idGerado, label: novoLabel, nome: clienteSendoCadastrado.nome, telefone: clienteSendoCadastrado.telefone }); }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
+    function enviarFormularioCliente(e) { e.preventDefault(); const numTel = document.getElementById('cli-tel').value; const numCpf = document.getElementById('cli-cpf').value; const telLimpo = numTel.replace(/\D/g, ''); const cpfLimpo = numCpf.replace(/\D/g, ''); if (listaClientesCarregada) { const duplicado = listaObjClientes.find(function(c) { return (telLimpo && c.telefoneLimpo === telLimpo) || (cpfLimpo && c.cpfLimpo === cpfLimpo); }); if (duplicado) { const confirmar = confirm("⚠️ ATENÇÃO!\n\nEncontramos um cadastro com Telefone/CPF: " + duplicado.label + "\n\nDeseja salvar mesmo assim?"); if (!confirmar) return; } } document.getElementById('btn-salvar-cliente').classList.add('d-none'); document.getElementById('aviso-salvando-cli').classList.remove('d-none'); const dados = { nome: document.getElementById('cli-nome').value, telefone: numTel, email: document.getElementById('cli-email').value, cpf: numCpf, nascimento: document.getElementById('cli-nasc').value, endereco: document.getElementById('cli-endereco').value, conheceu: document.getElementById('cli-conheceu').value, conheceuOutro: document.getElementById('cli-conheceu-outro').value, obs: document.getElementById('cli-obs').value }; clienteSendoCadastrado = dados; google.script.run.withSuccessHandler(function(idGerado) { restaurarBotao('btn-salvar-cliente', 'aviso-salvando-cli'); document.getElementById('formCadastroCliente').reset(); verificarOpcaoOutro('cli-conheceu'); alert(String(idGerado).indexOf("PENDENTE-") === 0 ? "✅ Cliente salva no celular!\nSerá enviada ao sistema quando houver internet.\n\nIndo para o Carrinho..." : "✅ Cliente salva!\nCódigo: " + idGerado + "\n\nIndo para o Carrinho..."); const novoLabel = idGerado + " - " + clienteSendoCadastrado.nome + " - " + clienteSendoCadastrado.telefone; listaObjClientes.push({ id: idGerado, label: novoLabel, telefone: clienteSendoCadastrado.telefone }); abrirFormularioVendas('tela-cadastrar-venda'); setTimeout(function() { preencherSelectClientes(); definirClienteVenda({ id: idGerado, label: novoLabel, nome: clienteSendoCadastrado.nome, telefone: clienteSendoCadastrado.telefone }); }, 500); }).withFailureHandler(function(err) { erroFormulario('btn-salvar-cliente', 'aviso-salvando-cli', err); }).cadastrarCliente(dados); }
 
     let carrinho = []; let ultimoReciboGerado = ""; let ultimoTelefoneCliente = "";
     let pagamentosVenda = [];
@@ -2279,6 +2300,68 @@
       }).withFailureHandler(function(err) { alert('❌ Erro ao salvar item: ' + (err.message || err)); }).salvarInventarioItem(dados);
     }
 
+
+    // ====================== FILA OFFLINE: AVISOS E TELA DE PENDÊNCIAS ======================
+    function escSync(t) { return (t == null ? '' : String(t)).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    let _flashSync = '';
+    function atualizarFaixaSync() {
+      ellbaResumoFila().then(function(r) {
+        const f = document.getElementById('faixa-sync'), t = document.getElementById('faixa-sync-txt');
+        const logada = !!window.usuariaAtual && perfilAtual !== 'cliente' && perfilAtual !== 'autocadastro';
+        const offline = navigator.onLine === false;
+        const velha = r.pendentes && (Date.now() - r.maisAntiga) > 24 * 3600 * 1000;
+        let msg = '', cls = '';
+        if (_flashSync) { msg = _flashSync; cls = 'ok'; }
+        else if (velha) { msg = '⚠️ ' + r.pendentes + ' pendente(s) há mais de 1 dia! Abra o app com internet para enviar. Toque para ver.'; cls = 'alerta'; }
+        else if (r.erros) { msg = '⚠️ ' + r.erros + ' operação(ões) com erro. Toque para ver.'; cls = 'alerta'; }
+        else if (r.pendentes) { msg = '⏳ ' + r.pendentes + ' pendente(s) guardada(s) no celular' + (offline ? ' — sem internet' : ' — enviando…') + '. Toque para ver.'; }
+        else if (offline) { msg = '📴 Sem internet — vendas e estoque ficam guardados no celular.'; cls = 'off'; }
+        f.className = (logada && msg) ? ('on ' + cls) : '';
+        t.innerText = msg;
+        if (document.getElementById('modalSync').classList.contains('show')) desenharPendenciasSync(r);
+      });
+    }
+    window.addEventListener('ellba-fila', atualizarFaixaSync);
+    window.addEventListener('online', atualizarFaixaSync);
+    window.addEventListener('offline', atualizarFaixaSync);
+    window.addEventListener('ellba-sync-fim', function(ev) {
+      const n = ev.detail && ev.detail.enviados;
+      if (n) { _flashSync = '✅ ' + n + ' operação(ões) enviada(s) ao sistema.'; atualizarFaixaSync(); setTimeout(function() { _flashSync = ''; atualizarFaixaSync(); }, 5000); }
+    });
+    function abrirPendenciasSync() {
+      ellbaResumoFila().then(function(r) { desenharPendenciasSync(r); new bootstrap.Modal(document.getElementById('modalSync')).show(); });
+    }
+    function desenharPendenciasSync(r) {
+      const div = document.getElementById('sync-lista');
+      if (!r.lista.length) { div.innerHTML = '<div class="text-center text-muted py-3">Nada pendente. Tudo enviado ✅</div>'; return; }
+      div.innerHTML = r.lista.map(function(o) {
+        const quando = new Date(o.criadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const bot = o.status === 'erro' ? '<div class="mt-1"><button class="btn btn-sm btn-secondary me-1" onclick="tentarOpSync(\'' + escSync(o.opId) + '\')">Tentar de novo</button><button class="btn btn-sm btn-outline-danger" onclick="descartarOpSync(\'' + escSync(o.opId) + '\')">Descartar</button></div>' : '';
+        return '<div class="border-bottom py-2"><div class="fw-bold" style="font-size:.92rem">' + escSync(o.descricao) + '</div><div class="small text-muted">' + quando + ' • ' + (o.status === 'erro' ? '<span class="text-danger">com erro</span>' : 'aguardando envio') + (o.tentativas ? ' • ' + o.tentativas + ' tentativa(s)' : '') + '</div>' + (o.erro ? '<div class="small text-danger">' + escSync(o.erro) + '</div>' : '') + bot + '</div>';
+      }).join('');
+    }
+    function enviarPendenciasAgora() {
+      if (navigator.onLine === false) { alert('Sem internet agora. Tente de novo quando tiver sinal.'); return; }
+      sincronizarAgora().then(function() { atualizarFaixaSync(); });
+    }
+    function tentarOpSync(id) { ellbaGet('fila', id).then(function(o) { if (!o) return; o.status = 'pendente'; o.erro = ''; return ellbaPut('fila', id, o); }).then(function() { enviarPendenciasAgora(); }); }
+    function descartarOpSync(id) { if (confirm('Descartar esta operação? Ela NÃO será enviada ao sistema.')) ellbaDel('fila', id).then(atualizarFaixaSync); }
+    // Evita fechar/recarregar o app no meio de um envio
+    window.addEventListener('beforeunload', function(e) { if (typeof ELLBA_SYNC_RODANDO !== 'undefined' && ELLBA_SYNC_RODANDO) { e.preventDefault(); e.returnValue = ''; } });
+
+    // ====================== LOGIN QUE LEMBRA POR VÁRIOS DIAS ======================
+    const DIAS_SESSAO = 30;
+    function salvarSessaoLocal(res, login) { try { localStorage.setItem('ellba_sessao', JSON.stringify({ nome: res.nome, perfil: res.perfil, login: login, ts: Date.now() })); } catch (e) {} }
+    function limparSessaoLocal() { try { localStorage.removeItem('ellba_sessao'); } catch (e) {} }
+    function restaurarSessaoLocal() {
+      try {
+        const o = JSON.parse(localStorage.getItem('ellba_sessao') || 'null');
+        if (!o || !o.nome || (Date.now() - o.ts) > DIAS_SESSAO * 86400000) { limparSessaoLocal(); return false; }
+        entrarNoApp({ nome: o.nome, perfil: o.perfil }, o.login, '');
+        return true;
+      } catch (e) { return false; }
+    }
+
     // ====================== MÓDULO MARKETING ======================
     let produtosMarketing = [];
     let marketingCarregado = false;
@@ -2546,6 +2629,7 @@
     (function() {
       const params = new URLSearchParams(window.location.search);
       const acesso = params.get('acesso');
+      if (!acesso) restaurarSessaoLocal();
       if (acesso === 'cliente') {
         // link antigo das clientes: agora o catálogo é o site novo
         if (URL_CATALOGO_NOVO) { window.location.replace(URL_CATALOGO_NOVO + (params.get('cupom') ? '?cupom=' + encodeURIComponent(params.get('cupom')) : '')); }

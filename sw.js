@@ -1,9 +1,11 @@
-const CACHE_NAME = 'use-ellba-v15';
+importScripts('./config.js', './sync-core.js');
+const CACHE_NAME = 'use-ellba-v16';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',
   './config.js',
   './api.js',
+  './sync-core.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -27,21 +29,32 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  var url = event.request.url;
-  // Nunca cacheia chamadas à API nem imagens do Drive: sempre precisam vir atualizadas.
-  if (url.indexOf('script.google.com') > -1 || url.indexOf('drive.google.com') > -1 || url.indexOf('googleusercontent.com') > -1) {
+  var req = event.request, url = req.url;
+  if (req.method !== 'GET') return;
+  // Nunca guarda chamadas à API, fotos do Drive nem do Cloudinary: precisam vir atualizadas.
+  if (url.indexOf('script.google.com') > -1 || url.indexOf('drive.google.com') > -1 || url.indexOf('googleusercontent.com') > -1 || url.indexOf('cloudinary.com') > -1) {
     return;
   }
-  // "Network-first": sempre tenta buscar a versão mais nova da internet primeiro
-  // (e atualiza o cache com ela). Só usa a cópia salva se estiver sem internet.
-  // Isso evita o app ficar "preso" numa versão antiga depois de uma atualização.
+  // "Mostra o que já tem e atualiza por trás": o app abre na hora mesmo com sinal fraco ou sem internet.
+  // A versão nova baixada por trás passa a valer na próxima vez que o app abrir.
   event.respondWith(
-    fetch(event.request).then(function(respRede) {
-      var copia = respRede.clone();
-      caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, copia); });
-      return respRede;
-    }).catch(function() {
-      return caches.match(event.request);
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.match(req, { ignoreSearch: true }).then(function(guardado) {
+        var rede = fetch(req).then(function(respRede) {
+          if (respRede && (respRede.ok || respRede.type === 'opaque')) cache.put(req, respRede.clone());
+          return respRede;
+        }).catch(function() { return guardado; });
+        return guardado || rede;
+      });
     })
   );
+});
+
+// Android: envia a fila de vendas pendentes em segundo plano quando a internet volta
+self.addEventListener('sync', function(event) {
+  if (event.tag === 'ellba-sync') {
+    event.waitUntil(ellbaSincronizar().then(function(r) {
+      return self.clients.matchAll({ type: 'window' }).then(function(cs) { cs.forEach(function(c) { c.postMessage('ellba-sync'); }); });
+    }));
+  }
 });
