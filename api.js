@@ -23,7 +23,8 @@ const ACOES_GET = [
   'buscarAniversariantesHoje',
   'buscarOpcoesProdutoCadastro',
   'buscarDetalheVenda',
-  'buscarPedidosCatalogo'
+  'buscarPedidosCatalogo',
+  'buscarBeneficiosClientes'
 ];
 
 // Nome do parâmetro de cada ação GET que recebe 1 argumento simples
@@ -36,11 +37,20 @@ const PARAM_NOME_GET = {
 };
 
 // ---- Leituras com cópia no celular: ttl = por quanto tempo a cópia é usada na hora (sem esperar a internet) ----
+const _atualizandoLeitura = {};
+// Guarda a leitura no celular; se mudou em relação à cópia anterior, avisa as telas para recarregarem a lista
+function guardarLeitura(chave, resp, anterior) {
+  if (!(resp && resp.ok)) return false;
+  const mudou = !anterior || JSON.stringify(anterior.resp && anterior.resp.data) !== JSON.stringify(resp.data);
+  ellbaPut('cache', chave, { k: chave, ts: Date.now(), resp: resp });
+  if (mudou && anterior) { try { window.dispatchEvent(new CustomEvent('ellba-dados-novos', { detail: chave })); } catch (e) {} }
+  return mudou;
+}
 const LEITURAS_LOCAIS = {
   buscarListaProdutosResumida: 120000, carregarListaClientes: 120000, buscarVendedoras: 600000, buscarNomesDisponiveis: 600000,
   buscarOpcoesProdutoCadastro: 600000, carregarListaFornecedores: 600000, buscarCategoriasPorLoja: 300000, buscarPecasACaminho: 120000,
   buscarProdutos: 60000, buscarProdutoConsulta: 30000, buscarDetalheVenda: 60000, buscarAniversariantesHoje: 600000,
-  buscarProdutosParaInventario: 0, buscarMinhasVendas: 0, buscarClienteDetalhe: 0
+  buscarProdutosParaInventario: 0, buscarMinhasVendas: 0, buscarClienteDetalhe: 0, buscarBeneficiosClientes: 300000
 };
 
 // O que devolver ao app quando a operação ficou guardada para enviar depois
@@ -99,13 +109,20 @@ function chamarApi(action, args) {
         if (resp && resp.ok) ellbaPut('cache', chaveCache, { k: chaveCache, ts: Date.now(), resp: resp });
         return resp;
       };
-      if (c && ttl > 0 && idade < ttl) {
-        // cópia recente: responde na hora e atualiza por trás
-        if (navigator.onLine !== false) lerDaRede(url, 30000).then(salvar).catch(function() {});
+      if (c && ttl > 0) {
+        // devolve a cópia do celular NA HORA; se já passou do prazo, atualiza por trás (e avisa as telas se mudou)
+        if (idade >= ttl && navigator.onLine !== false && !_atualizandoLeitura[chaveCache]) {
+          _atualizandoLeitura[chaveCache] = true;
+          lerDaRede(url, 30000).then(function(resp) { guardarLeitura(chaveCache, resp, c); }).catch(function() {}).then(function() { delete _atualizandoLeitura[chaveCache]; });
+        }
         return c.resp;
       }
       return lerDaRede(url, c ? 7000 : 40000).then(salvar).catch(function(e) {
-        if (c) return c.resp; // sem sinal: usa a última cópia
+        if (c) { // sem sinal: usa a última cópia (marcada como antiga)
+          const r0 = c.resp;
+          if (r0 && r0.data && typeof r0.data === 'object' && !Array.isArray(r0.data)) return Object.assign({}, r0, { data: Object.assign({}, r0.data, { __stale: true }) });
+          return r0;
+        }
         throw new Error(navigator.onLine === false ? 'Sem internet e esta tela ainda não foi aberta com internet neste celular.' : 'A internet está muito lenta. Tente de novo.');
       });
     });
@@ -228,3 +245,87 @@ function criarExecutor(onSuccess, onFailure) {
 window.google = window.google || {};
 window.google.script = window.google.script || {};
 window.google.script.run = criarExecutor(null, null);
+
+// ======================================================================
+// ATUALIZAR DADOS (botão da tela inicial + atualização automática)
+// ======================================================================
+const LISTAS_ATUALIZAR = [
+  ['Produtos', 'buscarListaProdutosResumida', []],
+  ['Clientes', 'carregarListaClientes', []],
+  ['Benefícios das clientes', 'buscarBeneficiosClientes', []],
+  ['Vendedoras', 'buscarVendedoras', []],
+  ['Nomes de usuárias', 'buscarNomesDisponiveis', []],
+  ['Opções de cadastro', 'buscarOpcoesProdutoCadastro', []],
+  ['Estoque por loja', 'buscarProdutos', []],
+  ['Categorias (Recreio)', 'buscarCategoriasPorLoja', ['Loja Recreio']],
+  ['Categorias (Penha)', 'buscarCategoriasPorLoja', ['Loja Penha']],
+  ['Peças a caminho', 'buscarPecasACaminho', []],
+  ['Fornecedores', 'carregarListaFornecedores', []],
+  ['Aniversariantes', 'buscarAniversariantesHoje', []]
+];
+let _atualizandoTudo = false;
+function ultimaAtualizacaoDados() { try { return parseInt(localStorage.getItem('ellba_dados_ts') || '0', 10) || 0; } catch (e) { return 0; } }
+
+// opcoes: { onProgresso(feitos, total, nome) }. Devolve { falhas: [nomes], mudou: bool, enviados: n }
+function atualizarListasDoCelular(opcoes) {
+  opcoes = opcoes || {};
+  if (_atualizandoTudo) return Promise.resolve({ ocupado: true, falhas: [], mudou: false });
+  if (navigator.onLine === false) return Promise.resolve({ semInternet: true, falhas: [], mudou: false });
+  _atualizandoTudo = true;
+  const resultado = { falhas: [], mudou: false, enviados: 0 };
+  let feitos = 0; const total = LISTAS_ATUALIZAR.length;
+  const progresso = function(nome) { if (opcoes.onProgresso) opcoes.onProgresso(feitos, total, nome); };
+
+  // 1) manda primeiro o que está pendente no celular
+  const etapaFila = ellbaResumoFila().then(function(r) {
+    if (!r.pendentes) return;
+    if (opcoes.onProgresso) opcoes.onProgresso(0, total, 'Enviando vendas pendentes');
+    return ellbaSincronizar().then(function(x) { resultado.enviados = x.enviados || 0; });
+  }).catch(function() {});
+
+  // 2) baixa as listas (3 de cada vez); cada uma tenta até 2 vezes
+  const fila = LISTAS_ATUALIZAR.slice();
+  function baixar(item) {
+    const nome = item[0], action = item[1], args = item[2];
+    const url = montarUrlGet(action, args), chave = action + '|' + JSON.stringify(args);
+    progresso(nome);
+    const tentar = function(n) {
+      return lerDaRede(url, 40000).then(function(resp) {
+        if (!(resp && resp.ok)) throw new Error((resp && resp.erro) || 'erro');
+        return resp;
+      }).catch(function(e) { if (n < 2) return tentar(n + 1); throw e; });
+    };
+    return ellbaGet('cache', chave).then(function(anterior) {
+      return tentar(1).then(function(resp) {
+        const antes = anterior && anterior.resp && JSON.stringify(anterior.resp.data);
+        if (antes !== JSON.stringify(resp.data)) resultado.mudou = true;
+        return ellbaPut('cache', chave, { k: chave, ts: Date.now(), resp: resp });
+      });
+    }).catch(function() { resultado.falhas.push(nome); }).then(function() { feitos++; progresso(nome); });
+  }
+  function trabalhador() {
+    const item = fila.shift(); if (!item) return Promise.resolve();
+    return baixar(item).then(trabalhador);
+  }
+  return etapaFila.then(function() {
+    return Promise.all([trabalhador(), trabalhador(), trabalhador()]);
+  }).then(function() {
+    _atualizandoTudo = false;
+    if (!resultado.falhas.length) { try { localStorage.setItem('ellba_dados_ts', String(Date.now())); } catch (e) {} }
+    if (resultado.mudou) { try { window.dispatchEvent(new CustomEvent('ellba-dados-novos', { detail: 'tudo' })); } catch (e) {} }
+    avisarFila();
+    return resultado;
+  }, function(e) { _atualizandoTudo = false; throw e; });
+}
+
+// Atualização automática (caso a vendedora esqueça do botão): ao entrar, ao voltar para o app, ao voltar a internet
+// e de tempos em tempos. Só roda se os dados tiverem mais de 30 minutos.
+const MIN_ENTRE_AUTO_ATUALIZACOES = 30 * 60 * 1000;
+function atualizarAutomaticamente(forcar) {
+  if (!window.usuariaAtual || navigator.onLine === false || document.visibilityState === 'hidden') return;
+  if (!forcar && (Date.now() - ultimaAtualizacaoDados()) < MIN_ENTRE_AUTO_ATUALIZACOES) return;
+  atualizarListasDoCelular({}).catch(function() {});
+}
+window.addEventListener('online', function() { setTimeout(function() { atualizarAutomaticamente(false); }, 2000); });
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') setTimeout(function() { atualizarAutomaticamente(false); }, 1500); });
+setInterval(function() { atualizarAutomaticamente(false); }, 5 * 60 * 1000);
