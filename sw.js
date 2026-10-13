@@ -1,5 +1,5 @@
 importScripts('./config.js', './sync-core.js');
-const CACHE_NAME = 'use-ellba-v18';
+const CACHE_NAME = 'use-ellba-v19';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',

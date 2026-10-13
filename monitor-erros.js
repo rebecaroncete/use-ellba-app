@@ -21,7 +21,11 @@
   var ultimos = {};
   var fetchOriginal = window.fetch ? window.fetch.bind(window) : null;
 
-  function urlApi() { try { return typeof API_URL !== 'undefined' ? API_URL : ''; } catch (e) { return ''; } }
+  function urlApi() {
+    try { if (typeof API_URL !== 'undefined' && API_URL) return API_URL; } catch (e) {}
+    try { if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL) return APPS_SCRIPT_URL; } catch (e) {}
+    return '';
+  }
 
   function usuaria() {
     try {
@@ -92,7 +96,7 @@
       if (m) return decodeURIComponent(m[1]);
       if (init && typeof init.body === 'string') {
         var b = JSON.parse(init.body);
-        if (b && b.action) return b.action;
+        if (b && (b.action || b.funcao)) return b.action || b.funcao;
       }
     } catch (e) {}
     return '(sem nome)';
@@ -120,6 +124,7 @@
                 return;
               }
               if (j && j.ok === false) registrar('resposta', acao, j.erro || j.error || j.mensagem || 'ok=false', '');
+              else if (j && j.__erro) registrar('resposta', acao, typeof j.__erro === 'string' ? j.__erro : JSON.stringify(j.__erro), '');
               var ms = Date.now() - inicio;
               if (ms > 15000) registrar('lentidão', acao, 'resposta demorou ' + Math.round(ms / 1000) + 's', '');
             }).catch(function () {});
