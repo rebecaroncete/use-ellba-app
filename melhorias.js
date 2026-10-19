@@ -116,16 +116,28 @@
           return ellbaSincronizar().then(function(x) { resultado.enviados = x.enviados || 0; });
         }).catch(function() {});
 
-        var PAUSAS = [2000, 5000];
+        var PAUSAS = [2000, 5000], motivos = [];
         function baixar(item) {
           var nome = item[0], action = item[1], args = item[2];
           var url = montarUrlGet(action, args), chave = action + '|' + JSON.stringify(args);
           progresso(nome);
-          function tentar(n) {
-            return lerDaRede(url, 45000).then(function(resp) {
-              if (!(resp && resp.ok)) throw new Error((resp && resp.erro) || 'erro');
+          function motivoDe(e) {
+            if (e && e.motivo) return e.motivo;
+            if (e && e.name === 'AbortError') return 'demorou demais';
+            if (e && e.name === 'TypeError') return 'sem conexão com o servidor';
+            return String((e && e.message) || 'erro').slice(0, 60);
+          }
+          function lerComMotivo() {
+            return ellbaFetch(url, {}, 45000).then(function(r) {
+              if (!r.ok) { var e1 = new Error('HTTP ' + r.status); e1.motivo = 'HTTP ' + r.status; throw e1; }
+              return r.json().then(null, function() { var e2 = new Error('x'); e2.motivo = 'resposta que não é JSON'; throw e2; });
+            }).then(function(resp) {
+              if (!(resp && resp.ok)) { var e3 = new Error('x'); e3.motivo = 'servidor: ' + String((resp && resp.erro) || 'sem detalhe').slice(0, 60); throw e3; }
               return resp;
-            }).catch(function(e) {
+            });
+          }
+          function tentar(n) {
+            return lerComMotivo().catch(function(e) {
               if (n <= PAUSAS.length && navigator.onLine !== false) return pausar(PAUSAS[n - 1]).then(function() { return tentar(n + 1); });
               throw e;
             });
@@ -137,13 +149,18 @@
               if (antes !== JSON.stringify(resp.data)) resultado.mudou = true;
               return ellbaPut('cache', chave, { k: chave, ts: Date.now(), resp: resp });
             });
-          }).catch(function() { resultado.falhas.push(nome); }).then(function() { feitos++; progresso(nome); });
+          }).catch(function(e) { resultado.falhas.push(nome); motivos.push(motivoDe(e)); }).then(function() { feitos++; progresso(nome); });
         }
 
         return etapaFila.then(function() {
           return LISTAS_ATUALIZAR.reduce(function(p, item) { return p.then(function() { return baixar(item); }); }, Promise.resolve());
         }).then(function() {
           ocupado = false;
+          if (motivos.length) {
+            var cont = {}, top = motivos[0]; motivos.forEach(function(m) { cont[m] = (cont[m] || 0) + 1; if (cont[m] > cont[top]) top = m; });
+            resultado.falhas.push('(motivo: ' + top + ')');
+            try { localStorage.setItem('ellba_ultimo_motivo', top + ' — ' + new Date().toLocaleString('pt-BR')); } catch (e) {}
+          }
           if (!resultado.falhas.length) { try { localStorage.setItem('ellba_dados_ts', String(Date.now())); } catch (e) {} }
           if (resultado.mudou) { try { window.dispatchEvent(new CustomEvent('ellba-dados-novos', { detail: 'tudo' })); } catch (e) {} }
           try { avisarFila(); } catch (e) {}
