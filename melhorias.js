@@ -1,10 +1,11 @@
 // ======================================================================
 // MELHORIAS DE CONEXÃO (app interno USE ELLBA)
 // Carregar DEPOIS do api.js. Não altera os outros arquivos.
-//  1) Tenta de novo sozinho quando o servidor responde 404/erro ou a rede falha (até 3 tentativas)
+//  1) Tenta de novo sozinho quando o servidor responde 404/erro ou a rede falha (2 tentativas por chamada)
 //  2) Aviso do pingSync mais leve (no máximo 1 vez a cada 15 min, se nada mudou)
 //  3) Aviso na tela quando está sem internet ou com conexão instável
 //  4) Tela de marketing passa a abrir na hora com a cópia do celular
+//  5) "Atualizar dados": uma lista por vez, mais paciência, e só repete o que faltou
 // ======================================================================
 (function() {
   'use strict';
@@ -33,7 +34,7 @@
 
   // ---------- 1) tentar de novo ----------
   var fetchOriginal = window.fetch.bind(window);
-  var ESPERAS = [1200, 2500];                 // pausa antes da 2ª e da 3ª tentativa
+  var ESPERAS = [1500];                       // 2 tentativas no total (o botão Atualizar dados repete por conta própria)
   var STATUS_REPETIR = { 404: 1, 429: 1, 500: 1, 502: 1, 503: 1, 504: 1 };
 
   function ehApi(url) {
@@ -89,6 +90,65 @@
           ultimo = { t: Date.now(), pend: r.pendentes, erros: r.erros };
           return pingOriginal(usuaria);
         }).catch(function() {});
+      };
+    }
+  } catch (e) {}
+
+
+  // ---------- 5) "Atualizar dados" mais gentil com Wi-Fi fraco ----------
+  // Baixa UMA lista de cada vez (antes eram 3 juntas), espera mais por lista, tenta até 3 vezes com pausa,
+  // e quando se toca de novo só baixa o que falta (listas baixadas há menos de 2 minutos são puladas).
+  try {
+    if (typeof atualizarListasDoCelular === 'function' && typeof LISTAS_ATUALIZAR !== 'undefined') {
+      var ocupado = false;
+      atualizarListasDoCelular = function(opcoes) {
+        opcoes = opcoes || {};
+        if (ocupado) return Promise.resolve({ ocupado: true, falhas: [], mudou: false });
+        if (navigator.onLine === false) return Promise.resolve({ semInternet: true, falhas: [], mudou: false });
+        ocupado = true;
+        var resultado = { falhas: [], mudou: false, enviados: 0 };
+        var feitos = 0, total = LISTAS_ATUALIZAR.length;
+        var progresso = function(nome) { if (opcoes.onProgresso) opcoes.onProgresso(feitos, total, nome); };
+
+        var etapaFila = ellbaResumoFila().then(function(r) {
+          if (!r.pendentes) return;
+          if (opcoes.onProgresso) opcoes.onProgresso(0, total, 'Enviando vendas pendentes');
+          return ellbaSincronizar().then(function(x) { resultado.enviados = x.enviados || 0; });
+        }).catch(function() {});
+
+        var PAUSAS = [2000, 5000];
+        function baixar(item) {
+          var nome = item[0], action = item[1], args = item[2];
+          var url = montarUrlGet(action, args), chave = action + '|' + JSON.stringify(args);
+          progresso(nome);
+          function tentar(n) {
+            return lerDaRede(url, 45000).then(function(resp) {
+              if (!(resp && resp.ok)) throw new Error((resp && resp.erro) || 'erro');
+              return resp;
+            }).catch(function(e) {
+              if (n <= PAUSAS.length && navigator.onLine !== false) return pausar(PAUSAS[n - 1]).then(function() { return tentar(n + 1); });
+              throw e;
+            });
+          }
+          return ellbaGet('cache', chave).then(function(anterior) {
+            if (anterior && anterior.resp && anterior.resp.ok && Date.now() - anterior.ts < 120000) return; // já está fresca
+            return tentar(1).then(function(resp) {
+              var antes = anterior && anterior.resp && JSON.stringify(anterior.resp.data);
+              if (antes !== JSON.stringify(resp.data)) resultado.mudou = true;
+              return ellbaPut('cache', chave, { k: chave, ts: Date.now(), resp: resp });
+            });
+          }).catch(function() { resultado.falhas.push(nome); }).then(function() { feitos++; progresso(nome); });
+        }
+
+        return etapaFila.then(function() {
+          return LISTAS_ATUALIZAR.reduce(function(p, item) { return p.then(function() { return baixar(item); }); }, Promise.resolve());
+        }).then(function() {
+          ocupado = false;
+          if (!resultado.falhas.length) { try { localStorage.setItem('ellba_dados_ts', String(Date.now())); } catch (e) {} }
+          if (resultado.mudou) { try { window.dispatchEvent(new CustomEvent('ellba-dados-novos', { detail: 'tudo' })); } catch (e) {} }
+          try { avisarFila(); } catch (e) {}
+          return resultado;
+        }, function(e) { ocupado = false; throw e; });
       };
     }
   } catch (e) {}
