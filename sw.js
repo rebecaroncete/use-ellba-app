@@ -1,5 +1,5 @@
 importScripts('./config.js', './sync-core.js');
-const CACHE_NAME = 'use-ellba-v19';
+const CACHE_NAME = 'use-ellba-v20';
 const ARQUIVOS_CACHE = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ARQUIVOS_CACHE = [
   './monitor-erros.js',
   './api.js',
   './sync-core.js',
+  './melhorias.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -49,13 +50,4 @@ self.addEventListener('fetch', function(event) {
       });
     })
   );
-});
-
-// Android: envia a fila de vendas pendentes em segundo plano quando a internet volta
-self.addEventListener('sync', function(event) {
-  if (event.tag === 'ellba-sync') {
-    event.waitUntil(ellbaSincronizar().then(function(r) {
-      return self.clients.matchAll({ type: 'window' }).then(function(cs) { cs.forEach(function(c) { c.postMessage('ellba-sync'); }); });
-    }));
-  }
 });

@@ -170,6 +170,12 @@
     }
   } catch (e) {}
 
+  // ---------- 3b) tela "Editar produto" lê os dados da peça (leitura GET) ----------
+  try {
+    if (typeof ACOES_GET === 'object' && ACOES_GET.indexOf('buscarProdutoParaEdicao') < 0) ACOES_GET.push('buscarProdutoParaEdicao');
+    if (typeof PARAM_NOME_GET === 'object' && !PARAM_NOME_GET.buscarProdutoParaEdicao) PARAM_NOME_GET.buscarProdutoParaEdicao = 'idProduto';
+  } catch (e) {}
+
   // ---------- 4) marketing abre na hora com a cópia do celular ----------
   try { if (typeof LEITURAS_LOCAIS === 'object' && !('buscarProdutosMarketing' in LEITURAS_LOCAIS)) LEITURAS_LOCAIS.buscarProdutosMarketing = 60000; } catch (e) {}
 })();
