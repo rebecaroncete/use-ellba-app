@@ -360,8 +360,8 @@
     <form id="formCadastro" onsubmit="enviarFormularioCadastro(event)">
       <div class="card shadow-sm border-0 p-3 mb-3">
         <div class="mb-3"><label class="form-label fw-bold">Descrição *</label><input type="text" id="cad-descricao" class="form-control" required></div>
-        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Categoria *</label><input type="text" id="cad-categoria" class="form-control" required></div><div class="col-6"><label class="form-label fw-bold">Tamanho *</label><input type="text" id="cad-tamanho" class="form-control" required></div></div>
-        <div class="mb-3"><label class="form-label fw-bold">Cor *</label><input type="text" id="cad-cor" class="form-control" required></div>
+        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Categoria *</label><select id="cad-categoria-sel" class="form-select" onchange="comboMudou('cad-categoria')"><option value="">Selecione...</option></select><input type="text" id="cad-categoria" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div><div class="col-6"><label class="form-label fw-bold">Tamanho *</label><select id="cad-tamanho-sel" class="form-select" onchange="comboMudou('cad-tamanho')"><option value="">Selecione...</option></select><input type="text" id="cad-tamanho" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div></div>
+        <div class="mb-3"><div><label class="form-label fw-bold">Cor *</label><select id="cad-cor-sel" class="form-select" onchange="comboMudou('cad-cor')"><option value="">Selecione...</option></select><input type="text" id="cad-cor" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div></div>
         <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Custo *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="cad-custo" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div><div class="col-6"><label class="form-label fw-bold">Preço *</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="cad-preco" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div>
         <div class="mb-3"><label class="form-label fw-bold">Qtd Inicial *</label><input type="number" id="cad-qtd" class="form-control" inputmode="numeric" required min="1"></div>
         <div class="mb-3"><label class="form-label fw-bold">Mesma família de outra peça? (Opcional)</label><input type="text" id="cad-familia" class="form-control" placeholder="Busque a peça 'irmã' (outra cor/tamanho)..." onchange="validarProdutoSelecionado(this)"><div class="text-muted mt-1 small">Deixe em branco se for uma peça nova, sem variação já cadastrada.</div></div>
@@ -375,7 +375,7 @@
       </div>
       <div class="row g-2">
         <div class="col-8"><button type="submit" id="btn-salvar-produto" class="btn-ellba w-100">Cadastrar</button></div>
-        <div class="col-4"><button type="button" class="btn btn-secondary w-100 fw-bold p-3" onclick="document.getElementById('formCadastro').reset()">Limpar</button></div>
+        <div class="col-4"><button type="button" class="btn btn-secondary w-100 fw-bold p-3" onclick="document.getElementById('formCadastro').reset(); montarTodosCombos('cad-')">Limpar</button></div>
       </div>
       <div id="aviso-salvando-cad" class="text-center mt-3 d-none" style="color: var(--cor-fundo);"><div class="spinner-border spinner-border-sm"></div></div>
     </form>
@@ -402,14 +402,14 @@
     <form id="formEditarProduto" onsubmit="enviarEdicaoProduto(event)" class="d-none">
       <div class="card shadow-sm border-0 p-3 mb-3">
         <div class="mb-3"><label class="form-label fw-bold">Descrição</label><input type="text" id="edit-descricao" class="form-control" required></div>
-        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Categoria</label><input type="text" id="edit-categoria" class="form-control" required></div><div class="col-6"><label class="form-label fw-bold">Tamanho</label><input type="text" id="edit-tamanho" class="form-control" required></div></div>
-        <div class="mb-3"><label class="form-label fw-bold">Cor</label><input type="text" id="edit-cor" class="form-control" required></div>
+        <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Categoria *</label><select id="edit-categoria-sel" class="form-select" onchange="comboMudou('edit-categoria')"><option value="">Selecione...</option></select><input type="text" id="edit-categoria" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div><div class="col-6"><label class="form-label fw-bold">Tamanho *</label><select id="edit-tamanho-sel" class="form-select" onchange="comboMudou('edit-tamanho')"><option value="">Selecione...</option></select><input type="text" id="edit-tamanho" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div></div>
+        <div class="mb-3"><div><label class="form-label fw-bold">Cor *</label><select id="edit-cor-sel" class="form-select" onchange="comboMudou('edit-cor')"><option value="">Selecione...</option></select><input type="text" id="edit-cor" class="form-control mt-2 d-none" placeholder="Escreva o nome correto"></div></div>
         <div class="row g-2 mb-3"><div class="col-6"><label class="form-label fw-bold">Custo</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="edit-custo" class="form-control" inputmode="numeric" placeholder="0,00" oninput="mascaraMoeda(this)"></div></div><div class="col-6"><label class="form-label fw-bold">Preço</label><div class="input-group"><span class="input-group-text">R$</span><input type="text" id="edit-preco" class="form-control" inputmode="numeric" required placeholder="0,00" oninput="mascaraMoeda(this)"></div></div></div>
         <div class="mb-3"><label class="form-label fw-bold">Família</label><input type="text" id="edit-familia" class="form-control" placeholder="Ex: FAM042"><div class="text-muted mt-1 small">Peças com o mesmo código aparecem juntas no catálogo (outros tamanhos/cores).</div></div>
         <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="edit-ocultar"><label class="form-check-label fw-bold" for="edit-ocultar">Ocultar do catálogo</label></div>
         <div class="mb-1"><label class="form-label fw-bold">Foto</label>
           <div class="text-center mb-2"><img id="edit-foto-atual" src="" style="max-height:160px;max-width:100%;object-fit:contain;border-radius:10px;" onerror="this.style.display='none'"></div>
-          <input type="file" id="edit-foto" class="form-control" accept="image/*"><div class="text-muted mt-1 small">Deixe em branco para manter a foto atual. Trocar a foto aqui muda só esta peça.</div>
+          <input type="file" id="edit-foto" class="form-control" accept="image/*"><div class="text-muted mt-1 small">Deixe em branco para manter a foto atual.</div><div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="edit-foto-mesma-cor" checked><label class="form-check-label small" for="edit-foto-mesma-cor">Usar esta foto também nas outras peças da mesma família e cor (outros tamanhos)</label></div>
           <div class="mt-2 p-2 rounded" style="background:#f8f9fa;border:1px solid #ddd;">
             <div class="small fw-bold mb-1">Se trocar a foto:</div>
             <div class="form-check"><input class="form-check-input" type="radio" name="edit-foto-modo" id="edit-foto-modo-ia" value="ia" checked><label class="form-check-label small" for="edit-foto-modo-ia">Tratar com IA (melhora fundo e luz)</label></div>
@@ -885,6 +885,45 @@
       }).catch(function(e) { aoFalhar(e); });
     }
 
+    // ====================== MENUS PADRONIZADOS (categoria, tamanho, cor) ======================
+    let listaTamanhosProduto = [];
+    const COMBOS = { 'cad-categoria': 'categorias', 'cad-tamanho': 'tamanhos', 'cad-cor': 'cores', 'edit-categoria': 'categorias', 'edit-tamanho': 'tamanhos', 'edit-cor': 'cores' };
+    function opcoesDoCombo(base) { const t = COMBOS[base]; return t === 'categorias' ? listaCategoriasProduto : (t === 'tamanhos' ? listaTamanhosProduto : listaCoresProduto); }
+    function chaveTxt(t) { return String(t || '').toLowerCase().trim().replace(/\s+/g, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    // Monta as opções do menu, mantendo o que já estava escolhido.
+    function montarCombo(base) {
+      const sel = document.getElementById(base + '-sel'), inp = document.getElementById(base); if (!sel || !inp) return;
+      const atual = inp.value;
+      let html = '<option value="">Selecione...</option>';
+      opcoesDoCombo(base).forEach(function(o) { html += '<option value="' + String(o).replace(/"/g, '&quot;') + '">' + o + '</option>'; });
+      html += '<option value="__outro__">Outro (escrever)...</option>';
+      sel.innerHTML = html;
+      definirCombo(base, atual);
+    }
+    function definirCombo(base, valor) {
+      const sel = document.getElementById(base + '-sel'), inp = document.getElementById(base); if (!sel || !inp) return;
+      valor = (valor === undefined || valor === null) ? '' : String(valor);
+      if (!valor) { sel.value = ''; inp.value = ''; inp.classList.add('d-none'); return; }
+      const k = chaveTxt(valor);
+      const achou = Array.prototype.find.call(sel.options, function(o) { return o.value && o.value !== '__outro__' && chaveTxt(o.value) === k; });
+      if (achou) { sel.value = achou.value; inp.value = achou.value; inp.classList.add('d-none'); }
+      else { sel.value = '__outro__'; inp.value = valor; inp.classList.remove('d-none'); }
+    }
+    function comboMudou(base) {
+      const sel = document.getElementById(base + '-sel'), inp = document.getElementById(base);
+      if (sel.value === '__outro__') { inp.value = ''; inp.classList.remove('d-none'); inp.focus(); }
+      else { inp.value = sel.value; inp.classList.add('d-none'); }
+    }
+    function montarTodosCombos(prefixo) { Object.keys(COMBOS).forEach(function(b) { if (b.indexOf(prefixo) === 0) montarCombo(b); }); }
+    // Depois de salvar, a opção nova já entra na lista (e o servidor passa a incluir na próxima carga).
+    function lembrarOpcoesNovas(dados) {
+      [['categorias', dados.categoria], ['tamanhos', dados.tamanho], ['cores', dados.cor]].forEach(function(par) {
+        const lista = par[0] === 'categorias' ? listaCategoriasProduto : (par[0] === 'tamanhos' ? listaTamanhosProduto : listaCoresProduto);
+        const v = String(par[1] || '').trim(); if (!v) return;
+        if (!lista.some(function(o) { return chaveTxt(o) === chaveTxt(v); })) lista.push(v);
+      });
+    }
+
     let cadastroProdutoEmProcessamento = false;
     let ultimoProdutoCadastrado = null;
 
@@ -893,6 +932,8 @@
       if (cadastroProdutoEmProcessamento) return; // trava contra clique duplo (evita produto cadastrado 2 vezes)
       const arquivoInput = document.getElementById('cad-foto');
       const temFoto = arquivoInput && arquivoInput.files.length > 0;
+      const faltam = [['cad-categoria', 'a categoria'], ['cad-tamanho', 'o tamanho'], ['cad-cor', 'a cor']].filter(function(c) { return !document.getElementById(c[0]).value.trim(); });
+      if (faltam.length) { alert('Falta escolher ' + faltam.map(function(c) { return c[1]; }).join(', ') + '. Se não achar na lista, escolha "Outro" e escreva.'); return; }
       const temFamilia = document.getElementById('cad-familia').value.trim() !== '';
       if (!temFoto && !temFamilia) {
         alert("Falta a foto da peça.\n\nCada cor precisa de pelo menos 1 foto. Se for só outro tamanho de uma cor que já foi cadastrada, escolha a peça da mesma família no campo \"Mesma família\".");
@@ -926,11 +967,12 @@
         document.getElementById('aviso-salvando-cad').innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
         listaProdutosCarregada = false; catalogoCarregado = false; marketingCarregado = false;
         ultimoProdutoCadastrado = { id: idNovo, dados: dados };
+        lembrarOpcoesNovas(dados);
         document.getElementById('prod-sucesso-codigo').innerText = (String(idNovo).indexOf('PENDENTE-') === 0) ? '⏳ gerado ao enviar' : idNovo;
         document.getElementById('prod-sucesso-resumo').innerText = dados.descricao + ' • Tam ' + dados.tamanho + ' • ' + dados.cor + ' • ' + dados.qtd + ' un.';
         // Limpa o formulário já agora: a tela de sucesso substitui o formulário, então
         // não sobra nada preenchido que possa ser enviado de novo sem querer.
-        document.getElementById('formCadastro').reset(); verificarOpcaoOutro('cad-localizacao');
+        document.getElementById('formCadastro').reset(); verificarOpcaoOutro('cad-localizacao'); montarTodosCombos('cad-');
         irPara('tela-produto-sucesso');
       }).withFailureHandler(falhou).cadastrarProduto(dados);
     }
@@ -942,9 +984,9 @@
       if (!ultimoProdutoCadastrado) { novoProdutoDoZero(); return; }
       const d = ultimoProdutoCadastrado.dados;
       abrirFormularioComLista('tela-cadastrar-produto');
-      document.getElementById('formCadastro').reset();
+      document.getElementById('formCadastro').reset(); montarTodosCombos('cad-');
       document.getElementById('cad-descricao').value = d.descricao;
-      document.getElementById('cad-categoria').value = d.categoria;
+      definirCombo('cad-categoria', d.categoria);
       document.getElementById('cad-custo').value = d.custo;
       document.getElementById('cad-preco').value = d.preco;
       document.getElementById('cad-localizacao').value = d.localizacao;
@@ -954,7 +996,7 @@
     }
     function novoProdutoDoZero() {
       abrirFormularioComLista('tela-cadastrar-produto');
-      document.getElementById('formCadastro').reset(); verificarOpcaoOutro('cad-localizacao');
+      document.getElementById('formCadastro').reset(); verificarOpcaoOutro('cad-localizacao'); montarTodosCombos('cad-');
     }
 
     let listaOpcoesProdutos = []; let listaObjProdutos = []; let listaProdutosCarregada = false;
@@ -1109,14 +1151,17 @@
       });
       if(!listaProdutosCarregada) { document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Carregando opções...'; }); google.script.run.withSuccessHandler(function(res) { listaObjProdutos = res; listaOpcoesProdutos = res.map(function(i) { return i.label; }); listaProdutosCarregada = true; document.querySelectorAll('.msg-loading-produtos').forEach(function(el) { el.innerText = 'Lista pronta!'; }); }).buscarListaProdutosResumida(); }
       if (idTela === 'tela-cadastrar-produto') {
-        ativarAutocomplete('cad-categoria', function() { return listaCategoriasProduto; });
-        ativarAutocomplete('cad-cor', function() { return listaCoresProduto; });
-        if (!opcoesProdutoCadastroCarregadas) {
-          google.script.run.withSuccessHandler(function(res) {
-            listaCategoriasProduto = res.categorias || []; listaCoresProduto = res.cores || []; opcoesProdutoCadastroCarregadas = true;
-          }).buscarOpcoesProdutoCadastro();
-        }
+        montarTodosCombos('cad-');
+        carregarOpcoesProduto(function() { montarTodosCombos('cad-'); });
       }
+    }
+    function carregarOpcoesProduto(depois) {
+      if (opcoesProdutoCadastroCarregadas) { if (depois) depois(); return; }
+      google.script.run.withSuccessHandler(function(res) {
+        res = res || {};
+        listaCategoriasProduto = res.categorias || []; listaCoresProduto = res.cores || []; listaTamanhosProduto = res.tamanhos || []; opcoesProdutoCadastroCarregadas = true;
+        if (depois) depois();
+      }).buscarOpcoesProdutoCadastro();
     }
     let vendedorasCarregadas = false;
     function aplicarVendedoraLogada() {
@@ -2177,6 +2222,7 @@
         if (!p) { alert('Peça não encontrada.'); irPara('tela-consultar-produto'); return; }
         const set = function(i, v) { document.getElementById(i).value = (v === undefined || v === null) ? '' : v; };
         set('edit-descricao', p.descricao); set('edit-categoria', p.categoria); set('edit-tamanho', p.tamanho); set('edit-cor', p.cor);
+        carregarOpcoesProduto(function() { montarTodosCombos('edit-'); });
         set('edit-custo', p.custo !== '' && p.custo !== undefined && p.custo !== null ? Number(p.custo).toFixed(2).replace('.', ',') : '');
         set('edit-preco', p.preco !== '' && p.preco !== undefined && p.preco !== null ? Number(p.preco).toFixed(2).replace('.', ',') : '');
         set('edit-familia', p.familia); document.getElementById('edit-ocultar').checked = !!p.ocultar;
@@ -2192,6 +2238,7 @@
     function enviarEdicaoProduto(e) {
       e.preventDefault();
       if (edicaoEmProcessamento) return;
+      if (!document.getElementById('edit-categoria').value.trim() || !document.getElementById('edit-tamanho').value.trim() || !document.getElementById('edit-cor').value.trim()) { alert('Escolha categoria, tamanho e cor (ou "Outro" e escreva).'); return; }
       const arq = document.getElementById('edit-foto');
       const temFoto = arq && arq.files.length > 0;
       if (temFoto && navigator.onLine === false) { alert('Para trocar a foto é preciso ter internet. Salve sem foto ou tente de novo com sinal.'); return; }
@@ -2207,12 +2254,12 @@
           tamanho: document.getElementById('edit-tamanho').value, cor: document.getElementById('edit-cor').value,
           custo: document.getElementById('edit-custo').value, preco: document.getElementById('edit-preco').value,
           familia: document.getElementById('edit-familia').value, ocultar: document.getElementById('edit-ocultar').checked ? 'Sim' : 'Não',
-          foto: urlFoto || '', fotoModo: modoOrig ? 'original' : 'ia', usuaria: window.usuariaAtual
+          foto: urlFoto || '', fotoModo: modoOrig ? 'original' : 'ia', aplicarMesmaCor: !!document.getElementById('edit-foto-mesma-cor').checked, usuaria: window.usuariaAtual
         };
         google.script.run.withSuccessHandler(function(res) {
           edicaoEmProcessamento = false;
           restaurarBotao('btn-salvar-edicao', 'aviso-salvando-edit');
-          listaProdutosCarregada = false; catalogoCarregado = false; marketingCarregado = false;
+          listaProdutosCarregada = false; catalogoCarregado = false; marketingCarregado = false; lembrarOpcoesNovas(dados);
           if (urlFoto && !modoOrig) { try { google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).gerarFotoIAProdutos({ ids: [edicaoProdutoId] }); } catch (x) {} }
           alert('✅ Peça atualizada!');
           irPara('tela-consultar-produto');
