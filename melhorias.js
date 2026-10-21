@@ -173,6 +173,8 @@
   // ---------- 3b) tela "Editar produto" lê os dados da peça (leitura GET) ----------
   try {
     if (typeof ACOES_GET === 'object' && ACOES_GET.indexOf('buscarProdutoParaEdicao') < 0) ACOES_GET.push('buscarProdutoParaEdicao');
+    if (typeof ACOES_GET === 'object' && ACOES_GET.indexOf('buscarClientePorTelefone') < 0) ACOES_GET.push('buscarClientePorTelefone');
+    if (typeof PARAM_NOME_GET === 'object' && !PARAM_NOME_GET.buscarClientePorTelefone) PARAM_NOME_GET.buscarClientePorTelefone = 'telefone';
     if (typeof PARAM_NOME_GET === 'object' && !PARAM_NOME_GET.buscarProdutoParaEdicao) PARAM_NOME_GET.buscarProdutoParaEdicao = 'idProduto';
   } catch (e) {}
 
